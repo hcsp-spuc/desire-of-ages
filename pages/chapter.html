@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loading… — The Desire of Ages</title>
+  <link rel="stylesheet" href="../assets/css/shared.css" />
+  <style>
+    html, body { height: 100%; overflow: hidden; background-color: var(--bg); color: var(--text); font-family: 'Lora', Georgia, serif; }
+    .page-shell { display: flex; flex-direction: column; height: 100vh; }
+
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 24px 96px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .topbar-logo { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--accent); text-decoration: none; }
+    .topbar-logo span { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700; color: #fff; letter-spacing: .5px; }
+    .back-link { display: flex; align-items: center; gap: 6px; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color .2s; }
+    .back-link::before { content: '←'; font-size: 1rem; }
+    .back-link:hover { color: var(--accent); }
+    .font-size-controls { display: flex; align-items: center; gap: 4px; }
+    .font-size-controls button { background: transparent; border: 1.5px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; font-family: 'Lora', Georgia, serif; padding: 4px 10px; transition: border-color .2s, color .2s; line-height: 1; }
+    .font-size-controls button:hover { border-color: var(--accent); color: var(--accent); }
+    .font-size-controls .fs-small { font-size: .75rem; }
+    .font-size-controls .fs-large { font-size: 1rem; }
+
+    .main-layout { display: grid; grid-template-columns: 55% 45%; flex: 1; overflow: hidden; gap: 40px; width: 100%; padding: 40px 56px; }
+    .main-layout.no-image { grid-template-columns: 1fr; }
+    .main-layout.no-image .right-col { display: none; }
+
+    .left-col { display: flex; flex-direction: column; gap: 20px; overflow: hidden; }
+
+    .chapter-heading { flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
+    .chapter-num { font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+    .chapter-title { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 3.5vw, 3rem); font-style: italic; font-weight: 400; color: var(--accent); display: inline-block; position: relative; padding: 8px 20px; align-self: flex-start; }
+    .chapter-title::before { content: ''; position: absolute; inset: -8px -18px; border: 1.5px solid var(--accent); border-radius: 50% 48% 52% 50% / 55% 50% 50% 45%; pointer-events: none; }
+    .chapter-divider { width: 48px; height: 1px; background: var(--border); margin-top: 4px; }
+
+    .reader { flex: 1; overflow-y: auto; }
+    .reader::-webkit-scrollbar { display: none; }
+
+    .text-page { display: none; flex-direction: column; gap: 24px; }
+    .text-page.active { display: flex; }
+    .text-page p { font-size: var(--reading-font-size, 1.05rem); line-height: 1.95; color: var(--text); text-indent: 2em; }
+    .text-page p:first-child { text-indent: 0; }
+
+    .nav-bar { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; padding-top: 16px; border-top: 1px solid var(--border); }
+    .nav-btn { display: flex; align-items: center; gap: 8px; padding: 10px 28px; font-family: 'Lora', Georgia, serif; font-size: .88rem; color: var(--accent); background: transparent; border: 1.5px solid var(--accent); border-radius: 40px; cursor: pointer; letter-spacing: .04em; transition: background .2s, color .2s; }
+    .nav-btn:hover { background: var(--accent); color: #fff; }
+    .nav-btn:disabled { opacity: .25; cursor: default; pointer-events: none; }
+    .page-indicator { font-size: .8rem; color: var(--muted); letter-spacing: .06em; }
+
+    .quiz-block { background: rgba(139,74,47,.05); border: 1.5px solid var(--border); border-radius: 12px; padding: 28px 32px; display: flex; flex-direction: column; gap: 20px; }
+    .quiz-label { font-size: .72rem; font-family: 'Lora', Georgia, serif; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+    .quiz-question { font-size: var(--reading-font-size, .98rem); line-height: 1.8; color: var(--text); font-style: italic; text-indent: 0 !important; }
+    .quiz-choices { display: flex; gap: 12px; flex-wrap: wrap; }
+    .choice-btn { padding: 10px 24px; font-family: 'Lora', Georgia, serif; font-size: .88rem; color: var(--accent); background: transparent; border: 1.5px solid var(--accent); border-radius: 40px; cursor: pointer; letter-spacing: .04em; transition: background .2s, color .2s; }
+    .choice-btn:hover:not(:disabled) { background: var(--accent); color: #fff; }
+    .choice-btn:disabled { cursor: default; opacity: .5; }
+    .choice-btn.correct { background: #3a7d44; border-color: #3a7d44; color: #fff; opacity: 1; }
+    .choice-btn.wrong   { background: #b94040; border-color: #b94040; color: #fff; opacity: 1; }
+    .quiz-feedback { font-size: .92rem; font-style: italic; line-height: 1.6; min-height: 20px; }
+    .quiz-feedback.correct { color: #3a7d44; }
+    .quiz-feedback.wrong   { color: #b94040; }
+
+    .right-col { display: flex; justify-content: center; align-items: stretch; }
+    .arch-wrap { width: 100%; border-radius: 16px; overflow: hidden; }
+    .arch-wrap img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+
+    .complete-btn { margin-top: 24px; padding: 12px 32px; background: var(--accent); color: #fff; border: none; border-radius: 40px; font-family: 'Lora', Georgia, serif; font-size: .9rem; letter-spacing: .04em; cursor: pointer; transition: opacity .2s; display: inline-block; }
+    .complete-btn:hover { opacity: .85; }
+
+    .no-content-msg { color: var(--muted); font-style: italic; font-size: 1rem; line-height: 1.8; padding: 20px 0; }
+    .loading-spinner { display: flex; align-items: center; gap: 10px; padding: 32px 0; color: var(--muted); font-family: 'Lora', Georgia, serif; font-size: .9rem; font-style: italic; }
+    .loading-spinner::before { content: ''; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="page-shell">
+
+  <nav class="topbar">
+    <a class="topbar-logo" href="../index.html"><span>DA</span></a>
+    <div class="font-size-controls">
+      <button class="fs-small" onclick="adjustFontSize(-1)" title="Smaller text">A−</button>
+      <button class="fs-large" onclick="adjustFontSize(1)" title="Larger text">A+</button>
+    </div>
+    <a class="back-link" href="../index.html">Back to Contents</a>
+  </nav>
+
+  <div class="main-layout" id="main-layout">
+    <div class="left-col">
+      <div class="chapter-heading">
+        <span class="chapter-num" id="ch-num-lbl">Loading…</span>
+        <h1 class="chapter-title" id="ch-title-lbl">&nbsp;</h1>
+        <div class="chapter-divider"></div>
+      </div>
+      <div class="reader" id="reader"></div>
+      <div class="nav-bar">
+        <button class="nav-btn" id="prevBtn" onclick="changePage(-1)" disabled>← Previous</button>
+        <span class="page-indicator" id="pageInd">— of —</span>
+        <button class="nav-btn" id="nextBtn" onclick="changePage(1)" disabled>Next →</button>
+      </div>
+    </div>
+    <div class="right-col" id="right-col">
+      <div class="arch-wrap">
+        <img id="ch-img" src="" alt="" />
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyCZMh4KUoXtSgCP3xCQ7atA8cJ7CQOGgfU",
+  authDomain: "desire-of-ages-treasury.firebaseapp.com",
+  projectId: "desire-of-ages-treasury",
+  storageBucket: "desire-of-ages-treasury.firebasestorage.app",
+  messagingSenderId: "472087552829",
+  appId: "1:472087552829:web:9fafa1c0c6af4bce4a9b54"
+});
+const db = firebase.firestore();
+
+const DEFAULTS = [
+  {id:'preface',n:0,  t:'Preface'},
+  {id:'ch-1',  n:1,  t:'"God With Us"'},
+  {id:'ch-2',  n:2,  t:'The Chosen People'},
+  {id:'ch-3',  n:3,  t:'"The Fullness of the Time"'},
+  {id:'ch-4',  n:4,  t:'Unto You a Saviour'},
+  {id:'ch-5',  n:5,  t:'The Dedication'},
+  {id:'ch-6',  n:6,  t:'"We Have Seen His Star"'},
+  {id:'ch-7',  n:7,  t:'As a Child'},
+  {id:'ch-8',  n:8,  t:'The Passover Visit'},
+  {id:'ch-9',  n:9,  t:'Days of Conflict'},
+  {id:'ch-10', n:10, t:'A Voice in the Wilderness'},
+  {id:'ch-11', n:11, t:'The Baptism'},
+  {id:'ch-12', n:12, t:'The Temptation'},
+  {id:'ch-13', n:13, t:'The Victory'},
+  {id:'ch-14', n:14, t:'"We Have Found the Messiah"'},
+  {id:'ch-15', n:15, t:'At the Marriage Feast'},
+  {id:'ch-16', n:16, t:'In His Temple'},
+  {id:'ch-17', n:17, t:'Nicodemus'},
+  {id:'ch-18', n:18, t:'"He Must Increase"'},
+  {id:'ch-19', n:19, t:"At Jacob's Well"},
+  {id:'ch-20', n:20, t:'"Except Ye See Signs and Wonders"'},
+  {id:'ch-21', n:21, t:'Bethesda and the Sabbath'},
+  {id:'ch-22', n:22, t:'Imprisonment and Death of John'},
+  {id:'ch-23', n:23, t:'"The Kingdom of God Is at Hand"'},
+  {id:'ch-24', n:24, t:"\"Is Not This the Carpenter's Son?\""},
+  {id:'ch-25', n:25, t:'The Call by the Sea'},
+  {id:'ch-26', n:26, t:'At Capernaum'},
+  {id:'ch-27', n:27, t:'"Thou Canst Make Me Clean"'},
+  {id:'ch-28', n:28, t:'Levi-Matthew'},
+  {id:'ch-29', n:29, t:'The Sabbath'},
+  {id:'ch-30', n:30, t:'"He Ordained Twelve"'},
+  {id:'ch-31', n:31, t:'The Sermon on the Mount'},
+  {id:'ch-32', n:32, t:'The Centurion'},
+  {id:'ch-33', n:33, t:'"Who Are My Brethren?"'},
+  {id:'ch-34', n:34, t:'The Invitation'},
+  {id:'ch-35', n:35, t:'"Peace, Be Still"'},
+  {id:'ch-36', n:36, t:'The Touch of Faith'},
+  {id:'ch-37', n:37, t:'The First Evangelists'},
+  {id:'ch-38', n:38, t:'Come Rest Awhile'},
+  {id:'ch-39', n:39, t:'"Give Ye Them to Eat"'},
+  {id:'ch-40', n:40, t:'A Night on the Lake'},
+  {id:'ch-41', n:41, t:'The Crisis in Galilee'},
+  {id:'ch-42', n:42, t:'Tradition'},
+  {id:'ch-43', n:43, t:'The Barriers Broken Down'},
+  {id:'ch-44', n:44, t:'The True Sign'},
+  {id:'ch-45', n:45, t:'The Foreshadowing of the Cross'},
+  {id:'ch-46', n:46, t:'"Who Are Ye Transfigured"'},
+  {id:'ch-47', n:47, t:'Mystery'},
+  {id:'ch-48', n:48, t:'"Who Is the Greatest?"'},
+  {id:'ch-49', n:49, t:'At the Feast of Tabernacles'},
+  {id:'ch-50', n:50, t:'Among Snares'},
+  {id:'ch-51', n:51, t:'The Light of Life'},
+  {id:'ch-52', n:52, t:'The Divine Shepherd'},
+  {id:'ch-53', n:53, t:'The Last Journey From Galilee'},
+  {id:'ch-54', n:54, t:'The Good Samaritan'},
+  {id:'ch-55', n:55, t:'Not With Outward Show'},
+  {id:'ch-56', n:56, t:'Blessing the Children'},
+  {id:'ch-57', n:57, t:'"One Thing Thou Lackest"'},
+  {id:'ch-58', n:58, t:'Lazarus, Come Forth!'},
+  {id:'ch-59', n:59, t:'Priestly Plottings'},
+  {id:'ch-60', n:60, t:'The Law of the New Kingdom'},
+  {id:'ch-61', n:61, t:'Zacchaeus'},
+  {id:'ch-62', n:62, t:"The Feast at Simon's House"},
+  {id:'ch-63', n:63, t:'"Thy King Cometh"'},
+  {id:'ch-64', n:64, t:'A Doomed People'},
+  {id:'ch-65', n:65, t:'The Temple Cleansed Again'},
+  {id:'ch-66', n:66, t:'Controversy'},
+  {id:'ch-67', n:67, t:'Woes on the Pharisees'},
+  {id:'ch-68', n:68, t:'In the Quiet Court'},
+  {id:'ch-69', n:69, t:'On the Mount of Olives'},
+  {id:'ch-70', n:70, t:'"The Least of These My Brethren"'},
+  {id:'ch-71', n:71, t:'A Servant of Servants'},
+  {id:'ch-72', n:72, t:'In Remembrance of Me'},
+  {id:'ch-73', n:73, t:'"Let Not Your Heart Be Troubled"'},
+  {id:'ch-74', n:74, t:'Gethsemane'},
+  {id:'ch-75', n:75, t:'Before Annas and the Court of Caiaphas'},
+  {id:'ch-76', n:76, t:'Judas'},
+  {id:'ch-77', n:77, t:"In Pilate's Judgment Hall"},
+  {id:'ch-78', n:78, t:'Calvary'},
+  {id:'ch-79', n:79, t:'"It Is Finished"'},
+  {id:'ch-80', n:80, t:"In Joseph's Tomb"},
+  {id:'ch-81', n:81, t:'"The Lord Is Risen"'},
+  {id:'ch-82', n:82, t:'"Why Weepest Thou?"'},
+  {id:'ch-83', n:83, t:'The Walk to Emmaus'},
+  {id:'ch-84', n:84, t:'"Peace Be Unto You"'},
+  {id:'ch-85', n:85, t:'"He Is Seen Once More"'},
+  {id:'ch-86', n:86, t:'Go Teach All Nations'},
+  {id:'ch-87', n:87, t:'"To My Father and Your Father"'},
+];
+
+const urlParams = new URLSearchParams(location.search);
+const chId = urlParams.get('id') || 'ch-2';
+const chMeta = DEFAULTS.find(c => c.id === chId) || { id: chId, n: 0, t: 'Chapter' };
+
+let _pages   = [];
+let _current = 0;
+
+async function init() {
+  const pad2 = n => String(n).padStart(2, '0');
+  const numLabel = chMeta.n === 0 ? 'Preface' : 'Chapter ' + pad2(chMeta.n);
+  document.title = chMeta.t + ' — The Desire of Ages';
+  document.getElementById('ch-num-lbl').textContent  = numLabel;
+  document.getElementById('ch-title-lbl').textContent = chMeta.t;
+
+  // Show spinner while Firebase loads
+  document.getElementById('reader').innerHTML = '<div class="loading-spinner">Loading chapter…</div>';
+
+  let data = { ...chMeta };
+  try {
+    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000));
+    const snap = await Promise.race([db.collection('chExtras').doc(chId).get(), timeout]);
+    if (snap.exists) Object.assign(data, snap.data());
+  } catch(e) { console.warn('Firebase unavailable or timed out', e); }
+
+  const firstImg = data.images && data.images[0] && data.images[0].url;
+  if (firstImg) {
+    document.getElementById('ch-img').src = firstImg;
+    document.getElementById('main-layout').classList.remove('no-image');
+  } else {
+    document.getElementById('main-layout').classList.add('no-image');
+  }
+
+  document.getElementById('reader').innerHTML = '';
+  buildAndRender(data);
+}
+
+function parseContent(text) {
+  if (!text || !text.trim()) return [];
+  text = text.trim();
+  if (/<[a-z]/i.test(text)) {
+    const div = document.createElement('div');
+    div.innerHTML = text;
+    const ps = div.querySelectorAll('p');
+    return ps.length ? Array.from(ps).map(p => p.outerHTML) : ['<p>' + text + '</p>'];
+  }
+  return text.split(/\n{2,}/).filter(s => s.trim())
+             .map(s => '<p>' + s.trim().replace(/\n/g, '<br>') + '</p>');
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function buildAndRender(data) {
+  const pages = [];
+
+  function addTextPages(text) {
+    const paras = parseContent(text);
+    for (let i = 0; i < paras.length; i += 2) {
+      pages.push({ type: 'text', html: paras.slice(i, i + 2).join('') });
+    }
+  }
+
+  addTextPages(data.content);
+
+  if (data.quiz && data.quiz[0]) {
+    pages.push({ type: 'quiz', quiz: data.quiz[0], qi: 0 });
+  }
+
+  addTextPages(data.content2);
+
+  if (data.quiz && data.quiz[1]) {
+    pages.push({ type: 'quiz', quiz: data.quiz[1], qi: 1 });
+  }
+
+  if (!pages.length) {
+    pages.push({
+      type: 'text',
+      html: '<p class="no-content-msg">Content for this chapter has not been added yet. The admin will update it soon.</p>'
+    });
+  }
+
+  _pages = pages;
+  renderReader();
+  showPage(0);
+}
+
+function renderReader() {
+  const reader = document.getElementById('reader');
+  reader.innerHTML = '';
+  _pages.forEach((page, i) => {
+    const div = document.createElement('div');
+    div.className = 'text-page' + (i === 0 ? ' active' : '');
+    div.id = 'pg-' + i;
+    if (page.type === 'text') {
+      div.innerHTML = page.html;
+    } else {
+      div.innerHTML = buildQuizHTML(page.quiz, page.qi);
+    }
+    reader.appendChild(div);
+  });
+}
+
+function buildQuizHTML(quiz, qi) {
+  const choices = (quiz.options || []).map((opt, i) => {
+    const lbl = quiz.type === 'mc'
+      ? '<strong style="margin-right:5px">' + String.fromCharCode(65 + i) + '.</strong>'
+      : '';
+    return `<button class="choice-btn" onclick="handleAnswer(this,${i === (quiz.correct || 0)},${qi})">${lbl}${esc(opt)}</button>`;
+  }).join('');
+
+  return `<div class="quiz-block">
+    <span class="quiz-label">Discussion Question</span>
+    <p class="quiz-question">${esc(quiz.question)}</p>
+    <div class="quiz-choices">${choices}</div>
+    <div class="quiz-feedback" id="qfb-${qi}"></div>
+  </div>`;
+}
+
+function handleAnswer(btn, isCorrect, qi) {
+  const btns     = btn.closest('.quiz-choices').querySelectorAll('.choice-btn');
+  const feedback = document.getElementById('qfb-' + qi);
+  const quiz     = _pages.find(p => p.type === 'quiz' && p.qi === qi)?.quiz;
+
+  btns.forEach(b => b.disabled = true);
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    feedback.className = 'quiz-feedback correct';
+    feedback.textContent = '✓ Correct! ' + (quiz?.explanation_correct || '');
+  } else {
+    btn.classList.add('wrong');
+    if (quiz?.correct != null) btns[quiz.correct].classList.add('correct');
+    feedback.className = 'quiz-feedback wrong';
+    feedback.textContent = '✗ Incorrect. ' + (quiz?.explanation_wrong || '');
+  }
+
+  if (_current === _pages.length - 1) showCompleteBtn(document.getElementById('pg-' + _current));
+  updateNav();
+}
+
+function hasUnansweredQuiz(idx) {
+  if (!_pages[idx] || _pages[idx].type !== 'quiz') return false;
+  const el = document.getElementById('pg-' + idx);
+  return el && !el.querySelector('.choice-btn.correct, .choice-btn.wrong');
+}
+
+function showPage(idx) {
+  document.querySelectorAll('.text-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('pg-' + idx).classList.add('active');
+  _current = idx;
+  updateNav();
+}
+
+function changePage(dir) {
+  if (dir > 0 && hasUnansweredQuiz(_current)) {
+    alert('Please answer the discussion question before continuing.');
+    return;
+  }
+  showPage(_current + dir);
+}
+
+function showCompleteBtn(container) {
+  if (container.querySelector('.complete-btn')) return;
+  const btn = document.createElement('button');
+  btn.className = 'complete-btn';
+  btn.textContent = 'Complete Chapter →';
+  btn.onclick = finishChapter;
+  container.appendChild(btn);
+}
+
+function updateNav() {
+  const prev    = document.getElementById('prevBtn');
+  const next    = document.getElementById('nextBtn');
+  const ind     = document.getElementById('pageInd');
+  const isLast  = _current === _pages.length - 1;
+
+  prev.disabled = _current === 0;
+  ind.textContent = (_current + 1) + ' of ' + _pages.length;
+
+  if (isLast) {
+    next.textContent = 'Complete Chapter →';
+    next.disabled = hasUnansweredQuiz(_current);
+    next.onclick = finishChapter;
+  } else {
+    next.textContent = 'Next →';
+    next.disabled = hasUnansweredQuiz(_current);
+    next.onclick = function() { changePage(1); };
+  }
+}
+
+function finishChapter() {
+  const pad2 = n => String(n).padStart(2, '0');
+  const key  = chMeta.n === 0 ? 'preface_complete' : 'chapter_' + pad2(chMeta.n) + '_complete';
+  localStorage.setItem(key, '1');
+
+  // Save in the format index.html's isDone() reads (doa_anon_progress)
+  try {
+    var anon = JSON.parse(localStorage.getItem('doa_anon_progress') || '{}');
+    anon[chId] = true;
+    localStorage.setItem('doa_anon_progress', JSON.stringify(anon));
+  } catch(e) {}
+
+  const uid = localStorage.getItem('doa_current_user_id');
+  if (uid) {
+    const upd = {};
+    upd['progress.' + chId + '.read'] = true;
+    upd['lastActive'] = new Date().toISOString().split('T')[0];
+    db.collection('users').doc(uid).update(upd).catch(() => {});
+  }
+
+  var nextN = chMeta.n + 1;
+  if (nextN >= 1 && nextN <= 87) {
+    sessionStorage.setItem('doa_just_unlocked', 'ch-' + nextN);
+  }
+  window.location.href = '../index.html';
+}
+
+const FONT_SIZES = [0.85, 0.95, 1.05, 1.15, 1.25, 1.35];
+const DEFAULT_FONT_IDX = 2;
+
+function applyFontSize(idx) {
+  document.documentElement.style.setProperty('--reading-font-size', FONT_SIZES[idx] + 'rem');
+}
+
+function adjustFontSize(dir) {
+  let idx = parseInt(localStorage.getItem('doa_font_size_idx') ?? DEFAULT_FONT_IDX, 10);
+  idx = Math.max(0, Math.min(FONT_SIZES.length - 1, idx + dir));
+  localStorage.setItem('doa_font_size_idx', idx);
+  applyFontSize(idx);
+}
+
+(function initFontSize() {
+  const saved = localStorage.getItem('doa_font_size_idx');
+  if (saved !== null) applyFontSize(parseInt(saved, 10));
+})();
+
+init();
+</script>
+</body>
+</html>

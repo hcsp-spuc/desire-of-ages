@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Desire of Ages</title>
+  <link rel="stylesheet" href="assets/css/shared.css" />
+  <style>
+    /* ── Base ── */
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Lora', Georgia, serif;
+      min-height: 100vh;
+    }
+
+    /* ── Header / Hero ── */
+    header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 24px 56px;
+      text-align: center;
+    }
+
+    .badge {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background-color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 48px;
+      flex-shrink: 0;
+    }
+
+    .badge span {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 400;
+      line-height: 1.15;
+      max-width: 720px;
+    }
+
+    .hero-title em {
+      font-style: italic;
+    }
+
+    .hero-title .outlined {
+      display: inline-block;
+      position: relative;
+    }
+
+    .hero-title .outlined::after {
+      content: '';
+      position: absolute;
+      inset: -6px -14px;
+      border: 1.5px solid var(--text);
+      border-radius: 50% 48% 52% 50% / 55% 50% 50% 45%;
+      pointer-events: none;
+    }
+
+    .hero-subtitle {
+      margin-top: 28px;
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 480px;
+    }
+
+    .read-link {
+      display: inline-block;
+      margin-top: 36px;
+      font-size: 1.05rem;
+      font-style: italic;
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    .read-link:hover {
+      border-bottom-color: var(--accent);
+    }
+
+    /* ── Divider ── */
+    .divider {
+      width: 48px;
+      height: 1px;
+      background: var(--border);
+      margin: 0 auto 56px;
+    }
+
+    /* ── Main ── */
+    main {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ── Breadcrumb ── */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 40px;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .breadcrumb a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--accent);
+    }
+
+    .breadcrumb .sep {
+      opacity: 0.4;
+    }
+
+    .breadcrumb .current {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      margin-bottom: 36px;
+      font-size: 0.82rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── Chapter list ── */
+    .chapter-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chapter-item {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: padding-left 0.2s ease;
+    }
+
+    .chapter-item:first-child {
+      border-top: 1px solid var(--border);
+    }
+
+    .chapter-item:hover {
+      padding-left: 10px;
+    }
+
+    .chapter-label {
+      flex: 1;
+      font-size: 1.15rem;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .chapter-num {
+      min-width: 28px;
+      font-size: 0.95rem;
+      font-style: italic;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    /* Preface entry overrides */
+    .chapter-item--preface .chapter-label {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .chapter-item--preface .chapter-num {
+      color: var(--accent);
+    }
+
+    /* Locked chapter */
+    .chapter-item.locked {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+
+    .chapter-item.locked:hover {
+      padding-left: 0;
+    }
+
+    .lock-icon {
+      font-size: 0.85rem;
+      color: var(--border);
+      flex-shrink: 0;
+    }
+
+    /* ── Unlock animation ── */
+    @keyframes lockPop {
+      0%   { transform: scale(1) rotate(0deg);   opacity: 1; }
+      35%  { transform: scale(1.6) rotate(-18deg); opacity: 0.7; }
+      65%  { transform: scale(0.7) rotate(12deg);  opacity: 0.3; }
+      100% { transform: scale(0) rotate(25deg);    opacity: 0; }
+    }
+    @keyframes shimmerSweep {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(300%); }
+    }
+    @keyframes rowPop {
+      0%   { transform: scaleX(1); }
+      40%  { transform: scaleX(1.012); }
+      100% { transform: scaleX(1); }
+    }
+    @keyframes floatUp {
+      0%   { opacity: 0;   transform: translateX(-50%) translateY(4px);  }
+      18%  { opacity: 1;   transform: translateX(-50%) translateY(-6px);  }
+      75%  { opacity: 1;   transform: translateX(-50%) translateY(-18px); }
+      100% { opacity: 0;   transform: translateX(-50%) translateY(-30px); }
+    }
+    .lock-icon.popping {
+      display: inline-block;
+      animation: lockPop 0.55s cubic-bezier(.4,0,.2,1) forwards;
+    }
+    .chapter-item.unlock-sweep {
+      animation: rowPop 0.5s ease;
+      overflow: hidden;
+      position: relative;
+    }
+    .chapter-item.unlock-sweep::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      width: 60%;
+      background: linear-gradient(90deg, transparent, rgba(139,74,47,0.14), transparent);
+      animation: shimmerSweep 0.65s ease forwards;
+      pointer-events: none;
+    }
+    .unlock-float {
+      position: fixed;
+      font-family: 'Lora', serif;
+      font-size: 0.75rem;
+      font-style: italic;
+      letter-spacing: .06em;
+      color: var(--accent);
+      background: var(--bg);
+      border: 1px solid rgba(139,74,47,.35);
+      border-radius: 99px;
+      padding: 4px 14px;
+      pointer-events: none;
+      z-index: 9999;
+      white-space: nowrap;
+      transform: translateX(-50%);
+      animation: floatUp 1.9s ease forwards;
+    }
+
+    /* ── User bar ── */
+    .user-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 48px; background: var(--bg); border-bottom: 1px solid var(--border);
+    }
+    .user-pill { display: flex; align-items: center; gap: 9px; }
+    .user-avatar {
+      width: 26px; height: 26px; border-radius: 50%; background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .user-name { font-size: 0.82rem; color: var(--text); }
+    .user-actions { display: flex; gap: 18px; align-items: center; }
+    .user-action {
+      font-size: 0.75rem; letter-spacing: .05em; color: var(--muted);
+      text-decoration: none; background: none; border: none; cursor: pointer;
+      font-family: 'Lora', serif; transition: color .2s;
+    }
+    .user-action:hover { color: var(--accent); }
+
+    /* ── Progress banner ── */
+    .progress-banner { max-width: 780px; margin: 0 auto 28px; padding: 0 24px; }
+    .progress-top { display: flex; justify-content: space-between; margin-bottom: 7px; }
+    .progress-title { font-size: 0.72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .progress-label { font-size: 0.75rem; color: var(--muted); }
+    .progress-track { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width .5s; width: 0%; }
+
+    /* ── Chapter content modal ── */
+    #ch-modal { position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center; }
+    #ch-modal.hidden { display: none; }
+    .ch-modal-bd { position: absolute; inset: 0; background: rgba(0,0,0,.48); }
+    .ch-modal-box {
+      position: relative; background: #fff; border-radius: 12px;
+      width: 700px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,.22);
+    }
+    .ch-modal-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 26px; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: #fff; z-index: 1;
+    }
+    .ch-modal-head h2 { font-family: 'Playfair Display', serif; font-size: 1.15rem; }
+    .ch-modal-x { background: none; border: none; font-size: 1.35rem; color: var(--muted); cursor: pointer; padding: 2px 7px; }
+    .ch-modal-x:hover { color: var(--text); }
+    .ch-modal-body { padding: 26px 30px; }
+    .ch-modal-body p { line-height: 1.9; margin-bottom: 20px; font-size: 0.97rem; }
+    .ch-modal-img { margin: 20px 0; }
+    .ch-modal-img img { max-width: 100%; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+    .ch-modal-img figcaption { font-size: 0.77rem; color: var(--muted); font-style: italic; margin-top: 6px; text-align: center; }
+    .ch-modal-foot { padding: 16px 30px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
+    .btn-mark {
+      padding: 9px 22px; background: var(--accent); color: #fff; border: none;
+      border-radius: 8px; font-family: 'Lora', serif; font-size: 0.88rem; cursor: pointer; transition: opacity .2s;
+    }
+    .btn-mark:hover { opacity: .87; }
+    .btn-mark.done { background: #2e7d52; cursor: default; }
+
+    /* ── Registration overlay ── */
+    #register-overlay {
+      position: fixed; inset: 0; z-index: 400;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(242,237,229,.96);
+    }
+    #register-overlay.hidden { display: none; }
+    .reg-card {
+      width: 380px; background: #fff; border-radius: 14px;
+      padding: 44px 40px 36px; box-shadow: 0 8px 48px rgba(0,0,0,.14); text-align: center;
+    }
+    .reg-badge {
+      width: 50px; height: 50px; border-radius: 50%; background: var(--accent);
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+    }
+    .reg-badge span { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: #fff; }
+    .reg-card h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 6px; }
+    .reg-card > p { font-size: 0.83rem; color: var(--muted); margin-bottom: 26px; line-height: 1.65; }
+    .reg-input {
+      width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Lora', serif; font-size: 0.92rem; background: var(--bg);
+      color: var(--text); outline: none; margin-bottom: 11px; transition: border-color .2s;
+    }
+    .reg-input:focus { border-color: var(--accent); }
+    select.reg-input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6057' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; cursor: pointer; }
+    /* ── PIN boxes ── */
+    .pin-label {
+      font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px; text-align: center;
+      font-family: 'Lora', serif;
+    }
+    .pin-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 11px; }
+    .pin-box {
+      width: 52px; height: 56px; border: 1.5px solid var(--border); border-radius: 10px;
+      font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700;
+      text-align: center; background: var(--bg); color: var(--accent); outline: none;
+      transition: border-color .2s; letter-spacing: 0;
+    }
+    .pin-box:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139,74,47,0.1); }
+    .pin-error { font-size: 0.8rem; color: #b83232; text-align: center; min-height: 18px; margin-bottom: 6px; }
+
+    .reg-btn {
+      width: 100%; padding: 11px; background: var(--accent); color: #fff; border: none;
+      border-radius: 8px; font-family: 'Lora', serif; font-size: 0.95rem; cursor: pointer; transition: opacity .2s;
+    }
+    .reg-btn:hover { opacity: .88; }
+
+    /* ── Footer ── */
+    footer {
+      padding: 32px 24px;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      color: var(--border);
+      text-align: center;
+    }
+
+    /* ── Login bar ── */
+    #login-bar {
+      display: none;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 11px 48px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .login-btn {
+      font-family: 'Lora', serif;
+      font-size: 0.75rem;
+      letter-spacing: .05em;
+      color: var(--muted);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 14px;
+      cursor: pointer;
+      transition: color .2s, border-color .2s;
+    }
+    .login-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ── Login modal ── */
+    #login-modal {
+      position: fixed; inset: 0; z-index: 900;
+      background: rgba(0,0,0,.45);
+      display: none; align-items: center; justify-content: center;
+    }
+    #login-modal.open { display: flex; }
+    .lm-card {
+      background: var(--bg);
+      border-radius: 14px;
+      padding: 32px 28px 26px;
+      width: 100%; max-width: 340px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.18);
+    }
+    .lm-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      margin-bottom: 6px;
+    }
+    .lm-card p {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .lm-user {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px; border-radius: 8px; cursor: pointer;
+      border: 1px solid var(--border); margin-bottom: 9px;
+      transition: border-color .2s, background .2s;
+    }
+    .lm-user:hover { border-color: var(--accent); background: #f9f4ef; }
+    .lm-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif; font-size: 0.75rem; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .lm-name { font-size: 0.88rem; color: var(--text); }
+    .lm-search-input {
+      width: 100%; padding: 9px 13px; margin-bottom: 12px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Lora', serif; font-size: 0.88rem;
+      background: var(--bg); color: var(--text); outline: none;
+      transition: border-color .2s; box-sizing: border-box;
+    }
+    .lm-search-input:focus { border-color: var(--accent); }
+    .lm-cancel {
+      width: 100%; margin-top: 14px; padding: 9px;
+      background: none; border: none; cursor: pointer;
+      font-family: 'Lora', serif; font-size: 0.8rem;
+      color: var(--muted); transition: color .2s;
+    }
+    .lm-cancel:hover { color: var(--accent); }
+
+    /* ── Org banner ── */
+    .org-banner {
+      background-color: var(--accent);
+      color: #fff;
+      text-align: center;
+      padding: 10px 20px;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.85rem;
+      font-style: normal;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ── Daily Word teaser ── */
+    .daily-teaser {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 28px;
+      padding: 12px 22px;
+      background: rgba(139,74,47,0.07);
+      border: 1.5px solid rgba(139,74,47,0.18);
+      border-radius: 40px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      font-family: 'Lora', Georgia, serif;
+      font-size: 0.88rem;
+      color: var(--accent);
+      font-style: italic;
+      letter-spacing: 0.02em;
+    }
+    .daily-teaser:hover { background: rgba(139,74,47,0.13); border-color: rgba(139,74,47,0.35); }
+    .daily-teaser-icon { font-size: 1rem; flex-shrink: 0; }
+
+    /* ── Daily Word modal ── */
+    #daily-modal {
+      position: fixed; inset: 0; z-index: 500;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(26,18,12,0.45);
+      backdrop-filter: blur(6px);
+    }
+    #daily-modal.hidden { display: none; }
+    .daily-card {
+      width: 500px; max-width: 95vw;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(26,18,12,0.22);
+      position: relative;
+    }
+    .daily-card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 28px 18px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(139,74,47,0.06);
+    }
+    .daily-head-left { display: flex; align-items: center; gap: 11px; }
+    .daily-sparkle {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem; color: #fff; flex-shrink: 0;
+    }
+    .daily-label {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent);
+    }
+    .daily-date {
+      font-size: 0.78rem; color: var(--muted);
+      font-family: 'Lora', Georgia, serif; font-style: italic;
+    }
+    .daily-close {
+      background: none; border: none; color: var(--muted);
+      font-size: 1.5rem; cursor: pointer; line-height: 1; padding: 2px 6px;
+      transition: color 0.2s;
+    }
+    .daily-close:hover { color: var(--accent); }
+    .daily-card-body { padding: 30px 32px 24px; }
+    .daily-ref {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 14px;
+    }
+    .daily-verse {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.28rem; font-style: italic; font-weight: 400;
+      line-height: 1.7; color: var(--text); margin-bottom: 26px;
+      border-left: 3px solid var(--accent);
+      padding-left: 18px;
+    }
+    .daily-divider {
+      width: 40px; height: 1.5px;
+      background: var(--border);
+      margin-bottom: 20px;
+    }
+    .daily-reflection-label {
+      font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 10px;
+      font-family: 'Lora', Georgia, serif;
+    }
+    .daily-reflection {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 0.93rem; line-height: 1.85;
+      color: var(--muted);
+    }
+    .daily-card-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 32px 22px;
+      border-top: 1px solid var(--border);
+      background: rgba(139,74,47,0.04);
+    }
+    .daily-footer-text {
+      font-size: 0.72rem; color: var(--border);
+      font-family: 'Lora', Georgia, serif; font-style: italic;
+      color: var(--muted); opacity: 0.7;
+    }
+    .daily-new-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 9px 22px; border-radius: 40px;
+      border: 1.5px solid var(--accent);
+      background: transparent; color: var(--accent);
+      font-family: 'Lora', Georgia, serif; font-size: 0.83rem;
+      cursor: pointer; transition: background 0.2s, color 0.2s;
+    }
+    .daily-new-btn:hover { background: var(--accent); color: #fff; }
+
+    /* ── Welcome greeting ── */
+    .welcome-greeting {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 0;
+      text-align: center;
+    }
+    .welcome-label {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 0.82rem;
+      font-style: italic;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .welcome-name {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.9rem, 4vw, 2.8rem);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--accent);
+      letter-spacing: 0.01em;
+      line-height: 1.2;
+      position: relative;
+      padding-bottom: 12px;
+    }
+    .welcome-name::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 48px;
+      height: 1.5px;
+      background: var(--accent);
+      opacity: 0.4;
+      border-radius: 99px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Org banner -->
+  <div class="org-banner">SouthWestern Philippine Union Conference &nbsp;|&nbsp; Treasury Department</div>
+
+  <!-- Login bar (shown when accounts exist but no one is logged in) -->
+  <div id="login-bar">
+    <button class="login-btn" id="open-login-btn">Log in</button>
+  </div>
+
+  <!-- Login modal -->
+  <div id="login-modal">
+    <div class="lm-card">
+
+      <!-- Step 1: search -->
+      <div id="lm-step-search">
+        <h3>Welcome back</h3>
+        <p>Search for your name to continue on any device.</p>
+        <input type="text" id="lm-search" class="lm-search-input" placeholder="Type your name…" autocomplete="off" />
+        <div id="lm-user-list"></div>
+        <button class="lm-cancel" id="lm-cancel-btn">Cancel</button>
+      </div>
+
+      <!-- Step 2: PIN -->
+      <!-- Step 2: PIN entry -->
+      <div id="lm-step-pin" style="display:none; text-align:center">
+        <h3 id="lm-pin-greeting">Hello!</h3>
+        <p style="margin-bottom:22px">Enter your 4-digit PIN to continue.</p>
+        <p class="pin-label">Your PIN</p>
+        <div class="pin-row">
+          <input class="pin-box" type="tel" maxlength="1" id="lp1" />
+          <input class="pin-box" type="tel" maxlength="1" id="lp2" />
+          <input class="pin-box" type="tel" maxlength="1" id="lp3" />
+          <input class="pin-box" type="tel" maxlength="1" id="lp4" />
+        </div>
+        <div class="pin-error" id="lm-pin-error"></div>
+        <button class="lm-cancel" id="lm-forgot-btn" style="font-style:italic;color:var(--accent);margin-bottom:0">Forgot PIN?</button>
+        <button class="lm-cancel" id="lm-pin-back">← Back</button>
+      </div>
+
+      <!-- Step 3: Forgot PIN — email verify -->
+      <div id="lm-step-forgot" style="display:none; text-align:center">
+        <h3>Reset your PIN</h3>
+        <p style="margin-bottom:14px">Type the full email address linked to your account to verify your identity.</p>
+        <div id="lm-email-hint" style="display:none;margin-bottom:14px;padding:10px 16px;background:rgba(139,74,47,0.07);border:1.5px solid rgba(139,74,47,0.18);border-radius:8px;font-family:'Lora',serif;font-size:0.88rem;color:var(--muted)">
+          Email on file: <strong id="lm-masked-email" style="color:var(--accent);letter-spacing:0.04em"></strong>
+        </div>
+        <input type="email" id="lm-recovery-email" class="lm-search-input" placeholder="Your full email address…" autocomplete="email" />
+        <div class="pin-error" id="lm-forgot-error"></div>
+        <button class="reg-btn" id="lm-verify-btn" style="margin-bottom:10px">Verify Email →</button>
+        <button class="lm-cancel" id="lm-forgot-back">← Back</button>
+      </div>
+
+      <!-- Step 4: Set new PIN -->
+      <div id="lm-step-newpin" style="display:none; text-align:center">
+        <h3>Set a new PIN</h3>
+        <p style="margin-bottom:22px">Choose a new 4-digit PIN for your account.</p>
+        <p class="pin-label">New PIN</p>
+        <div class="pin-row">
+          <input class="pin-box" type="tel" maxlength="1" id="np1" />
+          <input class="pin-box" type="tel" maxlength="1" id="np2" />
+          <input class="pin-box" type="tel" maxlength="1" id="np3" />
+          <input class="pin-box" type="tel" maxlength="1" id="np4" />
+        </div>
+        <p class="pin-label">Confirm new PIN</p>
+        <div class="pin-row">
+          <input class="pin-box" type="tel" maxlength="1" id="nc1" />
+          <input class="pin-box" type="tel" maxlength="1" id="nc2" />
+          <input class="pin-box" type="tel" maxlength="1" id="nc3" />
+          <input class="pin-box" type="tel" maxlength="1" id="nc4" />
+        </div>
+        <div class="pin-error" id="lm-newpin-error"></div>
+        <button class="reg-btn" id="lm-save-newpin-btn" style="margin-bottom:10px">Save new PIN →</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Daily Word modal -->
+  <div id="daily-modal" class="hidden">
+    <div class="daily-card">
+      <div class="daily-card-head">
+        <div class="daily-head-left">
+          <div class="daily-sparkle">✦</div>
+          <span class="daily-label">Daily Inspiration</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <span class="daily-date" id="daily-date"></span>
+          <button class="daily-close" onclick="closeDailyWord()">×</button>
+        </div>
+      </div>
+      <div class="daily-card-body">
+        <div class="daily-ref" id="daily-ref"></div>
+        <div class="daily-verse" id="daily-verse"></div>
+        <div class="daily-divider"></div>
+        <div class="daily-reflection-label">Reflection</div>
+        <div class="daily-reflection" id="daily-reflection"></div>
+      </div>
+      <div class="daily-card-foot">
+        <span class="daily-footer-text">Seventh-day Adventist &middot; Daily Word</span>
+        <button class="daily-new-btn" onclick="loadNewVerse()">↻ &nbsp;New verse</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Registration overlay (shown on first visit) -->
+  <div id="register-overlay" class="hidden">
+    <div class="reg-card">
+      <div class="reg-badge"><span>DA</span></div>
+      <h2>Chapter 1 Complete!</h2>
+      <p>You've finished reading and answering Chapter 1. Create your reading profile to continue and track your progress through <em>The Desire of Ages</em>.</p>
+      <form id="reg-form">
+        <input class="reg-input" id="reg-name" type="text" placeholder="Your name" required maxlength="60" autocomplete="name" />
+        <input class="reg-input" id="reg-email" type="email" placeholder="Email (optional)" maxlength="120" autocomplete="email" />
+        <select class="reg-input" id="reg-institution" required>
+          <option value="" disabled selected>Select Institution</option>
+          <option value="SwPUC">SwPUC</option>
+          <option value="CMM">CMM</option>
+          <option value="NCMC">NCMC</option>
+          <option value="NEMM">NEMM</option>
+          <option value="WMC">WMC</option>
+          <option value="ZPM">ZPM</option>
+        </select>
+        <input class="reg-input" id="reg-position" type="text" placeholder="Position" required maxlength="80" />
+        <p class="pin-label" style="margin-top:6px">Create a 4-digit PIN</p>
+        <div class="pin-row">
+          <input class="pin-box" type="tel" maxlength="1" id="rp1" />
+          <input class="pin-box" type="tel" maxlength="1" id="rp2" />
+          <input class="pin-box" type="tel" maxlength="1" id="rp3" />
+          <input class="pin-box" type="tel" maxlength="1" id="rp4" />
+        </div>
+        <p class="pin-label">Confirm PIN</p>
+        <div class="pin-row">
+          <input class="pin-box" type="tel" maxlength="1" id="rc1" />
+          <input class="pin-box" type="tel" maxlength="1" id="rc2" />
+          <input class="pin-box" type="tel" maxlength="1" id="rc3" />
+          <input class="pin-box" type="tel" maxlength="1" id="rc4" />
+        </div>
+        <div class="pin-error" id="reg-pin-error"></div>
+        <button class="reg-btn" type="submit">Continue Reading →</button>
+      </form>
+      <p style="margin-top:18px;font-size:.8rem;color:var(--muted);">Already have an account? <a href="#" style="color:var(--accent);text-decoration:none;font-weight:600;" onclick="document.getElementById('register-overlay').classList.add('hidden');document.getElementById('login-modal').classList.add('open');setTimeout(function(){document.getElementById('lm-search').focus();},100);return false;">Log in</a></p>
+    </div>
+  </div>
+
+  <!-- User bar (hidden until registered) -->
+  <div id="user-bar" class="user-bar" style="display:none">
+    <div class="user-pill">
+      <div class="user-avatar" id="user-initials"></div>
+      <span class="user-name" id="user-name-display"></span>
+    </div>
+    <div class="user-actions">
+      <a class="user-action" href="admin.html">Admin</a>
+      <button class="user-action" id="switch-user-btn">Switch user</button>
+      <button class="user-action" id="logout-btn">Log out</button>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <header>
+    <div class="badge"><span>DA</span></div>
+
+    <p class="welcome-greeting" id="welcome-msg"></p>
+    <div class="daily-teaser hidden" id="daily-teaser" onclick="openDailyWord()">
+      <span class="daily-teaser-icon">✦</span>
+      God has a special message for you today — click to receive it
+    </div>
+
+    <h1 class="hero-title">
+      <em>The</em> <span class="outlined">Desire</span> of Ages
+    </h1>
+
+    <p class="hero-subtitle">
+      This profound work serves as a sacred vessel of divine truth, illuminating the narrow path of righteousness through the timeless wisdom of Scripture. It invites devout believers to surrender their hearts to the Almighty, deepening their walk of faith and drawing them closer to the eternal grace of our Lord Jesus Christ.
+    </p>
+
+    <a class="read-link" href="#chapters">Read now</a>
+  </header>
+
+  <div class="divider"></div>
+
+  <!-- Progress banner (shown when user is registered) -->
+  <div id="progress-banner" class="progress-banner" style="display:none">
+    <div class="progress-top">
+      <span class="progress-title">Your Progress</span>
+      <span class="progress-label" id="prog-label">0 / 88 chapters</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+
+  <!-- Table of contents -->
+  <main>
+
+
+    <p class="section-label">Table of Contents</p>
+
+    <ul class="chapter-list" id="chapters">
+
+      <li class="chapter-item chapter-item--preface" onclick="window.location.href='pages/preface.html'">
+        <span class="chapter-label">Preface</span>
+        <span class="chapter-num">→</span>
+      </li>
+
+      <li class="chapter-item" id="ch01" data-href="pages/chapter-01.html"><span class="chapter-label">"God With Us"</span><span class="lock-icon">🔒</span><span class="chapter-num">01</span></li>
+      <li class="chapter-item" id="ch02" data-href=""><span class="chapter-label">The Chosen People</span><span class="lock-icon">🔒</span><span class="chapter-num">02</span></li>
+      <li class="chapter-item" id="ch03" data-href=""><span class="chapter-label">"The Fullness of the Time"</span><span class="lock-icon">🔒</span><span class="chapter-num">03</span></li>
+      <li class="chapter-item" id="ch04" data-href=""><span class="chapter-label">Unto You a Saviour</span><span class="lock-icon">🔒</span><span class="chapter-num">04</span></li>
+      <li class="chapter-item" id="ch05" data-href=""><span class="chapter-label">The Dedication</span><span class="lock-icon">🔒</span><span class="chapter-num">05</span></li>
+      <li class="chapter-item" id="ch06" data-href=""><span class="chapter-label">"We Have Seen His Star"</span><span class="lock-icon">🔒</span><span class="chapter-num">06</span></li>
+      <li class="chapter-item" id="ch07" data-href=""><span class="chapter-label">As a Child</span><span class="lock-icon">🔒</span><span class="chapter-num">07</span></li>
+      <li class="chapter-item" id="ch08" data-href=""><span class="chapter-label">The Passover Visit</span><span class="lock-icon">🔒</span><span class="chapter-num">08</span></li>
+      <li class="chapter-item" id="ch09" data-href=""><span class="chapter-label">Days of Conflict</span><span class="lock-icon">🔒</span><span class="chapter-num">09</span></li>
+      <li class="chapter-item" id="ch10" data-href=""><span class="chapter-label">A Voice in the Wilderness</span><span class="lock-icon">🔒</span><span class="chapter-num">10</span></li>
+      <li class="chapter-item" id="ch11" data-href=""><span class="chapter-label">The Baptism</span><span class="lock-icon">🔒</span><span class="chapter-num">11</span></li>
+      <li class="chapter-item" id="ch12" data-href=""><span class="chapter-label">The Temptation</span><span class="lock-icon">🔒</span><span class="chapter-num">12</span></li>
+      <li class="chapter-item" id="ch13" data-href=""><span class="chapter-label">The Victory</span><span class="lock-icon">🔒</span><span class="chapter-num">13</span></li>
+      <li class="chapter-item" id="ch14" data-href=""><span class="chapter-label">"We Have Found the Messiah"</span><span class="lock-icon">🔒</span><span class="chapter-num">14</span></li>
+      <li class="chapter-item" id="ch15" data-href=""><span class="chapter-label">At the Marriage Feast</span><span class="lock-icon">🔒</span><span class="chapter-num">15</span></li>
+      <li class="chapter-item" id="ch16" data-href=""><span class="chapter-label">In His Temple</span><span class="lock-icon">🔒</span><span class="chapter-num">16</span></li>
+      <li class="chapter-item" id="ch17" data-href=""><span class="chapter-label">Nicodemus</span><span class="lock-icon">🔒</span><span class="chapter-num">17</span></li>
+      <li class="chapter-item" id="ch18" data-href=""><span class="chapter-label">"He Must Increase"</span><span class="lock-icon">🔒</span><span class="chapter-num">18</span></li>
+      <li class="chapter-item" id="ch19" data-href=""><span class="chapter-label">At Jacob's Well</span><span class="lock-icon">🔒</span><span class="chapter-num">19</span></li>
+      <li class="chapter-item" id="ch20" data-href=""><span class="chapter-label">"Except Ye See Signs and Wonders"</span><span class="lock-icon">🔒</span><span class="chapter-num">20</span></li>
+      <li class="chapter-item" id="ch21" data-href=""><span class="chapter-label">Bethesda and the Sabbath</span><span class="lock-icon">🔒</span><span class="chapter-num">21</span></li>
+      <li class="chapter-item" id="ch22" data-href=""><span class="chapter-label">Imprisonment and Death of John</span><span class="lock-icon">🔒</span><span class="chapter-num">22</span></li>
+      <li class="chapter-item" id="ch23" data-href=""><span class="chapter-label">"The Kingdom of God Is at Hand"</span><span class="lock-icon">🔒</span><span class="chapter-num">23</span></li>
+      <li class="chapter-item" id="ch24" data-href=""><span class="chapter-label">"Is Not This the Carpenter's Son?"</span><span class="lock-icon">🔒</span><span class="chapter-num">24</span></li>
+      <li class="chapter-item" id="ch25" data-href=""><span class="chapter-label">The Call by the Sea</span><span class="lock-icon">🔒</span><span class="chapter-num">25</span></li>
+      <li class="chapter-item" id="ch26" data-href=""><span class="chapter-label">At Capernaum</span><span class="lock-icon">🔒</span><span class="chapter-num">26</span></li>
+      <li class="chapter-item" id="ch27" data-href=""><span class="chapter-label">"Thou Canst Make Me Clean"</span><span class="lock-icon">🔒</span><span class="chapter-num">27</span></li>
+      <li class="chapter-item" id="ch28" data-href=""><span class="chapter-label">Levi-Matthew</span><span class="lock-icon">🔒</span><span class="chapter-num">28</span></li>
+      <li class="chapter-item" id="ch29" data-href=""><span class="chapter-label">The Sabbath</span><span class="lock-icon">🔒</span><span class="chapter-num">29</span></li>
+      <li class="chapter-item" id="ch30" data-href=""><span class="chapter-label">"He Ordained Twelve"</span><span class="lock-icon">🔒</span><span class="chapter-num">30</span></li>
+      <li class="chapter-item" id="ch31" data-href=""><span class="chapter-label">The Sermon on the Mount</span><span class="lock-icon">🔒</span><span class="chapter-num">31</span></li>
+      <li class="chapter-item" id="ch32" data-href=""><span class="chapter-label">The Centurion</span><span class="lock-icon">🔒</span><span class="chapter-num">32</span></li>
+      <li class="chapter-item" id="ch33" data-href=""><span class="chapter-label">"Who Are My Brethren?"</span><span class="lock-icon">🔒</span><span class="chapter-num">33</span></li>
+      <li class="chapter-item" id="ch34" data-href=""><span class="chapter-label">The Invitation</span><span class="lock-icon">🔒</span><span class="chapter-num">34</span></li>
+      <li class="chapter-item" id="ch35" data-href=""><span class="chapter-label">"Peace, Be Still"</span><span class="lock-icon">🔒</span><span class="chapter-num">35</span></li>
+      <li class="chapter-item" id="ch36" data-href=""><span class="chapter-label">The Touch of Faith</span><span class="lock-icon">🔒</span><span class="chapter-num">36</span></li>
+      <li class="chapter-item" id="ch37" data-href=""><span class="chapter-label">The First Evangelists</span><span class="lock-icon">🔒</span><span class="chapter-num">37</span></li>
+      <li class="chapter-item" id="ch38" data-href=""><span class="chapter-label">Come Rest Awhile</span><span class="lock-icon">🔒</span><span class="chapter-num">38</span></li>
+      <li class="chapter-item" id="ch39" data-href=""><span class="chapter-label">"Give Ye Them to Eat"</span><span class="lock-icon">🔒</span><span class="chapter-num">39</span></li>
+      <li class="chapter-item" id="ch40" data-href=""><span class="chapter-label">A Night on the Lake</span><span class="lock-icon">🔒</span><span class="chapter-num">40</span></li>
+      <li class="chapter-item" id="ch41" data-href=""><span class="chapter-label">The Crisis in Galilee</span><span class="lock-icon">🔒</span><span class="chapter-num">41</span></li>
+      <li class="chapter-item" id="ch42" data-href=""><span class="chapter-label">Tradition</span><span class="lock-icon">🔒</span><span class="chapter-num">42</span></li>
+      <li class="chapter-item" id="ch43" data-href=""><span class="chapter-label">The Barriers Broken Down</span><span class="lock-icon">🔒</span><span class="chapter-num">43</span></li>
+      <li class="chapter-item" id="ch44" data-href=""><span class="chapter-label">The True Sign</span><span class="lock-icon">🔒</span><span class="chapter-num">44</span></li>
+      <li class="chapter-item" id="ch45" data-href=""><span class="chapter-label">The Foreshadowing of the Cross</span><span class="lock-icon">🔒</span><span class="chapter-num">45</span></li>
+      <li class="chapter-item" id="ch46" data-href=""><span class="chapter-label">"Who Are Ye Transfigured"</span><span class="lock-icon">🔒</span><span class="chapter-num">46</span></li>
+      <li class="chapter-item" id="ch47" data-href=""><span class="chapter-label">Mystery</span><span class="lock-icon">🔒</span><span class="chapter-num">47</span></li>
+      <li class="chapter-item" id="ch48" data-href=""><span class="chapter-label">"Who Is the Greatest?"</span><span class="lock-icon">🔒</span><span class="chapter-num">48</span></li>
+      <li class="chapter-item" id="ch49" data-href=""><span class="chapter-label">At the Feast of Tabernacles</span><span class="lock-icon">🔒</span><span class="chapter-num">49</span></li>
+      <li class="chapter-item" id="ch50" data-href=""><span class="chapter-label">Among Snares</span><span class="lock-icon">🔒</span><span class="chapter-num">50</span></li>
+      <li class="chapter-item" id="ch51" data-href=""><span class="chapter-label">The Light of Life</span><span class="lock-icon">🔒</span><span class="chapter-num">51</span></li>
+      <li class="chapter-item" id="ch52" data-href=""><span class="chapter-label">The Divine Shepherd</span><span class="lock-icon">🔒</span><span class="chapter-num">52</span></li>
+      <li class="chapter-item" id="ch53" data-href=""><span class="chapter-label">The Last Journey From Galilee</span><span class="lock-icon">🔒</span><span class="chapter-num">53</span></li>
+      <li class="chapter-item" id="ch54" data-href=""><span class="chapter-label">The Good Samaritan</span><span class="lock-icon">🔒</span><span class="chapter-num">54</span></li>
+      <li class="chapter-item" id="ch55" data-href=""><span class="chapter-label">Not With Outward Show</span><span class="lock-icon">🔒</span><span class="chapter-num">55</span></li>
+      <li class="chapter-item" id="ch56" data-href=""><span class="chapter-label">Blessing the Children</span><span class="lock-icon">🔒</span><span class="chapter-num">56</span></li>
+      <li class="chapter-item" id="ch57" data-href=""><span class="chapter-label">"One Thing Thou Lackest"</span><span class="lock-icon">🔒</span><span class="chapter-num">57</span></li>
+      <li class="chapter-item" id="ch58" data-href=""><span class="chapter-label">Lazarus, Come Forth!</span><span class="lock-icon">🔒</span><span class="chapter-num">58</span></li>
+      <li class="chapter-item" id="ch59" data-href=""><span class="chapter-label">Priestly Plottings</span><span class="lock-icon">🔒</span><span class="chapter-num">59</span></li>
+      <li class="chapter-item" id="ch60" data-href=""><span class="chapter-label">The Law of the New Kingdom</span><span class="lock-icon">🔒</span><span class="chapter-num">60</span></li>
+      <li class="chapter-item" id="ch61" data-href=""><span class="chapter-label">Zacchaeus</span><span class="lock-icon">🔒</span><span class="chapter-num">61</span></li>
+      <li class="chapter-item" id="ch62" data-href=""><span class="chapter-label">The Feast at Simon's House</span><span class="lock-icon">🔒</span><span class="chapter-num">62</span></li>
+      <li class="chapter-item" id="ch63" data-href=""><span class="chapter-label">"Thy King Cometh"</span><span class="lock-icon">🔒</span><span class="chapter-num">63</span></li>
+      <li class="chapter-item" id="ch64" data-href=""><span class="chapter-label">A Doomed People</span><span class="lock-icon">🔒</span><span class="chapter-num">64</span></li>
+      <li class="chapter-item" id="ch65" data-href=""><span class="chapter-label">The Temple Cleansed Again</span><span class="lock-icon">🔒</span><span class="chapter-num">65</span></li>
+      <li class="chapter-item" id="ch66" data-href=""><span class="chapter-label">Controversy</span><span class="lock-icon">🔒</span><span class="chapter-num">66</span></li>
+      <li class="chapter-item" id="ch67" data-href=""><span class="chapter-label">Woes on the Pharisees</span><span class="lock-icon">🔒</span><span class="chapter-num">67</span></li>
+      <li class="chapter-item" id="ch68" data-href=""><span class="chapter-label">In the Quiet Court</span><span class="lock-icon">🔒</span><span class="chapter-num">68</span></li>
+      <li class="chapter-item" id="ch69" data-href=""><span class="chapter-label">On the Mount of Olives</span><span class="lock-icon">🔒</span><span class="chapter-num">69</span></li>
+      <li class="chapter-item" id="ch70" data-href=""><span class="chapter-label">"The Least of These My Brethren"</span><span class="lock-icon">🔒</span><span class="chapter-num">70</span></li>
+      <li class="chapter-item" id="ch71" data-href=""><span class="chapter-label">A Servant of Servants</span><span class="lock-icon">🔒</span><span class="chapter-num">71</span></li>
+      <li class="chapter-item" id="ch72" data-href=""><span class="chapter-label">In Remembrance of Me</span><span class="lock-icon">🔒</span><span class="chapter-num">72</span></li>
+      <li class="chapter-item" id="ch73" data-href=""><span class="chapter-label">"Let Not Your Heart Be Troubled"</span><span class="lock-icon">🔒</span><span class="chapter-num">73</span></li>
+      <li class="chapter-item" id="ch74" data-href=""><span class="chapter-label">Gethsemane</span><span class="lock-icon">🔒</span><span class="chapter-num">74</span></li>
+      <li class="chapter-item" id="ch75" data-href=""><span class="chapter-label">Before Annas and the Court of Caiaphas</span><span class="lock-icon">🔒</span><span class="chapter-num">75</span></li>
+      <li class="chapter-item" id="ch76" data-href=""><span class="chapter-label">Judas</span><span class="lock-icon">🔒</span><span class="chapter-num">76</span></li>
+      <li class="chapter-item" id="ch77" data-href=""><span class="chapter-label">In Pilate's Judgment Hall</span><span class="lock-icon">🔒</span><span class="chapter-num">77</span></li>
+      <li class="chapter-item" id="ch78" data-href=""><span class="chapter-label">Calvary</span><span class="lock-icon">🔒</span><span class="chapter-num">78</span></li>
+      <li class="chapter-item" id="ch79" data-href=""><span class="chapter-label">"It Is Finished"</span><span class="lock-icon">🔒</span><span class="chapter-num">79</span></li>
+      <li class="chapter-item" id="ch80" data-href=""><span class="chapter-label">In Joseph's Tomb</span><span class="lock-icon">🔒</span><span class="chapter-num">80</span></li>
+      <li class="chapter-item" id="ch81" data-href=""><span class="chapter-label">"The Lord Is Risen"</span><span class="lock-icon">🔒</span><span class="chapter-num">81</span></li>
+      <li class="chapter-item" id="ch82" data-href=""><span class="chapter-label">"Why Weepest Thou?"</span><span class="lock-icon">🔒</span><span class="chapter-num">82</span></li>
+      <li class="chapter-item" id="ch83" data-href=""><span class="chapter-label">The Walk to Emmaus</span><span class="lock-icon">🔒</span><span class="chapter-num">83</span></li>
+      <li class="chapter-item" id="ch84" data-href=""><span class="chapter-label">"Peace Be Unto You"</span><span class="lock-icon">🔒</span><span class="chapter-num">84</span></li>
+      <li class="chapter-item" id="ch85" data-href=""><span class="chapter-label">"He Is Seen Once More"</span><span class="lock-icon">🔒</span><span class="chapter-num">85</span></li>
+      <li class="chapter-item" id="ch86" data-href=""><span class="chapter-label">Go Teach All Nations</span><span class="lock-icon">🔒</span><span class="chapter-num">86</span></li>
+      <li class="chapter-item" id="ch87" data-href=""><span class="chapter-label">"To My Father and Your Father"</span><span class="lock-icon">🔒</span><span class="chapter-num">87</span></li>
+
+    </ul>
+  </main>
+
+  <footer>The Desire of Ages &mdash; NSB Writings &nbsp;|&nbsp; <a href="admin.html" style="color:inherit;text-decoration:none">Admin</a></footer>
+
+  <!-- Chapter content modal -->
+  <div id="ch-modal" class="hidden">
+    <div class="ch-modal-bd" id="ch-modal-backdrop"></div>
+    <div class="ch-modal-box">
+      <div class="ch-modal-head">
+        <h2 id="cm-title"></h2>
+        <button class="ch-modal-x" id="cm-close">×</button>
+      </div>
+      <div class="ch-modal-body" id="cm-body"></div>
+      <div class="ch-modal-foot">
+        <button class="btn-mark" id="cm-mark">Mark as Read</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCZMh4KUoXtSgCP3xCQ7atA8cJ7CQOGgfU",
+  authDomain: "desire-of-ages-treasury.firebaseapp.com",
+  projectId: "desire-of-ages-treasury",
+  storageBucket: "desire-of-ages-treasury.firebasestorage.app",
+  messagingSenderId: "472087552829",
+  appId: "1:472087552829:web:9fafa1c0c6af4bce4a9b54"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+<script>
+(async function () {
+  var UID_KEY        = 'doa_current_user_id';
+  var ANON_KEY       = 'doa_anon_progress';
+  var MIG_KEY        = 'doa_migrated_v1';
+  var USER_CACHE_KEY = 'doa_user_cache';
+
+  // ── PIN helpers ──────────────────────────────────────────
+  function wirePin(ids, onComplete) {
+    var boxes = ids.map(function(id){ return document.getElementById(id); });
+    boxes.forEach(function(box, i) {
+      box.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g,'').slice(-1);
+        if (this.value && i < boxes.length - 1) boxes[i+1].focus();
+        if (boxes.every(function(b){ return b.value; })) onComplete(boxes.map(function(b){ return b.value; }).join(''));
+      });
+      box.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' && !this.value && i > 0) boxes[i-1].focus();
+      });
+    });
+  }
+  function getPin(ids) {
+    return ids.map(function(id){ return document.getElementById(id).value; }).join('');
+  }
+  function clearPin(ids) {
+    ids.forEach(function(id){ document.getElementById(id).value = ''; });
+  }
+
+  // In-memory cache — loaded once at boot
+  var _user   = null;
+  var _extras = {};
+
+  function getCurrId()  { return localStorage.getItem(UID_KEY); }
+  function getCurrUser(){ return _user; }
+  function getAnon()    { try { return JSON.parse(localStorage.getItem(ANON_KEY)||'{}'); } catch(e) { return {}; } }
+  function saveAnon(a)  { localStorage.setItem(ANON_KEY, JSON.stringify(a)); }
+  function todayStr()   { return new Date().toISOString().split('T')[0]; }
+  function initials(n)  { return n.trim().split(/\s+/).map(function(w){return w[0];}).join('').toUpperCase().slice(0,2); }
+
+  // ── Firebase loaders ──
+  async function loadCurrentUser() {
+    var id = getCurrId();
+    if (!id) { _user = null; return; }
+    try {
+      var doc = await db.collection('users').doc(id).get();
+      _user = doc.exists ? Object.assign({ id: doc.id }, doc.data()) : null;
+      if (!_user) { localStorage.removeItem(UID_KEY); localStorage.removeItem(USER_CACHE_KEY); }
+      else { localStorage.setItem(USER_CACHE_KEY, JSON.stringify({ name: _user.name })); }
+    } catch(e) { _user = null; }
+  }
+
+  async function loadExtras() {
+    try {
+      var snap = await db.collection('chExtras').get();
+      _extras = {};
+      snap.docs.forEach(function(d) { _extras[d.id] = d.data(); });
+    } catch(e) { _extras = {}; }
+  }
+
+  // ── One-time migration from localStorage → Firestore ──
+  async function migrateIfNeeded() {
+    if (localStorage.getItem(MIG_KEY)) return;
+    try {
+      var oldUsers  = JSON.parse(localStorage.getItem('doa_users')    || '[]');
+      var oldExtras = JSON.parse(localStorage.getItem('doa_ch_extras')|| '{}');
+      var oldCustom = JSON.parse(localStorage.getItem('doa_custom_ch')|| '[]');
+      var oldPwd    = localStorage.getItem('doa_admin_pwd');
+      if (oldUsers.length || Object.keys(oldExtras).length || oldCustom.length || oldPwd) {
+        var batch = db.batch();
+        oldUsers.forEach(function(u) {
+          batch.set(db.collection('users').doc(u.id), u);
+        });
+        Object.keys(oldExtras).forEach(function(chId) {
+          batch.set(db.collection('chExtras').doc(chId), oldExtras[chId]);
+        });
+        oldCustom.forEach(function(ch) {
+          var cid = ch.id || ('cc-' + Date.now() + '-' + Math.random().toString(36).slice(2,5));
+          batch.set(db.collection('customChapters').doc(cid), ch);
+        });
+        if (oldPwd) {
+          batch.set(db.collection('settings').doc('admin'), { password: oldPwd });
+        }
+        await batch.commit();
+      }
+    } catch(e) { console.warn('Migration error:', e); }
+    localStorage.setItem(MIG_KEY, '1');
+  }
+
+  function chIdFromItem(item) {
+    var numEl = item.querySelector('.chapter-num');
+    if (!numEl) return null;
+    var txt = numEl.textContent.trim();
+    if (txt === '→') return 'preface';
+    var n = parseInt(txt, 10);
+    return isNaN(n) ? null : 'ch-' + n;
+  }
+
+  function isDone(chId) {
+    if (_user && _user.progress && _user.progress[chId] && _user.progress[chId].read) return true;
+    if (getAnon()[chId]) return true;
+    // Fallback: preface.html and chapter-01.html save to separate localStorage keys
+    if (chId === 'preface') return localStorage.getItem('preface_complete') === '1';
+    var n = parseInt(chId.replace('ch-', ''), 10);
+    if (!isNaN(n)) return localStorage.getItem('chapter_' + String(n).padStart(2,'0') + '_complete') === '1';
+    return false;
+  }
+
+  function isUnlocked(chId) {
+    if (chId === 'preface') return true;
+    if (chId === 'ch-1')    return isDone('preface');
+    var n = parseInt(chId.replace('ch-',''), 10);
+    if (isNaN(n) || n < 2) return false;
+    var prevId = 'ch-' + (n - 1);
+    // Full chain check: previous chapter must itself be unlocked AND completed
+    return isUnlocked(prevId) && isDone(prevId);
+  }
+
+  async function markDone(chId) {
+    if (_user) {
+      var update = { lastActive: todayStr() };
+      update['progress.' + chId] = { read: true, readAt: new Date().toISOString() };
+      await db.collection('users').doc(_user.id).update(update);
+      if (!_user.progress) _user.progress = {};
+      _user.progress[chId] = { read: true, readAt: new Date().toISOString() };
+      _user.lastActive = todayStr();
+    } else {
+      var anon = getAnon();
+      anon[chId] = true;
+      saveAnon(anon);
+    }
+  }
+
+  // Toast for locked-chapter clicks
+  function showToast(msg) {
+    var t = document.getElementById('doa-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'doa-toast';
+      t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(26,22,20,.92);color:#f2ede5;padding:11px 24px;border-radius:8px;font-size:.86rem;font-family:Lora,Georgia,serif;z-index:1000;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = '1';
+    clearTimeout(t._t);
+    t._t = setTimeout(function(){ t.style.opacity = '0'; }, 2800);
+  }
+
+  // Progress bar (shown only after registration)
+  function updateProgress() {
+    var u = getCurrUser();
+    if (!u) return;
+    var items = document.querySelectorAll('.chapter-item');
+    var total = items.length, done = 0;
+    for (var i=0; i<items.length; i++) {
+      var chId = chIdFromItem(items[i]);
+      if (chId && isDone(chId)) done++;
+    }
+    var pct = total ? Math.round(done/total*100) : 0;
+    var f = document.getElementById('prog-fill');
+    var l = document.getElementById('prog-label');
+    if (f) f.style.width = pct + '%';
+    if (l) l.textContent = done + ' / ' + total + ' chapters (' + pct + '%)';
+  }
+
+  function playUnlockAnimation(chId) {
+    var n    = parseInt(chId.replace('ch-', ''), 10);
+    var elId = 'ch' + String(n).padStart(2, '0');
+    var item = document.getElementById(elId);
+    if (!item) return;
+
+    item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    setTimeout(function() {
+      // 1. Lock icon pops and dissolves
+      var lockEl = item.querySelector('.lock-icon');
+      if (lockEl) {
+        lockEl.classList.add('popping');
+        setTimeout(function() { lockEl.style.display = 'none'; }, 560);
+      }
+      // 2. Shimmer sweep across the row
+      setTimeout(function() {
+        item.classList.add('unlock-sweep');
+        setTimeout(function() { item.classList.remove('unlock-sweep'); }, 900);
+      }, 180);
+      // 3. Floating badge rises up
+      setTimeout(function() {
+        var rect  = item.getBoundingClientRect();
+        var badge = document.createElement('div');
+        badge.className   = 'unlock-float';
+        badge.textContent = '✦ Chapter Unlocked';
+        badge.style.top   = (rect.top + rect.height / 2) + 'px';
+        badge.style.left  = (rect.left + rect.width / 2) + 'px';
+        document.body.appendChild(badge);
+        setTimeout(function() { badge.remove(); }, 1950);
+      }, 300);
+    }, 120);
+  }
+
+  // Apply locked/unlocked state to every chapter row
+  function applyStates() {
+    var items = document.querySelectorAll('.chapter-item');
+    for (var i=0; i<items.length; i++) {
+      (function(item) {
+        var chId = chIdFromItem(item);
+        if (!chId) return;
+
+        // Remove any leftover check buttons from a previous version
+        var old = item.querySelector('.ch-check');
+        if (old) old.remove();
+
+        var lockEl = item.querySelector('.lock-icon');
+        var unlocked = isUnlocked(chId);
+
+        if (unlocked) {
+          item.classList.remove('locked');
+          if (lockEl) lockEl.style.display = 'none';
+        } else {
+          item.classList.add('locked');
+          if (lockEl) lockEl.style.display = '';
+        }
+
+        item.onclick = function() {
+          if (!isUnlocked(chId)) {
+            var msg = chId === 'ch-1'
+              ? 'Complete the Preface first.'
+              : 'Complete ' + prevName(chId) + ' first.';
+            showToast(msg);
+            return;
+          }
+          if (chId === 'preface') { window.location.href = 'pages/preface.html'; return; }
+          var ex   = _extras[chId] || {};
+          var href = item.getAttribute('data-href') || ex.url || '';
+          if (!href) { href = 'pages/chapter.html?id=' + chId; }
+          window.location.href = href;
+        };
+      })(items[i]);
+    }
+  }
+
+  function prevName(chId) {
+    var n = parseInt(chId.replace('ch-',''), 10);
+    return n === 2 ? 'Chapter 1' : 'Chapter ' + (n - 1);
+  }
+
+  // Content modal
+  function openModal(chId, title, extras) {
+    document.getElementById('cm-title').textContent = title;
+    var html = '';
+    if (extras.content) {
+      extras.content.split(/\n\n+/).forEach(function(p) {
+        html += '<p>' + p.replace(/\n/g,'<br>') + '</p>';
+      });
+    }
+    (extras.images||[]).forEach(function(img) {
+      html += '<figure class="ch-modal-img"><img src="' + img.url + '" alt="' + (img.caption||'') + '" />'
+        + (img.caption ? '<figcaption>' + img.caption + '</figcaption>' : '') + '</figure>';
+    });
+    document.getElementById('cm-body').innerHTML = html ||
+      '<p style="color:var(--muted);font-style:italic;line-height:1.8">Content for this chapter has not been added yet. You can still mark it as complete when you\'ve finished reading from the book.</p>';
+
+    var markBtn = document.getElementById('cm-mark');
+    function refreshBtn() {
+      var done = isDone(chId);
+      markBtn.textContent = done ? 'Completed ✓' : 'Mark as Complete';
+      markBtn.className   = 'btn-mark' + (done ? ' done' : '');
+      markBtn.disabled    = done;
+    }
+    refreshBtn();
+    markBtn.onclick = async function() {
+      markBtn.disabled = true;
+      await markDone(chId);
+      refreshBtn();
+      applyStates();
+      updateProgress();
+    };
+    document.getElementById('ch-modal').classList.remove('hidden');
+  }
+
+  async function registerUser(name, email, institution, position, pin) {
+    var id = 'user-' + Date.now() + '-' + Math.random().toString(36).slice(2,7);
+    var anon = getAnon();
+    var progress = {};
+    Object.keys(anon).forEach(function(k) {
+      progress[k] = { read: true, readAt: new Date().toISOString() };
+    });
+    var userData = { id:id, name:name, email:email||'', institution:institution||'', position:position||'', pin:pin||'', joinedAt:new Date().toISOString(), lastActive:todayStr(), progress:progress };
+    await db.collection('users').doc(id).set(userData);
+    localStorage.setItem(UID_KEY, id);
+    localStorage.setItem(USER_CACHE_KEY, JSON.stringify({ name: userData.name }));
+    localStorage.removeItem(ANON_KEY);
+    _user = userData;
+  }
+
+  function showUserBar() {
+    if (!_user) return;
+    document.getElementById('user-bar').style.display       = 'flex';
+    document.getElementById('progress-banner').style.display = 'block';
+    document.getElementById('login-bar').style.display      = 'none';
+    document.getElementById('user-initials').textContent    = initials(_user.name);
+    document.getElementById('user-name-display').textContent = _user.name;
+    var wEl = document.getElementById('welcome-msg');
+    var safeName = String(_user.name||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    wEl.innerHTML = '<span class="welcome-label">Welcome back</span><span class="welcome-name">' + safeName + '</span>';
+    wEl.style.display = 'flex';
+    document.getElementById('daily-teaser').style.display = 'flex';
+  }
+
+  // Boot
+  document.addEventListener('DOMContentLoaded', async function() {
+    // Phase 1 — instant UI (no Firebase needed)
+    var hasSession = !!getCurrId();
+    if (!hasSession) {
+      document.getElementById('login-bar').style.display = 'flex';
+    } else {
+      // Show welcome immediately from cached name — no Firebase wait
+      try {
+        var cached = JSON.parse(localStorage.getItem(USER_CACHE_KEY) || '{}');
+        if (cached.name) {
+          var safeName = String(cached.name).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+          var wEl = document.getElementById('welcome-msg');
+          wEl.innerHTML = '<span class="welcome-label">Welcome back</span><span class="welcome-name">' + safeName + '</span>';
+          wEl.style.display = 'flex';
+          document.getElementById('daily-teaser').style.display = 'flex';
+          document.getElementById('user-bar').style.display = 'flex';
+          document.getElementById('login-bar').style.display = 'none';
+        }
+      } catch(e) {}
+    }
+    // Clean up orphaned anon progress — remove entries whose chain is broken
+    (function() {
+      var anon = getAnon();
+      var valid = {};
+      if (anon['preface']) valid['preface'] = true;
+      for (var n = 1; n <= 87; n++) {
+        var cid = 'ch-' + n;
+        var pid = n === 1 ? 'preface' : 'ch-' + (n - 1);
+        if (anon[cid] && valid[pid]) valid[cid] = true;
+      }
+      var cleaned = {};
+      Object.keys(anon).forEach(function(k) { if (valid[k]) cleaned[k] = true; });
+      saveAnon(cleaned);
+    })();
+
+    applyStates(); // renders chapter list immediately with anon state
+
+    // Migration runs silently in background — never blocks UI
+    migrateIfNeeded().catch(function(){});
+
+    // Phase 2 — load Firebase data, then update UI
+    await Promise.all([loadCurrentUser(), loadExtras()]);
+
+    // Replace localStorage progress with authoritative Firebase data so logout is always accurate
+    if (_user && _user.progress) {
+      var freshAnon = {};
+      Object.keys(_user.progress).forEach(function(chId) {
+        if (_user.progress[chId] && _user.progress[chId].read) freshAnon[chId] = true;
+      });
+      saveAnon(freshAnon);
+    }
+
+    var anon = getAnon();
+
+    if (!_user && anon['ch-1']) {
+      document.getElementById('register-overlay').classList.remove('hidden');
+    } else if (_user) {
+      showUserBar();
+      updateProgress();
+    }
+
+    // Re-apply states now that user data and extras are loaded
+    applyStates();
+
+    // Unlock animation for freshly completed chapter
+    var justUnlocked = sessionStorage.getItem('doa_just_unlocked');
+    if (justUnlocked) {
+      sessionStorage.removeItem('doa_just_unlocked');
+      setTimeout(function() { playUnlockAnimation(justUnlocked); }, 420);
+    }
+
+    // Registration
+    document.getElementById('reg-form').onsubmit = async function(e) {
+      e.preventDefault();
+      var name        = document.getElementById('reg-name').value.trim();
+      var email       = document.getElementById('reg-email').value.trim();
+      var institution = document.getElementById('reg-institution').value;
+      var position    = document.getElementById('reg-position').value.trim();
+      var pin         = getPin(['rp1','rp2','rp3','rp4']);
+      var pinConfirm  = getPin(['rc1','rc2','rc3','rc4']);
+      var pinErr      = document.getElementById('reg-pin-error');
+      pinErr.textContent = '';
+      if (!name || !institution || !position) return;
+      if (pin.length < 4) { pinErr.textContent = 'Please enter a 4-digit PIN.'; return; }
+      if (pin !== pinConfirm) { pinErr.textContent = 'PINs do not match. Please try again.'; clearPin(['rc1','rc2','rc3','rc4']); document.getElementById('rc1').focus(); return; }
+      await registerUser(name, email, institution, position, pin);
+      document.getElementById('register-overlay').classList.add('hidden');
+      showUserBar();
+      applyStates();
+      updateProgress();
+    };
+
+    // Login modal — open
+    document.getElementById('open-login-btn').onclick = function() {
+      document.getElementById('lm-search').value = '';
+      document.getElementById('lm-user-list').innerHTML =
+        '<p style="font-size:0.82rem;color:var(--muted);text-align:center;padding:16px 0;">Type your name above to find your profile.</p>';
+      document.getElementById('login-modal').classList.add('open');
+      setTimeout(function(){ document.getElementById('lm-search').focus(); }, 100);
+    };
+
+    // Login modal — name search
+    var _searchTimer;
+    document.getElementById('lm-search').addEventListener('input', function() {
+      clearTimeout(_searchTimer);
+      var q    = this.value.trim();
+      var list = document.getElementById('lm-user-list');
+      if (!q) {
+        list.innerHTML = '<p style="font-size:0.82rem;color:var(--muted);text-align:center;padding:16px 0;">Type your name above to find your profile.</p>';
+        return;
+      }
+      list.innerHTML = '<p style="font-size:0.82rem;color:var(--muted);text-align:center;padding:16px 0;">Searching...</p>';
+      _searchTimer = setTimeout(async function() {
+        try {
+          var snap = await db.collection('users').get();
+          var ql   = q.toLowerCase();
+          var hits = snap.docs
+            .map(function(d){ return Object.assign({ id: d.id }, d.data()); })
+            .filter(function(u){ return u.name && u.name.toLowerCase().includes(ql); });
+          list.innerHTML = '';
+          if (!hits.length) {
+            list.innerHTML = '<p style="font-size:0.82rem;color:var(--muted);text-align:center;padding:16px 0;">No profile found for "' + q + '".</p>';
+            return;
+          }
+          hits.forEach(function(u) {
+            var row = document.createElement('div');
+            row.className = 'lm-user';
+            row.innerHTML = '<div class="lm-avatar">' + initials(u.name) + '</div>'
+                          + '<div><div class="lm-name">' + u.name + '</div>'
+                          + (u.email ? '<div style="font-size:0.75rem;color:var(--muted)">' + u.email + '</div>' : '') + '</div>';
+            row.onclick = function() { showPinStep(u); };
+            list.appendChild(row);
+          });
+        } catch(err) {
+          list.innerHTML = '<p style="font-size:0.82rem;color:var(--muted);text-align:center;padding:16px 0;">Could not connect. Check your internet.</p>';
+        }
+      }, 400);
+    });
+
+    // PIN step
+    var _pinUser = null;
+    wirePin(['rp1','rp2','rp3','rp4'], function(){});
+    wirePin(['rc1','rc2','rc3','rc4'], function(){});
+    wirePin(['lp1','lp2','lp3','lp4'], function(pin) {
+      if (!_pinUser) return;
+      if (pin === (_pinUser.pin || '')) {
+        localStorage.setItem(UID_KEY, _pinUser.id);
+        location.reload();
+      } else {
+        document.getElementById('lm-pin-error').textContent = 'Incorrect PIN. Please try again.';
+        setTimeout(function() {
+          clearPin(['lp1','lp2','lp3','lp4']);
+          document.getElementById('lm-pin-error').textContent = '';
+          document.getElementById('lp1').focus();
+        }, 900);
+      }
+    });
+
+    function showPinStep(u) {
+      _pinUser = u;
+      clearPin(['lp1','lp2','lp3','lp4']);
+      document.getElementById('lm-pin-error').textContent = '';
+      document.getElementById('lm-pin-greeting').textContent = 'Hello, ' + u.name + '!';
+      document.getElementById('lm-step-search').style.display = 'none';
+      document.getElementById('lm-step-pin').style.display    = 'block';
+      setTimeout(function(){ document.getElementById('lp1').focus(); }, 100);
+    }
+
+    document.getElementById('lm-pin-back').onclick = function() {
+      document.getElementById('lm-step-pin').style.display    = 'none';
+      document.getElementById('lm-step-search').style.display = 'block';
+      _pinUser = null;
+    };
+
+    // Forgot PIN flow
+    function showStep(id) {
+      ['lm-step-search','lm-step-pin','lm-step-forgot','lm-step-newpin'].forEach(function(s) {
+        document.getElementById(s).style.display = 'none';
+      });
+      document.getElementById(id).style.display = 'block';
+    }
+
+    function maskEmail(email) {
+      if (!email || !email.includes('@')) return null;
+      var parts  = email.split('@');
+      var local  = parts[0];
+      var domain = parts[1].split('.');
+      var maskedLocal  = local.slice(0, 3) + '*'.repeat(Math.max(3, local.length - 3));
+      var maskedDomain = domain[0].slice(0, 1) + '.' + domain.slice(1).join('.');
+      return maskedLocal + '@' + maskedDomain;
+    }
+
+    document.getElementById('lm-forgot-btn').onclick = function() {
+      document.getElementById('lm-recovery-email').value = '';
+      document.getElementById('lm-forgot-error').textContent = '';
+      var hintEl   = document.getElementById('lm-email-hint');
+      var maskedEl = document.getElementById('lm-masked-email');
+      var masked   = _pinUser && _pinUser.email ? maskEmail(_pinUser.email) : null;
+      if (masked) {
+        maskedEl.textContent = masked;
+        hintEl.style.display = 'block';
+      } else {
+        hintEl.style.display = 'none';
+      }
+      showStep('lm-step-forgot');
+      setTimeout(function(){ document.getElementById('lm-recovery-email').focus(); }, 100);
+    };
+
+    document.getElementById('lm-forgot-back').onclick = function() {
+      showStep('lm-step-pin');
+    };
+
+    document.getElementById('lm-verify-btn').onclick = async function() {
+      var email = document.getElementById('lm-recovery-email').value.trim().toLowerCase();
+      var errEl = document.getElementById('lm-forgot-error');
+      errEl.textContent = '';
+      if (!email) { errEl.textContent = 'Please enter your email address.'; return; }
+      if (!_pinUser) return;
+      var storedEmail = (_pinUser.email || '').trim().toLowerCase();
+      if (!storedEmail) {
+        errEl.textContent = 'No email on file. Please contact your admin to reset your PIN.';
+        return;
+      }
+      if (email !== storedEmail) {
+        errEl.textContent = 'Email does not match our records. Try again.';
+        return;
+      }
+      clearPin(['np1','np2','np3','np4']);
+      clearPin(['nc1','nc2','nc3','nc4']);
+      document.getElementById('lm-newpin-error').textContent = '';
+      showStep('lm-step-newpin');
+      setTimeout(function(){ document.getElementById('np1').focus(); }, 100);
+    };
+
+    wirePin(['np1','np2','np3','np4'], function() {
+      setTimeout(function(){ document.getElementById('nc1').focus(); }, 80);
+    });
+    wirePin(['nc1','nc2','nc3','nc4'], function(){});
+
+    document.getElementById('lm-save-newpin-btn').onclick = async function() {
+      var newPin  = getPin(['np1','np2','np3','np4']);
+      var confPin = getPin(['nc1','nc2','nc3','nc4']);
+      var errEl   = document.getElementById('lm-newpin-error');
+      errEl.textContent = '';
+      if (newPin.length < 4)     { errEl.textContent = 'Please enter a 4-digit PIN.'; return; }
+      if (newPin !== confPin)    { errEl.textContent = 'PINs do not match.'; clearPin(['nc1','nc2','nc3','nc4']); document.getElementById('nc1').focus(); return; }
+      try {
+        await db.collection('users').doc(_pinUser.id).update({ pin: newPin });
+        _pinUser.pin = newPin;
+        document.getElementById('lm-step-newpin').style.display = 'none';
+        // Auto log in with new PIN
+        localStorage.setItem(UID_KEY, _pinUser.id);
+        location.reload();
+      } catch(e) {
+        errEl.textContent = 'Could not save. Check your connection and try again.';
+      }
+    };
+
+    // Login modal — close
+    document.getElementById('lm-cancel-btn').onclick = function() {
+      document.getElementById('login-modal').classList.remove('open');
+    };
+    document.getElementById('login-modal').onclick = function(e) {
+      if (e.target === this) this.classList.remove('open');
+    };
+
+    // Switch user / Logout
+    document.getElementById('switch-user-btn').onclick = function() {
+      localStorage.removeItem(UID_KEY); location.reload();
+    };
+    document.getElementById('logout-btn').onclick = function() {
+      localStorage.removeItem(UID_KEY); location.reload();
+    };
+
+    // Chapter modal close
+    document.getElementById('cm-close').onclick = function() {
+      document.getElementById('ch-modal').classList.add('hidden');
+    };
+    document.getElementById('ch-modal-backdrop').onclick = function() {
+      document.getElementById('ch-modal').classList.add('hidden');
+    };
+  });
+})();
+</script>
+
+<script>
+// ── Daily Word ─────────────────────────────────────────────
+const DAILY_VERSES = [
+  { ref: 'John 3:16', verse: '"For God so loved the world, that He gave His only begotten Son, that whosoever believeth in Him should not perish, but have everlasting life."', reflection: 'The entire mission of Jesus — His birth, His life, His sacrifice — flows from one source: the boundless love of the Father. You are not forgotten. You are loved beyond measure.' },
+  { ref: 'Psalm 46:1', verse: '"God is our refuge and strength, a very present help in trouble."', reflection: 'In every trial, God stands near. He is not distant but a present help — as real today as when He parted the Red Sea. Cast your burden upon Him.' },
+  { ref: 'Isaiah 41:10', verse: '"Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee."', reflection: 'The same God who spoke galaxies into being speaks peace into your heart today. His promise is personal — He says "thy God," not merely "a God."' },
+  { ref: 'Philippians 4:13', verse: '"I can do all things through Christ which strengtheneth me."', reflection: 'Whatever challenge lies before you today, you do not face it alone. Christ is your strength — not your own willpower, but His power working in you.' },
+  { ref: 'Romans 8:28', verse: '"And we know that all things work together for good to them that love God, to them who are the called according to His purpose."', reflection: 'Nothing in your life is wasted. Even your struggles are being woven by a loving God into a tapestry of grace — a story that will glorify Him.' },
+  { ref: 'Jeremiah 29:11', verse: '"For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an expected end."', reflection: 'God\'s plans for you are not an afterthought. Before the foundations of the world, He prepared a future of hope for your soul. Trust His timing.' },
+  { ref: 'Matthew 11:28', verse: '"Come unto Me, all ye that labour and are heavy laden, and I will give you rest."', reflection: 'Jesus does not call the perfect — He calls the weary. Whatever weight you carry today, His invitation stands: Come. He will give you rest that the world cannot offer.' },
+  { ref: 'Lamentations 3:22–23', verse: '"It is of the LORD\'s mercies that we are not consumed, because His compassions fail not. They are new every morning: great is thy faithfulness."', reflection: 'This morning is a gift. His mercies reset with the sunrise — yesterday\'s failures do not define today\'s standing before God. His faithfulness is greater than your failure.' },
+  { ref: 'Proverbs 3:5–6', verse: '"Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge Him, and He shall direct thy paths."', reflection: 'Surrender your plans to Him. When we release our grip on the outcome, God takes hold and directs our steps into paths we could never have charted ourselves.' },
+  { ref: 'Psalm 23:1', verse: '"The LORD is my shepherd; I shall not want."', reflection: 'A shepherd knows every sheep by name. The Lord knows you — your needs, your fears, your longings. Under His care, nothing essential will ever be lacking.' },
+];
+
+let _dailyIndex = -1;
+
+function _getDailyIndex() {
+  const today = new Date().toISOString().split('T')[0];
+  const stored = localStorage.getItem('doa_daily_date');
+  if (stored === today) {
+    return parseInt(localStorage.getItem('doa_daily_idx') || '0', 10);
+  }
+  const idx = Math.floor(Math.random() * DAILY_VERSES.length);
+  localStorage.setItem('doa_daily_date', today);
+  localStorage.setItem('doa_daily_idx', idx);
+  return idx;
+}
+
+function _renderVerse(idx) {
+  const v = DAILY_VERSES[idx];
+  const now = new Date();
+  const dayStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  document.getElementById('daily-date').textContent = dayStr;
+  document.getElementById('daily-ref').textContent = v.ref;
+  document.getElementById('daily-verse').textContent = v.verse;
+  document.getElementById('daily-reflection').textContent = v.reflection;
+}
+
+function openDailyWord() {
+  if (_dailyIndex < 0) _dailyIndex = _getDailyIndex();
+  _renderVerse(_dailyIndex);
+  document.getElementById('daily-modal').classList.remove('hidden');
+}
+
+function closeDailyWord() {
+  document.getElementById('daily-modal').classList.add('hidden');
+}
+
+function loadNewVerse() {
+  _dailyIndex = (_dailyIndex + 1) % DAILY_VERSES.length;
+  _renderVerse(_dailyIndex);
+}
+
+// Close on backdrop click
+document.getElementById('daily-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeDailyWord();
+});
+
+// Show teaser when user is logged in
+(function() {
+  var _origShow = window.showUserBar;
+  // patch into existing showUserBar
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Start-Process \"c:\\\\Users\\\\SwPUC Gate\\\\desire-of-ages\\\\acts-of-the-apostles.html\")",
+      "PowerShell(Start-Process \"c:\\\\Users\\\\SwPUC Gate\\\\desire-of-ages\\\\preface.html\")",
+      "PowerShell(Start-Process \"c:\\\\Users\\\\SwPUC Gate\\\\desire-of-ages\\\\chapter-01.html\")",
+      "Bash(Get-ChildItem \"c:\\\\Users\\\\SwPUC Gate\\\\desire-of-ages\")",
+      "Bash(Select-Object Name, Length)",
+      "PowerShell(Start-Process \"c:\\\\Users\\\\SwPUC Gate\\\\desire-of-ages\\\\index.html\")",
+      "WebFetch(domain:egwwritings.org)",
+      "WebFetch(domain:a.egwwritings.org)",
+      "Bash(npm --version)",
+      "Bash(node -e ' *)",
+      "Bash(node import-chapters.js)"
+    ]
+  }
+}

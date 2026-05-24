@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preface — The Desire of Ages</title>
+  <link rel="stylesheet" href="../assets/css/shared.css" />
+  <style>
+    /* ── Lock page to viewport ── */
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Lora', Georgia, serif;
+    }
+
+    /* ── Full-height shell ── */
+    .page-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ── Top navigation bar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 96px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .topbar-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent);
+      text-decoration: none;
+    }
+
+    .topbar-logo span {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+
+    .back-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .back-link::before { content: '←'; font-size: 1rem; }
+    .back-link:hover   { color: var(--accent); }
+
+    /* ── Main two-column layout ── */
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex: 1;
+      overflow: hidden;
+      gap: 80px;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 56px 96px;
+    }
+
+    /* ── Left column: title + paginated text + nav ── */
+    .left-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow: hidden;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 5vw, 4rem);
+      font-style: italic;
+      font-weight: 400;
+      line-height: 1.3;
+      color: var(--accent);
+      flex-shrink: 0;
+      padding: 16px 24px;
+    }
+
+    .hero-title .outlined {
+      display: inline-block;
+      position: relative;
+      padding: 6px 10px;
+    }
+
+    .hero-title .outlined::before {
+      content: '';
+      position: absolute;
+      inset: -10px -20px;
+      border: 1.5px solid var(--accent);
+      border-radius: 50% 48% 52% 50% / 55% 50% 50% 45%;
+      pointer-events: none;
+    }
+
+    /* ── Text pages ── */
+    .reader {
+      flex: 1;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .reader::-webkit-scrollbar { display: none; }
+
+    .text-page {
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .text-page.active {
+      display: flex;
+    }
+
+    .text-page p {
+      font-size: 1rem;
+      line-height: 1.95;
+      color: var(--text);
+    }
+
+    .publishers {
+      font-size: 0.9rem;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    .study-note {
+      padding: 20px 24px;
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      background: rgba(139, 74, 47, 0.04);
+      font-size: 0.92rem;
+      font-style: italic;
+      line-height: 1.75;
+      color: var(--muted);
+    }
+
+    /* ── Navigation buttons ── */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      font-family: 'Lora', Georgia, serif;
+      font-size: 0.88rem;
+      color: var(--accent);
+      background: transparent;
+      border: 1.5px solid var(--accent);
+      border-radius: 40px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .nav-btn:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.25;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .page-indicator {
+      font-size: 0.8rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Right column: large arched photo ── */
+    .right-col {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .arch-wrap {
+      width: 100%;
+      max-width: 520px;
+      height: 100%;
+      max-height: 100%;
+      border-radius: 260px 260px 16px 16px;
+      overflow: hidden;
+    }
+
+    .arch-wrap img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-shell">
+
+  <!-- Top bar -->
+  <nav class="topbar">
+    <a class="topbar-logo" href="../index.html"><span>DA</span></a>
+    <a class="back-link" href="../index.html">Back to Contents</a>
+  </nav>
+
+  <!-- Main layout -->
+  <div class="main-layout">
+
+    <!-- Left: title + text + nav -->
+    <div class="left-col">
+
+      <h1 class="hero-title">
+        <span class="outlined">Preface</span>
+      </h1>
+
+      <div class="reader">
+
+        <div class="text-page active">
+          <p>
+            In the hearts of all mankind, of whatever race or station in life, there are inexpressible
+            longings for something they do not now possess. This longing is implanted in the very
+            constitution of man by a merciful God, that man may not be satisfied with his present
+            conditions or attainments, whether bad, or good, or better. God desires that the human
+            shall seek the best, and find it to the eternal blessing of his soul.
+          </p>
+          <p>
+            Satan, by wily scheme and craft, has perverted these longings of the human heart. He makes
+            men believe that this desire may be satisfied by pleasure, by wealth, by ease, by fame, by
+            power; but those who have been thus deceived by him (and they number myriads) find all these
+            things pall upon the sense, leaving the soul as barren and unsatisfied as before.
+          </p>
+        </div>
+
+        <div class="text-page">
+          <p>
+            It is God's design that this longing of the human heart should lead to the one who alone is
+            able to satisfy it. The desire is of Him that it may lead to Him, the fullness and fulfillment
+            of that desire. That fullness is found in Jesus the Christ, the Son of the Eternal God. "For
+            it was the good pleasure of the Father that in Him should all the fullness dwell;" "For in Him
+            dwelleth all the fullness of the Godhead bodily." And it is also true that "In Him ye are made
+            full" with respect to every desire divinely implanted and normally followed.
+          </p>
+          <p>
+            Haggai calls him "The Desire of all nations," and we may well call him "The Desire of all
+            ages," even as He is "The King of ages."
+          </p>
+        </div>
+
+        <div class="text-page">
+          <p>
+            It is the purpose of this book to set forth Jesus Christ as the one in whom every longing may
+            be satisfied. There is many a "Life of Christ" written, excellent books, large funds of
+            information, elaborate essays on chronology and contemporaneous history, customs, and events,
+            with much of the teaching and many glimpses of the many-sided life of Jesus of Nazareth. Yet
+            it may be truly said, "the half has never been told."
+          </p>
+          <p>
+            It is not, however, the purpose of this work to set forth a harmony of the gospels, or even
+            to give in strictly chronological order the important events and wonderful lessons of the life
+            of Christ; its purpose is to present the love of God as revealed in his Son, the divine beauty
+            of the life of Christ, of which all may partake.
+          </p>
+        </div>
+
+        <div class="text-page">
+          <p>
+            Even as by the attraction of His own goodness of character Jesus drew His disciples unto
+            Himself, and by His personal presence, by His sympathetic touch and feeling in all their
+            infirmities and needs, and by His constant association, transformed their characters from the
+            earthly to the heavenly — even so it is the purpose of this book to present the blessed
+            Redeemer as to help the reader come to Him face to face, heart to heart, and find in Him,
+            even as did the disciples of old, Jesus the Mighty One, who saves "to the uttermost."
+          </p>
+          <p>
+            In the following pages the author, a woman of large and deep and long experience in the things
+            of God, has set forth new beauties from the life of Jesus. New and glorious light flashes forth
+            from many a familiar passage. Jesus Christ is revealed as the Fullness of the Godhead, the
+            infinitely merciful Saviour of sinners, the Sun of Righteousness, the Prince of Peace, the
+            Coming King, and the Everlasting Father.
+          </p>
+        </div>
+
+        <div class="text-page">
+          <p>
+            Under the blessing of God this book is given to the world with the prayer that the Lord by
+            His Spirit will make the words of this book words of life to many souls whose longings and
+            desires are yet unsatisfied; that they "may know Him, and the power of His resurrection, and
+            the fellowship of His sufferings," and finally, throughout a blessed eternity, at His right
+            hand, share in "that fullness of joy," and "pleasures forevermore," which will be the ripened
+            fruitage of all those who find in Him the all in all, "the Chiefest among ten thousand," and
+            "the One altogether lovely."
+          </p>
+          <p class="publishers">Publishers.</p>
+          <p class="study-note">
+            The Desire of Ages Study Guide — A complete chapter by chapter guide with questions to aid
+            in your reading and understanding of the book.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Navigation -->
+      <div class="nav-bar">
+        <button class="nav-btn" id="prevBtn" onclick="changePage(-1)" disabled>← Previous</button>
+        <span class="page-indicator" id="pageIndicator">1 of 5</span>
+        <button class="nav-btn" id="nextBtn" onclick="handleNext()">Next →</button>
+      </div>
+
+    </div>
+
+    <!-- Right: large photo -->
+    <div class="right-col">
+      <div class="arch-wrap">
+        <img src="../assets/images/Preface.jpg" alt="The Desire of Ages by Ellen G. White — book cover" />
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  const pages = document.querySelectorAll('.text-page');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const indicator = document.getElementById('pageIndicator');
+  let current = 0;
+
+  function handleNext() {
+    if (current === pages.length - 1) {
+      var anon = {};
+      try { anon = JSON.parse(localStorage.getItem('doa_anon_progress')||'{}'); } catch(e) {}
+      anon['preface'] = true;
+      localStorage.setItem('doa_anon_progress', JSON.stringify(anon));
+      window.location.href = 'chapter-01.html';
+      return;
+    }
+    changePage(1);
+  }
+
+  function changePage(dir) {
+    pages[current].classList.remove('active');
+    current += dir;
+    pages[current].classList.add('active');
+    prevBtn.disabled = current === 0;
+    const isLast = current === pages.length - 1;
+    nextBtn.textContent = isLast ? 'Proceed to Chapter 1 →' : 'Next →';
+    indicator.textContent = (current + 1) + ' of ' + pages.length;
+  }
+</script>
+
+</body>
+</html>

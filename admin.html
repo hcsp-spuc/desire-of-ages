@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — The Desire of Ages</title>
+  <link rel="stylesheet" href="assets/css/shared.css" />
+  <style>
+    :root {
+      --card:    #ffffff;
+      --sidebar: #1a1614;
+      --sidebar-text: #c8bfb5;
+      --danger:  #b83232;
+      --success: #2e7d52;
+    }
+
+    body { font-family: 'Lora', Georgia, serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .hidden { display: none !important; }
+
+    /* ── Login ── */
+    #login-screen {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg); z-index: 100;
+    }
+    .login-card {
+      width: 360px; padding: 48px 40px;
+      background: var(--card); border-radius: 14px;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.13); text-align: center;
+    }
+    .badge {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .badge span { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: #fff; }
+    .login-card h1 { font-family: 'Playfair Display', serif; font-size: 1.55rem; margin-bottom: 4px; }
+    .login-card > p { font-size: 0.83rem; color: var(--muted); margin-bottom: 28px; }
+    .login-card input {
+      width: 100%; padding: 11px 15px; margin-bottom: 12px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Lora', serif; font-size: 0.93rem;
+      background: var(--bg); color: var(--text); outline: none;
+      transition: border-color .2s;
+    }
+    .login-card input:focus { border-color: var(--accent); }
+    .login-hint { font-size: 0.75rem; color: var(--muted); margin-top: 10px; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px; border-radius: 8px; border: none;
+      font-family: 'Lora', serif; font-size: 0.88rem; cursor: pointer;
+      transition: opacity .2s, background .2s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; width: 100%; justify-content: center; }
+    .btn-primary:hover { opacity: .87; }
+    .btn-secondary {
+      background: transparent; color: var(--accent);
+      border: 1.5px solid var(--accent);
+    }
+    .btn-secondary:hover { background: rgba(139,74,47,.07); }
+    .btn-danger {
+      background: transparent; color: var(--danger);
+      border: 1.5px solid var(--danger);
+    }
+    .btn-danger:hover { background: rgba(184,50,50,.07); }
+    .btn-sm {
+      padding: 5px 13px; font-size: 0.77rem; border-radius: 6px;
+      border: 1.5px solid var(--border); background: transparent;
+      color: var(--accent); font-family: 'Lora', serif; cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .btn-sm:hover { border-color: var(--accent); background: rgba(139,74,47,.06); }
+    .btn-sm-danger {
+      padding: 5px 13px; font-size: 0.77rem; border-radius: 6px;
+      border: 1.5px solid transparent; background: transparent;
+      color: var(--danger); font-family: 'Lora', serif; cursor: pointer;
+      transition: border-color .2s;
+    }
+    .btn-sm-danger:hover { border-color: var(--danger); }
+
+    /* ── Layout ── */
+    #dashboard { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 236px; min-height: 100vh; background: var(--sidebar);
+      display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh; flex-shrink: 0;
+    }
+    .sidebar-head {
+      padding: 26px 20px; display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .badge-sm {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--accent);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .badge-sm span { font-family: 'Playfair Display', serif; font-size: 11px; font-weight: 700; color: #fff; }
+    .sidebar-title { font-size: 0.85rem; font-weight: 600; color: #fff; }
+    .sidebar-sub { font-size: 0.7rem; color: var(--sidebar-text); margin-top: 2px; }
+    .sidebar-nav { flex: 1; padding: 14px 0; }
+    .nav-link {
+      display: block; padding: 10px 20px; font-size: 0.86rem;
+      color: var(--sidebar-text); text-decoration: none;
+      border-left: 3px solid transparent;
+      font-family: 'Lora', serif; cursor: pointer;
+      transition: color .2s, background .2s, border-color .2s;
+      background: none; border-top: none; border-right: none; border-bottom: none;
+      width: 100%; text-align: left;
+    }
+    .nav-link:hover { color: #fff; background: rgba(255,255,255,.05); }
+    .nav-link.active { color: #fff; background: rgba(139,74,47,.22); border-left-color: var(--accent); }
+    .sidebar-foot { padding: 14px 0; border-top: 1px solid rgba(255,255,255,.07); }
+
+    /* ── Main content ── */
+    .main-content { flex: 1; padding: 40px 48px; overflow-y: auto; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .section-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 30px; gap: 16px;
+    }
+    .section-header h2 { font-family: 'Playfair Display', serif; font-size: 1.75rem; font-weight: 700; }
+    .section-header p { color: var(--muted); font-size: 0.88rem; margin-top: 4px; }
+
+    /* ── Stats ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 22px 24px;
+    }
+    .stat-label { font-size: 0.72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .stat-value { font-family: 'Playfair Display', serif; font-size: 2.1rem; font-weight: 700; color: var(--accent); }
+
+    /* ── Card ── */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 26px 30px; margin-bottom: 22px; }
+    .card h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 18px; }
+
+    /* ── Table ── */
+    .table-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
+    .search-input {
+      padding: 8px 13px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Lora', serif; font-size: 0.86rem; background: var(--bg);
+      color: var(--text); outline: none; width: 200px; transition: border-color .2s;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .filter-select {
+      padding: 8px 13px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Lora', serif; font-size: 0.86rem; background: var(--bg);
+      color: var(--text); outline: none; cursor: pointer; transition: border-color .2s;
+      appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6057' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 11px center; padding-right: 30px;
+    }
+    .filter-select:focus { border-color: var(--accent); }
+    .filter-count { font-size: 0.75rem; color: var(--muted); margin-left: auto; white-space: nowrap; }
+    .badge-inst {
+      display: inline-block; font-size: 0.68rem; padding: 2px 8px; border-radius: 99px;
+      background: rgba(139,74,47,.1); color: var(--accent); font-weight: 600;
+    }
+    .badge-pos {
+      font-size: 0.78rem; color: var(--muted); font-style: italic;
+    }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    .data-table th {
+      text-align: left; padding: 9px 14px;
+      font-size: 0.7rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted); border-bottom: 1.5px solid var(--border); font-weight: 600;
+    }
+    .data-table td { padding: 13px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: rgba(139,74,47,.025); }
+
+    /* ── Progress bar ── */
+    .prog-wrap { display: flex; align-items: center; gap: 10px; }
+    .prog-bar { flex: 1; height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; min-width: 70px; }
+    .prog-fill { height: 100%; background: var(--accent); border-radius: 99px; }
+    .prog-pct { font-size: 0.75rem; color: var(--muted); min-width: 32px; text-align: right; }
+
+    /* ── Chapters list ── */
+    .ch-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .ch-row:last-child { border-bottom: none; }
+    .ch-row-num { font-size: 0.8rem; font-style: italic; color: var(--muted); min-width: 28px; text-align: right; flex-shrink: 0; }
+    .ch-row-title { flex: 1; font-size: 0.93rem; }
+    .ch-row-badge { font-size: 0.68rem; padding: 2px 7px; border-radius: 99px; background: rgba(139,74,47,.1); color: var(--accent); margin-left: 6px; }
+    .ch-row-readers { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+    .ch-row-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    /* ── Overview chart rows ── */
+    .ch-stat-row { display: flex; align-items: center; gap: 12px; padding: 7px 0; font-size: 0.8rem; }
+    .ch-stat-title { min-width: 180px; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ch-stat-bar { flex: 1; height: 5px; background: var(--bg); border: 1px solid var(--border); border-radius: 99px; overflow: hidden; }
+    .ch-stat-fill { height: 100%; background: var(--accent); border-radius: 99px; }
+    .ch-stat-count { min-width: 40px; text-align: right; color: var(--muted); font-size: 0.75rem; }
+
+    /* ── Top readers ── */
+    .reader-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+    .reader-row:last-child { border-bottom: none; }
+    .reader-avatar {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .reader-name { flex: 1; font-size: 0.88rem; font-weight: 600; }
+
+    /* ── Forms ── */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 0.72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 9px 13px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Lora', serif; font-size: 0.9rem; background: var(--bg);
+      color: var(--text); outline: none; resize: vertical; transition: border-color .2s;
+    }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
+    .form-row { display: flex; gap: 14px; }
+    .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+
+    /* ── Image entries ── */
+    .img-entry { display: flex; gap: 8px; align-items: center; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); margin-bottom: 8px; }
+    .img-entry input { flex: 1; padding: 6px 9px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Lora', serif; font-size: 0.83rem; background: #fff; outline: none; }
+    .img-entry input:focus { border-color: var(--accent); }
+    .img-preview { width: 36px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); flex-shrink: 0; }
+    .img-remove { background: none; border: none; color: var(--danger); font-size: 1.1rem; cursor: pointer; padding: 2px 6px; flex-shrink: 0; }
+
+    /* ── Modals ── */
+    .modal { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; }
+    .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.45); }
+    .modal-box {
+      position: relative; background: #fff; border-radius: 12px;
+      width: 560px; max-width: 95vw; max-height: 88vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+    .modal-box--wide { width: 740px; }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 22px 26px; border-bottom: 1px solid var(--border); }
+    .modal-head h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+    .modal-close { background: none; border: none; font-size: 1.4rem; color: var(--muted); cursor: pointer; padding: 2px 6px; line-height: 1; }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { padding: 22px 26px 26px; }
+
+    /* ── User detail ── */
+    .user-meta { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 20px; font-size: 0.85rem; color: var(--muted); }
+    .user-meta strong { color: var(--text); }
+    .ch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(30px, 1fr)); gap: 4px; margin-top: 10px; }
+    .ch-pill { width: 30px; height: 30px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; cursor: default; }
+    .ch-pill--read { background: var(--accent); color: #fff; }
+    .ch-pill--unread { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+
+    /* ── Settings ── */
+    .settings-note { font-size: 0.87rem; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    /* ── Misc ── */
+    .empty-msg { text-align: center; color: var(--muted); font-style: italic; font-size: 0.88rem; padding: 28px; }
+    .msg-success { font-size: 0.84rem; color: var(--success); margin-top: 8px; }
+    .msg-error   { font-size: 0.84rem; color: var(--danger);  margin-top: 8px; }
+
+    /* ── Quiz section in chapter editor ── */
+    .quiz-block {
+      border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 18px 20px; margin-bottom: 18px; background: var(--bg);
+    }
+    .quiz-block-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .quiz-block-header h4 { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; margin: 0; }
+    .quiz-tag {
+      font-size: 0.68rem; padding: 3px 9px; border-radius: 99px; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase;
+    }
+    .quiz-tag--mid  { background: rgba(139,74,47,.12); color: var(--accent); }
+    .quiz-tag--last { background: rgba(46,125,82,.12);  color: var(--success); }
+    .quiz-options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
+    .quiz-opt-label {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .quiz-opt-badge {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.68rem; font-weight: 700;
+    }
+    .quiz-exp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .quiz-exp-correct label { color: var(--success) !important; }
+    .quiz-exp-wrong   label { color: var(--danger)  !important; }
+    /* ── Discussion blocks ── */
+    .discuss-block {
+      border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 18px 20px; margin-bottom: 18px; background: #fff;
+    }
+    .discuss-block-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .discuss-block-header h4 { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; margin: 0; }
+    .discuss-tag {
+      font-size: 0.68rem; padding: 3px 9px; border-radius: 99px; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase;
+      background: rgba(139,74,47,.08); color: var(--accent);
+    }
+    .block-step {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700; font-family: 'Playfair Display', serif;
+    }
+
+    .quiz-type-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .quiz-type-btn {
+      padding: 5px 16px; border-radius: 99px; font-family: 'Lora', serif; font-size: 0.8rem;
+      border: 1.5px solid var(--border); background: transparent; color: var(--muted);
+      cursor: pointer; transition: all .18s;
+    }
+    .quiz-type-btn.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+
+    @media (max-width: 960px) {
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+      .main-content { padding: 28px 22px; }
+      .sidebar { width: 200px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="badge"><span>DA</span></div>
+    <h1>Admin Panel</h1>
+    <p>The Desire of Ages — NSB Writings</p>
+    <form id="login-form">
+      <input type="password" id="pwd-input" placeholder="Admin password" autocomplete="current-password" />
+      <button type="submit" class="btn btn-primary">Sign in →</button>
+    </form>
+    <p id="login-error" class="msg-error hidden">Incorrect password.</p>
+    <p class="login-hint" id="login-hint">Default password: <strong>admin123</strong></p>
+    <a href="index.html" style="display:inline-block;margin-top:18px;font-size:0.8rem;color:var(--muted);text-decoration:none;opacity:.8;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.8">← Back to Book</a>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div id="dashboard" class="hidden">
+
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div class="badge-sm"><span>DA</span></div>
+      <div>
+        <div class="sidebar-title">Admin Panel</div>
+        <div class="sidebar-sub">Desire of Ages</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-link active" data-sec="overview">Overview</button>
+      <button class="nav-link" data-sec="users">Users &amp; Progress</button>
+      <button class="nav-link" data-sec="chapters">Chapters</button>
+      <button class="nav-link" data-sec="settings">Settings</button>
+    </nav>
+    <div class="sidebar-foot">
+      <a class="nav-link" href="index.html">← Back to Book</a>
+      <button class="nav-link" id="logout-btn">Logout</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- OVERVIEW -->
+    <section id="sec-overview" class="section active">
+      <div class="section-header">
+        <div><h2>Overview</h2><p>Reading progress across all registered users</p></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><p class="stat-label">Total Users</p><p class="stat-value" id="st-users">0</p></div>
+        <div class="stat-card"><p class="stat-label">Total Chapters</p><p class="stat-value" id="st-chs">88</p></div>
+        <div class="stat-card"><p class="stat-label">Chapters Read</p><p class="stat-value" id="st-reads">0</p></div>
+        <div class="stat-card"><p class="stat-label">Active Today</p><p class="stat-value" id="st-today">0</p></div>
+      </div>
+      <div class="card"><h3>Top Readers</h3><div id="top-readers"></div></div>
+      <div class="card"><h3>Most-Read Chapters</h3><div id="ch-stats"></div></div>
+    </section>
+
+    <!-- USERS -->
+    <section id="sec-users" class="section">
+      <div class="section-header">
+        <div><h2>Users &amp; Progress</h2><p>Individual reading progress for every registered user</p></div>
+      </div>
+      <div class="card">
+        <div class="table-toolbar">
+          <input class="search-input" id="user-search" placeholder="Search name or email…" oninput="applyFilters()" />
+          <select class="filter-select" id="filter-institution" onchange="applyFilters()">
+            <option value="">All Institutions</option>
+            <option value="SwPUC">SwPUC</option>
+            <option value="CMM">CMM</option>
+            <option value="NCMC">NCMC</option>
+            <option value="NEMM">NEMM</option>
+            <option value="WMC">WMC</option>
+            <option value="ZPM">ZPM</option>
+          </select>
+          <select class="filter-select" id="filter-position" onchange="applyFilters()">
+            <option value="">All Positions</option>
+          </select>
+          <select class="filter-select" id="filter-sort" onchange="applyFilters()">
+            <option value="name">Sort: Name</option>
+            <option value="institution">Sort: Institution</option>
+            <option value="position">Sort: Position</option>
+            <option value="progress">Sort: Progress</option>
+            <option value="joined">Sort: Date Joined</option>
+          </select>
+          <span class="filter-count" id="filter-count"></span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Name</th><th>Institution</th><th>Position</th><th>Email</th><th>Joined</th><th>Progress</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody"></tbody>
+        </table>
+        <p id="no-users" class="empty-msg hidden">No users yet. Share the main page — users register on first visit.</p>
+      </div>
+    </section>
+
+    <!-- CHAPTERS -->
+    <section id="sec-chapters" class="section">
+      <div class="section-header">
+        <div><h2>Chapters</h2><p>Add content &amp; images to any chapter, or create new ones</p></div>
+        <button class="btn btn-primary" id="add-ch-btn" style="white-space:nowrap;width:auto">+ Add Chapter</button>
+      </div>
+      <div class="card"><div id="ch-list"></div></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="sec-settings" class="section">
+      <div class="section-header"><div><h2>Settings</h2></div></div>
+      <div class="card">
+        <h3>Change Admin Password</h3>
+        <form id="pwd-form" style="max-width:340px">
+          <div class="form-group"><label>Current Password</label><input type="password" id="s-cur" placeholder="Current password" /></div>
+          <div class="form-group"><label>New Password</label><input type="password" id="s-new" placeholder="New password (min 6 chars)" /></div>
+          <div class="form-group"><label>Confirm New Password</label><input type="password" id="s-conf" placeholder="Confirm new password" /></div>
+          <button type="submit" class="btn btn-primary" style="width:auto;padding:10px 24px">Update Password</button>
+          <p id="pwd-msg" class="hidden"></p>
+        </form>
+      </div>
+      <div class="card">
+        <h3>Data Management</h3>
+        <p class="settings-note">Export a JSON snapshot of all data, or wipe everything to start fresh.</p>
+        <div class="btn-row">
+          <button class="btn btn-secondary" id="export-btn">Export Data (JSON)</button>
+          <button class="btn btn-danger" id="reset-btn">Reset All User Data</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>About Data Storage</h3>
+        <p class="settings-note">
+          User data is stored in <strong>this browser's localStorage</strong>. Users on the same device and browser
+          will appear here automatically. For multi-device tracking, connect the project to Firebase Firestore —
+          the data layer is isolated in the JS and easy to swap out.
+        </p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ══ MODAL: User Detail ══ -->
+<div id="modal-user" class="modal hidden">
+  <div class="modal-backdrop" onclick="closeModal('modal-user')"></div>
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="mu-name">User</h3>
+      <button class="modal-close" onclick="closeModal('modal-user')">×</button>
+    </div>
+    <div class="modal-body" id="mu-body"></div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Chapter Editor ══ -->
+<div id="modal-ch" class="modal hidden">
+  <div class="modal-backdrop" onclick="closeModal('modal-ch')"></div>
+  <div class="modal-box modal-box--wide">
+    <div class="modal-head">
+      <h3 id="mc-title">Add Chapter</h3>
+      <button class="modal-close" onclick="closeModal('modal-ch')">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="ch-form" onsubmit="saveChapter(event)">
+        <input type="hidden" id="ch-id" />
+        <input type="hidden" id="ch-builtin" />
+        <div class="form-row">
+          <div class="form-group" style="flex:1">
+            <label>Number</label>
+            <input type="number" id="ch-num" placeholder="88" min="0" />
+          </div>
+          <div class="form-group" style="flex:4">
+            <label>Title <span style="font-size:.7rem;font-weight:400;text-transform:none;letter-spacing:0">(built-in titles are read-only)</span></label>
+            <input type="text" id="ch-title" placeholder="Chapter title…" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Page URL (optional — leave blank to use built-in)</label>
+          <input type="text" id="ch-url" placeholder="e.g. chapter-1.html" />
+        </div>
+
+        <!-- ── Single Chapter Image ── -->
+        <div class="form-group">
+          <label>Chapter Image</label>
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <div style="flex:1">
+              <input type="text" id="ch-image-url"
+                placeholder="Paste Google Drive link or any image URL…"
+                oninput="handleSingleImgInput(this)"
+                onpaste="setTimeout(()=>handleSingleImgInput(this),0)" />
+              <input type="text" id="ch-image-cap" placeholder="Caption (optional)" style="margin-top:8px" />
+              <div id="ch-img-hint" style="display:none;font-size:.72rem;color:var(--success);margin-top:5px">
+                ✓ Google Drive link converted — make sure the file is shared as <strong>"Anyone with the link"</strong>
+              </div>
+              <div id="ch-img-status" style="font-size:.75rem;margin-top:6px;font-style:italic"></div>
+            </div>
+            <div id="ch-img-preview-wrap" style="display:none;flex-shrink:0;width:170px;border-radius:10px;overflow:hidden;border:2px solid var(--border);background:var(--bg)">
+              <img id="ch-img-preview" src="" alt=""
+                style="width:100%;height:120px;object-fit:cover;display:block" />
+              <div id="ch-img-confirm" style="display:none;background:#2e7d52;color:#fff;font-size:.7rem;text-align:center;padding:5px 8px;font-weight:600;letter-spacing:.04em">
+                ✓ CONFIRMED — WILL DISPLAY
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Block 1: First Discussion ── -->
+        <div class="discuss-block">
+          <div class="discuss-block-header">
+            <div class="block-step">1</div>
+            <span class="discuss-tag">Discussion</span>
+            <h4>First Discussion</h4>
+          </div>
+          <div class="form-group">
+            <label>Content (supports HTML)</label>
+            <textarea id="ch-content" rows="7" placeholder="First discussion text…"></textarea>
+          </div>
+        </div>
+
+        <!-- ── Block 2: First Question ── -->
+        <div class="quiz-block">
+          <div class="quiz-block-header">
+            <div class="block-step">2</div>
+            <span class="quiz-tag quiz-tag--mid">Question</span>
+            <h4>First Question</h4>
+          </div>
+          <div class="quiz-type-row">
+            <span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Type:</span>
+            <button type="button" class="quiz-type-btn active" onclick="setQuizType('q1','mc',this)">Multiple Choice</button>
+            <button type="button" class="quiz-type-btn" onclick="setQuizType('q1','tf',this)">True / False</button>
+            <input type="hidden" id="q1-type" value="mc" />
+          </div>
+          <div class="form-group">
+            <label>Question</label>
+            <input type="text" id="q1-question" placeholder="Type the quiz question…" />
+          </div>
+          <div id="q1-mc-opts" class="quiz-options-grid">
+            <div class="form-group">
+              <label><span class="quiz-opt-badge" style="display:inline-flex;width:18px;height:18px;font-size:.62rem;margin-right:5px">A</span>Option A</label>
+              <input type="text" id="q1-opt-a" placeholder="Option A" />
+            </div>
+            <div class="form-group">
+              <label><span class="quiz-opt-badge" style="display:inline-flex;width:18px;height:18px;font-size:.62rem;margin-right:5px">B</span>Option B</label>
+              <input type="text" id="q1-opt-b" placeholder="Option B" />
+            </div>
+            <div class="form-group">
+              <label><span class="quiz-opt-badge" style="display:inline-flex;width:18px;height:18px;font-size:.62rem;margin-right:5px">C</span>Option C</label>
+              <input type="text" id="q1-opt-c" placeholder="Option C" />
+            </div>
+            <div class="form-group">
+              <label><span class="quiz-opt-badge" style="display:inline-flex;width:18px;height:18px;font-size:.62rem;margin-right:5px">D</span>Option D</label>
+              <input type="text" id="q1-opt-d" placeholder="Option D" />
+            </div>
+          </div>
+          <div class="form-group" style="max-width:200px">
+            <label>Correct Answer</label>
+            <select id="q1-correct">
+              <option value="">— select —</option>
+              <option value="0">A</option>
+              <option value="1">B</option>
+              <option value="2">C</option>
+              <option value="3">D</option>
+            </select>
+          </div>
+          <div class="quiz-exp-row">
+            <div class="form-group quiz-exp-correct">
+              <label>✓ Correct — Explanation</label>
+              <textarea id="q1-exp-correct" rows="3" placeholder="Shown when the user answers correctly…"></textarea>
+            </div>
+            <div class="form-group quiz-exp-wrong">
+              <label>✗ Wrong — Explanation</label>
+              <textarea id="q1-exp-wrong" rows="3" placeholder="Shown when the user answers incorrectly…"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Block 3: Second Discussion ── -->
+        <div class="discuss-block">
+          <div class="discuss-block-header">
+            <div class="block-step">3</div>
+            <span class="discuss-tag">Discussion</span>
+            <h4>Second Discussion</h4>
+          </div>
+          <div class="form-group">
+            <label>Content (supports HTML)</label>
+            <textarea id="ch-content2" rows="7" placeholder="Second discussion text…"></textarea>
+          </div>
+        </div>
+
+        <!-- ── Block 4: Second Question ── -->
+        <div class="quiz-block">
+          <div class="quiz-block-header">
+            <div class="block-step">4</div>
+            <span class="quiz-tag quiz-tag--last">Question</span>
+            <h4>Second Question</h4>
+          </div>
+          <div class="quiz-type-row">
+            <span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Type:</span>
+            <button type="button" class="quiz-type-btn active" onclick="setQuizType('q2','mc',this)">Multiple Choice</button>
+            <button type="button" class="quiz-type-btn" onclick="setQuizType('q2','tf',this)">True / False</button>
+            <input type="hidden" id="q2-type" value="mc" />
+          </div>
+          <div class="form-group">
+            <label>Question</label>
+            <input type="text" id="q2-question" placeholder="Type the quiz question…" />
+          </div>
+          <div id="q2-mc-opts" class="quiz-options-grid">
+            <div class="form-group">
+              <label><span class="quiz-opt-badge" style="display:inline-flex;width:18px;height:18px;font-size:.62rem;margin-right:5px">A</span>Option A</label>
+              <input type="text" id="q2-opt-a" placeholder="Option A" />
+            </div>
+            <div class="form-group">
+              <label><span class="quiz-opt-badge" style="display:inline-flex;width:18px;height:18px;font-size:.62rem;margin-right:5px">B</span>Option B</label>
+              <input type="text" id="q2-opt-b" placeholder="Option B" />
+            </div>
+            <div class="form-group">
+              <label><span class="quiz-opt-badge" style="display:inline-flex;width:18px;height:18px;font-size:.62rem;margin-right:5px">C</span>Option C</label>
+              <input type="text" id="q2-opt-c" placeholder="Option C" />
+            </div>
+            <div class="form-group">
+              <label><span class="quiz-opt-badge" style="display:inline-flex;width:18px;height:18px;font-size:.62rem;margin-right:5px">D</span>Option D</label>
+              <input type="text" id="q2-opt-d" placeholder="Option D" />
+            </div>
+          </div>
+          <div class="form-group" style="max-width:200px">
+            <label>Correct Answer</label>
+            <select id="q2-correct">
+              <option value="">— select —</option>
+              <option value="0">A</option>
+              <option value="1">B</option>
+              <option value="2">C</option>
+              <option value="3">D</option>
+            </select>
+          </div>
+          <div class="quiz-exp-row">
+            <div class="form-group quiz-exp-correct">
+              <label>✓ Correct — Explanation</label>
+              <textarea id="q2-exp-correct" rows="3" placeholder="Shown when the user answers correctly…"></textarea>
+            </div>
+            <div class="form-group quiz-exp-wrong">
+              <label>✗ Wrong — Explanation</label>
+              <textarea id="q2-exp-wrong" rows="3" placeholder="Shown when the user answers incorrectly…"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-ch')">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="width:auto;padding:10px 28px">Save Chapter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCZMh4KUoXtSgCP3xCQ7atA8cJ7CQOGgfU",
+  authDomain: "desire-of-ages-treasury.firebaseapp.com",
+  projectId: "desire-of-ages-treasury",
+  storageBucket: "desire-of-ages-treasury.firebasestorage.app",
+  messagingSenderId: "472087552829",
+  appId: "1:472087552829:web:9fafa1c0c6af4bce4a9b54"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+<script>
+// ─── Session key ─────────────────────────────────────────
+const K = { session: 'doa_admin_sess' };
+
+// ─── In-memory cache (loaded at boot) ────────────────────
+let _users   = [];
+let _extras  = {};
+let _customs = [];
+let _pwd     = 'admin123';
+
+// ─── Default chapters ────────────────────────────────────
+const DEFAULTS = [
+  {id:'preface',n:0,  t:'Preface',                                  url:'preface.html'},
+  {id:'ch-1',  n:1,  t:'"God With Us"',                             url:null},
+  {id:'ch-2',  n:2,  t:'The Chosen People',                         url:null},
+  {id:'ch-3',  n:3,  t:'"The Fullness of the Time"',                url:null},
+  {id:'ch-4',  n:4,  t:'Unto You a Saviour',                        url:null},
+  {id:'ch-5',  n:5,  t:'The Dedication',                            url:null},
+  {id:'ch-6',  n:6,  t:'"We Have Seen His Star"',                   url:null},
+  {id:'ch-7',  n:7,  t:'As a Child',                                url:null},
+  {id:'ch-8',  n:8,  t:'The Passover Visit',                        url:null},
+  {id:'ch-9',  n:9,  t:'Days of Conflict',                          url:null},
+  {id:'ch-10', n:10, t:'A Voice in the Wilderness',                 url:null},
+  {id:'ch-11', n:11, t:'The Baptism',                               url:null},
+  {id:'ch-12', n:12, t:'The Temptation',                            url:null},
+  {id:'ch-13', n:13, t:'The Victory',                               url:null},
+  {id:'ch-14', n:14, t:'"We Have Found the Messiah"',               url:null},
+  {id:'ch-15', n:15, t:'At the Marriage Feast',                     url:null},
+  {id:'ch-16', n:16, t:'In His Temple',                             url:null},
+  {id:'ch-17', n:17, t:'Nicodemus',                                 url:null},
+  {id:'ch-18', n:18, t:'"He Must Increase"',                        url:null},
+  {id:'ch-19', n:19, t:"At Jacob's Well",                           url:null},
+  {id:'ch-20', n:20, t:'"Except Ye See Signs and Wonders"',         url:null},
+  {id:'ch-21', n:21, t:'Bethesda and the Sabbath',                  url:null},
+  {id:'ch-22', n:22, t:'Imprisonment and Death of John',            url:null},
+  {id:'ch-23', n:23, t:'"The Kingdom of God Is at Hand"',           url:null},
+  {id:'ch-24', n:24, t:"\"Is Not This the Carpenter's Son?\"",      url:null},
+  {id:'ch-25', n:25, t:'The Call by the Sea',                       url:null},
+  {id:'ch-26', n:26, t:'At Capernaum',                              url:null},
+  {id:'ch-27', n:27, t:'"Thou Canst Make Me Clean"',                url:null},
+  {id:'ch-28', n:28, t:'Levi-Matthew',                              url:null},
+  {id:'ch-29', n:29, t:'The Sabbath',                               url:null},
+  {id:'ch-30', n:30, t:'"He Ordained Twelve"',                      url:null},
+  {id:'ch-31', n:31, t:'The Sermon on the Mount',                   url:null},
+  {id:'ch-32', n:32, t:'The Centurion',                             url:null},
+  {id:'ch-33', n:33, t:'"Who Are My Brethren?"',                    url:null},
+  {id:'ch-34', n:34, t:'The Invitation',                            url:null},
+  {id:'ch-35', n:35, t:'"Peace, Be Still"',                         url:null},
+  {id:'ch-36', n:36, t:'The Touch of Faith',                        url:null},
+  {id:'ch-37', n:37, t:'The First Evangelists',                     url:null},
+  {id:'ch-38', n:38, t:'Come Rest Awhile',                          url:null},
+  {id:'ch-39', n:39, t:'"Give Ye Them to Eat"',                     url:null},
+  {id:'ch-40', n:40, t:'A Night on the Lake',                       url:null},
+  {id:'ch-41', n:41, t:'The Crisis in Galilee',                     url:null},
+  {id:'ch-42', n:42, t:'Tradition',                                  url:null},
+  {id:'ch-43', n:43, t:'The Barriers Broken Down',                  url:null},
+  {id:'ch-44', n:44, t:'The True Sign',                             url:null},
+  {id:'ch-45', n:45, t:'The Foreshadowing of the Cross',            url:null},
+  {id:'ch-46', n:46, t:'"Who Are Ye Transfigured"',                 url:null},
+  {id:'ch-47', n:47, t:'Mystery',                                    url:null},
+  {id:'ch-48', n:48, t:'"Who Is the Greatest?"',                    url:null},
+  {id:'ch-49', n:49, t:'At the Feast of Tabernacles',               url:null},
+  {id:'ch-50', n:50, t:'Among Snares',                              url:null},
+  {id:'ch-51', n:51, t:'The Light of Life',                         url:null},
+  {id:'ch-52', n:52, t:'The Divine Shepherd',                       url:null},
+  {id:'ch-53', n:53, t:'The Last Journey From Galilee',             url:null},
+  {id:'ch-54', n:54, t:'The Good Samaritan',                        url:null},
+  {id:'ch-55', n:55, t:'Not With Outward Show',                     url:null},
+  {id:'ch-56', n:56, t:'Blessing the Children',                     url:null},
+  {id:'ch-57', n:57, t:'"One Thing Thou Lackest"',                  url:null},
+  {id:'ch-58', n:58, t:'Lazarus, Come Forth!',                      url:null},
+  {id:'ch-59', n:59, t:'Priestly Plottings',                        url:null},
+  {id:'ch-60', n:60, t:'The Law of the New Kingdom',                url:null},
+  {id:'ch-61', n:61, t:'Zacchaeus',                                  url:null},
+  {id:'ch-62', n:62, t:"The Feast at Simon's House",                url:null},
+  {id:'ch-63', n:63, t:'"Thy King Cometh"',                         url:null},
+  {id:'ch-64', n:64, t:'A Doomed People',                           url:null},
+  {id:'ch-65', n:65, t:'The Temple Cleansed Again',                 url:null},
+  {id:'ch-66', n:66, t:'Controversy',                                url:null},
+  {id:'ch-67', n:67, t:'Woes on the Pharisees',                     url:null},
+  {id:'ch-68', n:68, t:'In the Quiet Court',                        url:null},
+  {id:'ch-69', n:69, t:'On the Mount of Olives',                    url:null},
+  {id:'ch-70', n:70, t:'"The Least of These My Brethren"',          url:null},
+  {id:'ch-71', n:71, t:'A Servant of Servants',                     url:null},
+  {id:'ch-72', n:72, t:'In Remembrance of Me',                      url:null},
+  {id:'ch-73', n:73, t:'"Let Not Your Heart Be Troubled"',          url:null},
+  {id:'ch-74', n:74, t:'Gethsemane',                                 url:null},
+  {id:'ch-75', n:75, t:'Before Annas and the Court of Caiaphas',    url:null},
+  {id:'ch-76', n:76, t:'Judas',                                      url:null},
+  {id:'ch-77', n:77, t:"In Pilate's Judgment Hall",                 url:null},
+  {id:'ch-78', n:78, t:'Calvary',                                    url:null},
+  {id:'ch-79', n:79, t:'"It Is Finished"',                          url:null},
+  {id:'ch-80', n:80, t:"In Joseph's Tomb",                          url:null},
+  {id:'ch-81', n:81, t:'"The Lord Is Risen"',                       url:null},
+  {id:'ch-82', n:82, t:'"Why Weepest Thou?"',                       url:null},
+  {id:'ch-83', n:83, t:'The Walk to Emmaus',                        url:null},
+  {id:'ch-84', n:84, t:'"Peace Be Unto You"',                       url:null},
+  {id:'ch-85', n:85, t:'"He Is Seen Once More"',                    url:null},
+  {id:'ch-86', n:86, t:'Go Teach All Nations',                      url:null},
+  {id:'ch-87', n:87, t:'"To My Father and Your Father"',            url:null},
+];
+
+// ─── Firebase loaders ────────────────────────────────────
+async function loadAllData() {
+  const [usersSnap, extrasSnap, customsSnap, settingsDoc] = await Promise.all([
+    db.collection('users').get(),
+    db.collection('chExtras').get(),
+    db.collection('customChapters').get(),
+    db.collection('settings').doc('admin').get(),
+  ]);
+  _users   = usersSnap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+  _extras  = {};
+  extrasSnap.docs.forEach(d => { _extras[d.id] = d.data(); });
+  _customs = customsSnap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+  _pwd     = (settingsDoc.exists && settingsDoc.data().password) || 'admin123';
+}
+
+// ─── Cached getters ───────────────────────────────────────
+const getPwd     = () => _pwd;
+const getUsers   = () => _users;
+const getCustoms = () => _customs;
+const getExtras  = () => _extras;
+
+function getAllChapters() {
+  const builtins = DEFAULTS.map(c => ({ ...c, ...(_extras[c.id]||{}), builtin: true }));
+  const customs  = _customs.map(c => ({ ...c, ...(_extras[c.id]||{}), builtin: false }));
+  return [...builtins, ...customs];
+}
+
+const todayStr = () => new Date().toISOString().split('T')[0];
+const fmtDate  = iso => iso ? new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+const esc      = s   => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const initials = name => name.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+
+// ─── Auth ────────────────────────────────────────────────
+const isLoggedIn = () => sessionStorage.getItem(K.session) === '1';
+const doLogin    = pwd => { if (pwd===getPwd()) { sessionStorage.setItem(K.session,'1'); return true; } return false; };
+const doLogout   = () => { sessionStorage.removeItem(K.session); location.reload(); };
+
+// ─── Boot ────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  try { await loadAllData(); } catch(e) { console.warn('Firebase unavailable, using defaults.', e); }
+
+  if (isLoggedIn()) showDashboard();
+
+  document.getElementById('login-form').onsubmit = e => {
+    e.preventDefault();
+    const v = document.getElementById('pwd-input').value;
+    if (doLogin(v)) { showDashboard(); }
+    else { document.getElementById('login-error').classList.remove('hidden'); }
+  };
+
+  document.querySelectorAll('.nav-link[data-sec]').forEach(b => {
+    b.addEventListener('click', () => switchSec(b.dataset.sec));
+  });
+
+  document.getElementById('logout-btn').onclick  = doLogout;
+  document.getElementById('add-ch-btn').onclick  = () => openChModal(null);
+  document.getElementById('ch-form').onsubmit    = saveChapter;
+  document.getElementById('pwd-form').onsubmit   = changePwd;
+  document.getElementById('export-btn').onclick  = exportData;
+  document.getElementById('reset-btn').onclick   = resetData;
+});
+
+function showDashboard() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+  renderAll();
+}
+
+function switchSec(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-link[data-sec]').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  document.querySelector(`.nav-link[data-sec="${name}"]`).classList.add('active');
+}
+
+function renderAll() { renderOverview(); renderUsers(); renderChapters(); }
+
+// ─── Overview ────────────────────────────────────────────
+function renderOverview() {
+  const users = getUsers();
+  const allCh = getAllChapters();
+  const today = todayStr();
+  let reads = 0, active = 0;
+  users.forEach(u => {
+    reads += Object.values(u.progress||{}).filter(p=>p.read).length;
+    if (u.lastActive === today) active++;
+  });
+  document.getElementById('st-users').textContent = users.length;
+  document.getElementById('st-chs').textContent   = allCh.length;
+  document.getElementById('st-reads').textContent = reads;
+  document.getElementById('st-today').textContent = active;
+
+  // Top readers
+  const sorted = [...users].sort((a,b) =>
+    Object.values(b.progress||{}).filter(p=>p.read).length -
+    Object.values(a.progress||{}).filter(p=>p.read).length
+  ).slice(0,5);
+
+  const trEl = document.getElementById('top-readers');
+  if (!sorted.length) { trEl.innerHTML = '<p class="empty-msg">No users yet.</p>'; }
+  else {
+    trEl.innerHTML = sorted.map(u => {
+      const r = Object.values(u.progress||{}).filter(p=>p.read).length;
+      const pct = Math.round(r / allCh.length * 100);
+      return `<div class="reader-row">
+        <div class="reader-avatar">${esc(initials(u.name))}</div>
+        <div class="reader-name">${esc(u.name)}</div>
+        <div class="prog-wrap" style="flex:1;max-width:240px">
+          <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+          <div class="prog-pct">${pct}%</div>
+        </div>
+        <div style="font-size:.75rem;color:var(--muted)">${r}/${allCh.length}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Chapter read counts
+  const counts = {};
+  allCh.forEach(c => counts[c.id] = 0);
+  users.forEach(u => Object.entries(u.progress||{}).forEach(([id,p]) => { if(p.read && counts[id]!==undefined) counts[id]++; }));
+  const maxC = Math.max(...Object.values(counts), 1);
+  const top = allCh.filter(c=>counts[c.id]>0).sort((a,b)=>counts[b.id]-counts[a.id]).slice(0,12);
+
+  const csEl = document.getElementById('ch-stats');
+  if (!top.length) { csEl.innerHTML = '<p class="empty-msg">No chapters read yet.</p>'; }
+  else {
+    csEl.innerHTML = top.map(c => {
+      const cnt = counts[c.id];
+      const w = Math.round(cnt/maxC*100);
+      const lbl = c.n===0 ? 'Preface' : `Ch. ${c.n}`;
+      return `<div class="ch-stat-row">
+        <div class="ch-stat-title">${lbl} — ${esc(c.t)}</div>
+        <div class="ch-stat-bar"><div class="ch-stat-fill" style="width:${w}%"></div></div>
+        <div class="ch-stat-count">${cnt} reader${cnt!==1?'s':''}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ─── Users ───────────────────────────────────────────────
+function renderUsers() {
+  applyFilters();
+}
+
+function renderUsersTable(users) {
+  const tbody = document.getElementById('users-tbody');
+  const noEl  = document.getElementById('no-users');
+  const allCh = getAllChapters();
+  document.getElementById('filter-count').textContent = users.length + ' user' + (users.length !== 1 ? 's' : '');
+  if (!users.length) { tbody.innerHTML=''; noEl.classList.remove('hidden'); return; }
+  noEl.classList.add('hidden');
+  tbody.innerHTML = users.map(u => {
+    const r = Object.values(u.progress||{}).filter(p=>p.read).length;
+    const pct = Math.round(r/allCh.length*100);
+    return `<tr>
+      <td><strong>${esc(u.name)}</strong></td>
+      <td><span class="badge-inst">${esc(u.institution||'—')}</span></td>
+      <td><span class="badge-pos">${esc(u.position||'—')}</span></td>
+      <td style="color:var(--muted)">${esc(u.email||'—')}</td>
+      <td style="color:var(--muted)">${fmtDate(u.joinedAt)}</td>
+      <td><div class="prog-wrap">
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+        <div class="prog-pct">${pct}%</div>
+      </div></td>
+      <td><button class="btn-sm" onclick="openUserModal('${esc(u.id)}')">View</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function populatePositionFilter() {
+  const sel = document.getElementById('filter-position');
+  const current = sel.value;
+  const positions = [...new Set(_users.map(u => u.position||'').filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">All Positions</option>' +
+    positions.map(p => `<option value="${esc(p)}"${p===current?' selected':''}>${esc(p)}</option>`).join('');
+}
+
+function applyFilters() {
+  populatePositionFilter();
+  const q    = (document.getElementById('user-search').value || '').toLowerCase();
+  const inst = document.getElementById('filter-institution').value;
+  const pos  = document.getElementById('filter-position').value;
+  const sort = document.getElementById('filter-sort').value;
+  const allCh = getAllChapters();
+
+  let list = _users.filter(u => {
+    const matchQ    = !q || u.name.toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q) || (u.position||'').toLowerCase().includes(q);
+    const matchInst = !inst || (u.institution||'') === inst;
+    const matchPos  = !pos  || (u.position||'') === pos;
+    return matchQ && matchInst && matchPos;
+  });
+
+  list = list.slice().sort((a, b) => {
+    if (sort === 'institution') return (a.institution||'').localeCompare(b.institution||'');
+    if (sort === 'position')    return (a.position||'').localeCompare(b.position||'');
+    if (sort === 'progress') {
+      const ra = Object.values(a.progress||{}).filter(p=>p.read).length;
+      const rb = Object.values(b.progress||{}).filter(p=>p.read).length;
+      return rb - ra;
+    }
+    if (sort === 'joined') return (b.joinedAt||'').localeCompare(a.joinedAt||'');
+    return (a.name||'').localeCompare(b.name||'');
+  });
+
+  renderUsersTable(list);
+}
+
+function openUserModal(uid) {
+  const u = _users.find(x=>x.id===uid);
+  if (!u) return;
+  const allCh = getAllChapters();
+  const r = Object.values(u.progress||{}).filter(p=>p.read).length;
+  const pct = Math.round(r/allCh.length*100);
+  document.getElementById('mu-name').textContent = u.name;
+  const pills = allCh.map(c => {
+    const isRead = u.progress?.[c.id]?.read;
+    const lbl = c.n===0 ? 'P' : c.n;
+    const title = (c.n===0?'Preface':'Ch. '+c.n)+': '+c.t;
+    return `<div class="ch-pill ${isRead?'ch-pill--read':'ch-pill--unread'}" title="${esc(title)}">${lbl}</div>`;
+  }).join('');
+
+  document.getElementById('mu-body').innerHTML = `
+    <div class="user-meta">
+      <div>Institution: <strong>${esc(u.institution||'—')}</strong></div>
+      <div>Position: <strong>${esc(u.position||'—')}</strong></div>
+      <div>Email: <strong>${esc(u.email||'—')}</strong></div>
+      <div>Joined: <strong>${fmtDate(u.joinedAt)}</strong></div>
+      <div>Last active: <strong>${fmtDate(u.lastActive)}</strong></div>
+    </div>
+    <div class="prog-wrap" style="margin-bottom:18px">
+      <div class="prog-bar" style="flex:1"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div class="prog-pct" style="min-width:120px">${r} / ${allCh.length} chapters (${pct}%)</div>
+    </div>
+    <p style="font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Chapter map</p>
+    <div class="ch-grid">${pills}</div>
+    <p style="font-size:.75rem;color:var(--muted);margin-top:12px">
+      <span style="display:inline-block;width:11px;height:11px;background:var(--accent);border-radius:3px;vertical-align:middle;margin-right:4px"></span>Read
+      <span style="display:inline-block;width:11px;height:11px;background:var(--bg);border:1px solid var(--border);border-radius:3px;vertical-align:middle;margin-left:12px;margin-right:4px"></span>Not yet
+    </p>
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:0.78rem;color:var(--muted);font-style:italic">PIN: ${u.pin ? '••••' : '<em>not set</em>'}</span>
+      <button class="btn-sm-danger" onclick="adminResetPin('${esc(u.id)}','${esc(u.name)}')">Reset PIN</button>
+    </div>`;
+  document.getElementById('modal-user').classList.remove('hidden');
+}
+
+async function adminResetPin(uid, name) {
+  const newPin = prompt('Set a new 4-digit PIN for ' + name + ':');
+  if (!newPin) return;
+  if (!/^\d{4}$/.test(newPin)) { alert('PIN must be exactly 4 digits.'); return; }
+  try {
+    await db.collection('users').doc(uid).update({ pin: newPin });
+    const u = _users.find(x => x.id === uid);
+    if (u) u.pin = newPin;
+    alert('PIN for ' + name + ' has been reset successfully.');
+    closeModal('modal-user');
+  } catch(e) {
+    alert('Failed to reset PIN. Check your connection.');
+  }
+}
+
+// ─── Chapters ────────────────────────────────────────────
+function renderChapters() {
+  const allCh  = getAllChapters();
+  const users  = getUsers();
+  const el     = document.getElementById('ch-list');
+  el.innerHTML = allCh.map(c => {
+    const cnt = users.filter(u=>u.progress?.[c.id]?.read).length;
+    const lbl = c.n===0?'—':c.n;
+    const hasContent = c.content || (c.images||[]).length;
+    const badge = hasContent ? `<span class="ch-row-badge">has content</span>` : '';
+    const customBadge = !c.builtin ? `<span class="ch-row-badge" style="background:rgba(46,125,82,.1);color:var(--success)">custom</span>` : '';
+    const delBtn = !c.builtin
+      ? `<button class="btn-sm-danger" onclick="deleteChapter('${esc(c.id)}')">Delete</button>` : '';
+    return `<div class="ch-row">
+      <div class="ch-row-num">${lbl}</div>
+      <div class="ch-row-title">${esc(c.t)}${badge}${customBadge}</div>
+      <div class="ch-row-readers">${cnt} reader${cnt!==1?'s':''}</div>
+      <div class="ch-row-actions">
+        <button class="btn-sm" onclick="openChModal('${esc(c.id)}')">Edit</button>
+        ${delBtn}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openChModal(id) {
+  const isNew = id === null;
+  document.getElementById('mc-title').textContent = isNew ? 'Add Chapter' : 'Edit Chapter';
+  document.getElementById('ch-id').value = id || '';
+  clearSingleImg();
+
+  if (isNew) {
+    document.getElementById('ch-num').value = '';
+    document.getElementById('ch-title').value = '';
+    document.getElementById('ch-title').disabled = false;
+    document.getElementById('ch-url').value = '';
+    document.getElementById('ch-content').value = '';
+    document.getElementById('ch-content2').value = '';
+    document.getElementById('ch-builtin').value = '';
+    setQuizFields('q1', null);
+    setQuizFields('q2', null);
+  } else {
+    const ch = getAllChapters().find(c=>c.id===id);
+    if (!ch) return;
+    document.getElementById('ch-num').value   = ch.n;
+    document.getElementById('ch-title').value = ch.t;
+    document.getElementById('ch-title').disabled = !!ch.builtin;
+    document.getElementById('ch-url').value   = ch.url || '';
+    document.getElementById('ch-content').value  = ch.content  || '';
+    document.getElementById('ch-content2').value = ch.content2 || '';
+    document.getElementById('ch-builtin').value = ch.builtin ? '1' : '';
+    const firstImg = (ch.images && ch.images[0]) ? ch.images[0] : null;
+    if (firstImg) loadSingleImg(firstImg.url || '', firstImg.caption || '');
+    const quiz = ch.quiz || [];
+    setQuizFields('q1', quiz[0] || null);
+    setQuizFields('q2', quiz[1] || null);
+  }
+  document.getElementById('modal-ch').classList.remove('hidden');
+}
+
+function gdriveToDirectUrl(raw) {
+  raw = raw.trim();
+  const m = raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+            raw.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+            raw.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return 'https://lh3.googleusercontent.com/d/' + m[1];
+  return raw;
+}
+
+function clearSingleImg() {
+  document.getElementById('ch-image-url').value   = '';
+  document.getElementById('ch-image-cap').value   = '';
+  document.getElementById('ch-img-hint').style.display    = 'none';
+  document.getElementById('ch-img-status').innerHTML      = '';
+  document.getElementById('ch-img-preview-wrap').style.display = 'none';
+  document.getElementById('ch-img-confirm').style.display = 'none';
+}
+
+function loadSingleImg(url, caption) {
+  document.getElementById('ch-image-url').value = url;
+  document.getElementById('ch-image-cap').value = caption || '';
+  if (url) handleSingleImgInput(document.getElementById('ch-image-url'));
+}
+
+function handleSingleImgInput(input) {
+  const raw = input.value.trim();
+  if (!raw) { clearSingleImg(); return; }
+
+  const converted = gdriveToDirectUrl(raw);
+  const isGdrive  = converted !== raw;
+  if (isGdrive) input.value = converted;
+
+  const wrap    = document.getElementById('ch-img-preview-wrap');
+  const preview = document.getElementById('ch-img-preview');
+  const confirm = document.getElementById('ch-img-confirm');
+  const hint    = document.getElementById('ch-img-hint');
+  const status  = document.getElementById('ch-img-status');
+
+  hint.style.display = isGdrive ? 'block' : 'none';
+  wrap.style.display = 'block';
+  confirm.style.display = 'none';
+  status.innerHTML = '<span style="color:var(--muted)">Loading preview…</span>';
+  preview.src = converted;
+
+  preview.onload = function() {
+    confirm.style.display = 'block';
+    status.innerHTML = '<span style="color:var(--success);font-weight:600">✓ Image confirmed — will display in the chapter reader</span>';
+  };
+  preview.onerror = function() {
+    wrap.style.display = 'none';
+    status.innerHTML = '<span style="color:var(--danger)">✗ Could not load image. Check the URL or set Drive sharing to "Anyone with the link".</span>';
+  };
+}
+
+function setQuizType(prefix, type, btn) {
+  document.getElementById(prefix + '-type').value = type;
+  btn.closest('.quiz-type-row').querySelectorAll('.quiz-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const mcOpts = document.getElementById(prefix + '-mc-opts');
+  const correctSel = document.getElementById(prefix + '-correct');
+  if (type === 'tf') {
+    mcOpts.style.display = 'none';
+    correctSel.innerHTML = '<option value="">— select —</option><option value="0">True</option><option value="1">False</option>';
+  } else {
+    mcOpts.style.display = '';
+    correctSel.innerHTML = '<option value="">— select —</option><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option>';
+  }
+}
+
+function getQuizData(prefix) {
+  const question = document.getElementById(prefix + '-question').value.trim();
+  if (!question) return null;
+  const type = document.getElementById(prefix + '-type').value;
+  const opts = type === 'tf'
+    ? ['True', 'False']
+    : [
+        document.getElementById(prefix + '-opt-a').value.trim(),
+        document.getElementById(prefix + '-opt-b').value.trim(),
+        document.getElementById(prefix + '-opt-c').value.trim(),
+        document.getElementById(prefix + '-opt-d').value.trim(),
+      ].filter(Boolean);
+  const correctVal = document.getElementById(prefix + '-correct').value;
+  const correct = correctVal !== '' ? parseInt(correctVal) : 0;
+  const correctAnswer = opts[correct] || '';
+  const expCorrect = document.getElementById(prefix + '-exp-correct').value.trim();
+  const expWrong   = document.getElementById(prefix + '-exp-wrong').value.trim();
+  const shortQ = question.length > 80 ? question.slice(0, 80).trimEnd() + '…' : question;
+  return {
+    type,
+    question,
+    options: opts,
+    correct,
+    explanation_correct: expCorrect ||
+      `✓ Correct! You identified that the answer to "${shortQ}" is "${correctAnswer}." ` +
+      `This reflects a good grasp of the key teaching in this chapter. Keep reading to deepen your understanding.`,
+    explanation_wrong: expWrong ||
+      `✗ Not quite. For the question "${shortQ}" — the correct answer is "${correctAnswer}." ` +
+      `Go back and re-read this section, paying close attention to the central argument the author is making.`,
+  };
+}
+
+function setQuizFields(prefix, data) {
+  const type = data?.type || 'mc';
+  document.getElementById(prefix + '-type').value = type;
+  // sync the toggle buttons
+  const typeRow = document.getElementById(prefix + '-type').closest('.quiz-type-row') ||
+                  document.getElementById(prefix + '-mc-opts').previousElementSibling;
+  document.querySelectorAll(`#${prefix}-mc-opts`)[0].closest('.quiz-block')
+    .querySelectorAll('.quiz-type-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent.trim().toLowerCase().startsWith(type === 'tf' ? 'true' : 'mult'));
+    });
+  // show/hide mc options and update correct select
+  const mcOpts = document.getElementById(prefix + '-mc-opts');
+  const correctSel = document.getElementById(prefix + '-correct');
+  if (type === 'tf') {
+    mcOpts.style.display = 'none';
+    correctSel.innerHTML = '<option value="">— select —</option><option value="0">True</option><option value="1">False</option>';
+  } else {
+    mcOpts.style.display = '';
+    correctSel.innerHTML = '<option value="">— select —</option><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option>';
+  }
+  document.getElementById(prefix + '-question').value    = data?.question || '';
+  document.getElementById(prefix + '-opt-a').value       = data?.options?.[0] || '';
+  document.getElementById(prefix + '-opt-b').value       = data?.options?.[1] || '';
+  document.getElementById(prefix + '-opt-c').value       = data?.options?.[2] || '';
+  document.getElementById(prefix + '-opt-d').value       = data?.options?.[3] || '';
+  document.getElementById(prefix + '-correct').value     = data?.correct != null ? String(data.correct) : '';
+  document.getElementById(prefix + '-exp-correct').value = data?.explanation_correct || '';
+  document.getElementById(prefix + '-exp-wrong').value   = data?.explanation_wrong   || '';
+}
+
+async function saveChapter(e) {
+  e.preventDefault();
+  const id        = document.getElementById('ch-id').value;
+  const isBuiltin = document.getElementById('ch-builtin').value === '1';
+  const num       = parseInt(document.getElementById('ch-num').value)||0;
+  const title     = document.getElementById('ch-title').value.trim();
+  const url       = document.getElementById('ch-url').value.trim()||null;
+  const content  = document.getElementById('ch-content').value.trim();
+  const content2 = document.getElementById('ch-content2').value.trim();
+  const imgUrl   = document.getElementById('ch-image-url').value.trim();
+  const imgCap   = document.getElementById('ch-image-cap').value.trim();
+  const images   = imgUrl ? [{ url: imgUrl, caption: imgCap }] : [];
+  const quiz     = [getQuizData('q1'), getQuizData('q2')].filter(Boolean);
+
+  if (isBuiltin) {
+    const extrasData = { content, content2, images, quiz, ...(url ? {url} : {}) };
+    await db.collection('chExtras').doc(id).set(extrasData);
+    _extras[id] = extrasData;
+  } else if (id) {
+    const idx = _customs.findIndex(c=>c.id===id);
+    if (idx !== -1) {
+      const updated = { ..._customs[idx], n:num, t:title, url, content, content2, images, quiz };
+      await db.collection('customChapters').doc(id).set(updated);
+      _customs[idx] = updated;
+    }
+  } else {
+    const newId = 'custom-' + Date.now();
+    const newCh = { id:newId, n:num, t:title, url, content, content2, images, quiz, createdAt:new Date().toISOString() };
+    await db.collection('customChapters').doc(newId).set(newCh);
+    _customs.push(newCh);
+  }
+  closeModal('modal-ch');
+  renderAll();
+}
+
+async function deleteChapter(id) {
+  if (!confirm('Delete this chapter permanently?')) return;
+  await db.collection('customChapters').doc(id).delete();
+  _customs = _customs.filter(c=>c.id!==id);
+  renderAll();
+}
+
+// ─── Settings ────────────────────────────────────────────
+async function changePwd(e) {
+  e.preventDefault();
+  const cur  = document.getElementById('s-cur').value;
+  const nw   = document.getElementById('s-new').value;
+  const conf = document.getElementById('s-conf').value;
+  const msg  = document.getElementById('pwd-msg');
+
+  if (cur !== getPwd()) { showMsg(msg, 'Current password is incorrect.', true); return; }
+  if (nw.length < 6)    { showMsg(msg, 'New password must be at least 6 characters.', true); return; }
+  if (nw !== conf)      { showMsg(msg, 'Passwords do not match.', true); return; }
+
+  await db.collection('settings').doc('admin').set({ password: nw });
+  _pwd = nw;
+  document.getElementById('login-hint').classList.add('hidden');
+  showMsg(msg, 'Password updated.', false);
+  document.getElementById('pwd-form').reset();
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify({
+    exportedAt: new Date().toISOString(),
+    users: _users,
+    customChapters: _customs,
+    chapterExtras: _extras,
+  }, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `doa-export-${todayStr()}.json`;
+  a.click();
+}
+
+async function resetData() {
+  if (!confirm('Permanently delete ALL user data and progress?')) return;
+  if (!confirm('Are you absolutely sure? This cannot be undone.')) return;
+  const batch = db.batch();
+  _users.forEach(u => batch.delete(db.collection('users').doc(u.id)));
+  await batch.commit();
+  _users = [];
+  renderAll();
+}
+
+// ─── Modals ──────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+// ─── Helpers ─────────────────────────────────────────────
+function showMsg(el, text, isErr) {
+  el.textContent = text;
+  el.className = isErr ? 'msg-error' : 'msg-success';
+  el.classList.remove('hidden');
+}
+</script>
+</body>
+</html>
