@@ -38,7 +38,7 @@
 
     .text-page { display: none; flex-direction: column; gap: 24px; }
     .text-page.active { display: flex; }
-    .text-page p { font-size: var(--reading-font-size, 1.05rem); line-height: 1.95; color: var(--text); text-indent: 2em; }
+    .text-page p { font-size: var(--reading-font-size, 1.05rem); line-height: 1.95; color: var(--text); text-indent: 2em; text-align: justify; }
     .text-page p:first-child { text-indent: 0; }
 
     .nav-bar { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; padding-top: 16px; border-top: 1px solid var(--border); }
@@ -61,8 +61,11 @@
     .quiz-feedback.wrong   { color: #b94040; }
 
     .right-col { display: flex; justify-content: center; align-items: stretch; }
-    .arch-wrap { width: 100%; border-radius: 16px; overflow: hidden; }
-    .arch-wrap img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+    .arch-wrap { width: 100%; border-radius: 16px; overflow: hidden; position: relative; }
+    .arch-wrap img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; opacity: 0; transition: opacity .3s; }
+    .img-loader { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--bg); border-radius: 16px; transition: opacity .3s; }
+    .img-loader.hidden { opacity: 0; pointer-events: none; }
+    .img-loader-ring { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
 
     .complete-btn { margin-top: 24px; padding: 12px 32px; background: var(--accent); color: #fff; border: none; border-radius: 40px; font-family: 'Lora', Georgia, serif; font-size: .9rem; letter-spacing: .04em; cursor: pointer; transition: opacity .2s; display: inline-block; }
     .complete-btn:hover { opacity: .85; }
@@ -101,6 +104,7 @@
     </div>
     <div class="right-col" id="right-col">
       <div class="arch-wrap">
+        <div class="img-loader" id="img-loader"><div class="img-loader-ring"></div></div>
         <img id="ch-img" src="" alt="" />
       </div>
     </div>
@@ -238,8 +242,14 @@ async function init() {
 
   const firstImg = data.images && data.images[0] && data.images[0].url;
   if (firstImg) {
-    document.getElementById('ch-img').src = firstImg;
     document.getElementById('main-layout').classList.remove('no-image');
+    const img = document.getElementById('ch-img');
+    const loader = document.getElementById('img-loader');
+    img.onload = function() {
+      img.style.opacity = '1';
+      if (loader) loader.classList.add('hidden');
+    };
+    img.src = firstImg;
   } else {
     document.getElementById('main-layout').classList.add('no-image');
   }

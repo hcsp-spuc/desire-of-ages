@@ -5,6 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chapter 1 — God With Us</title>
   <link rel="stylesheet" href="../assets/css/shared.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey:"AIzaSyBCWFsEuFtH8LMpwAZ9F0AUzCmQBV8yxhA",
+      authDomain:"desire-of-ages-treasury.firebaseapp.com",
+      projectId:"desire-of-ages-treasury"
+    });
+    var db = firebase.firestore();
+    var FALLBACK_IMG = '../assets/images/Chapter 1.png';
+    function revealImg(src) {
+      var img = document.getElementById('ch1-img');
+      var loader = document.getElementById('img-loader');
+      if (!img) return;
+      img.onload = function() {
+        img.style.opacity = '1';
+        if (loader) loader.classList.add('hidden');
+      };
+      img.src = src;
+    }
+    db.collection('chExtras').doc('ch-1').get().then(function(snap) {
+      var url = snap.exists && snap.data().images && snap.data().images[0] && snap.data().images[0].url;
+      revealImg(url || FALLBACK_IMG);
+    }).catch(function() { revealImg(FALLBACK_IMG); });
+  </script>
   <style>
     /* ── Lock page to viewport ── */
     html, body {
@@ -65,6 +90,12 @@
 
     .back-link::before { content: '←'; font-size: 1rem; }
     .back-link:hover   { color: var(--accent); }
+
+    .font-size-controls { display: flex; align-items: center; gap: 4px; }
+    .font-size-controls button { background: transparent; border: 1.5px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; font-family: 'Lora', Georgia, serif; padding: 4px 10px; transition: border-color .2s, color .2s; line-height: 1; }
+    .font-size-controls button:hover { border-color: var(--accent); color: var(--accent); }
+    .font-size-controls .fs-small { font-size: .75rem; }
+    .font-size-controls .fs-large { font-size: 1rem; }
 
     /* ── Main two-column layout ── */
     .main-layout {
@@ -147,10 +178,11 @@
     }
 
     .text-page p {
-      font-size: 1.05rem;
+      font-size: var(--reading-font-size, 1.05rem);
       line-height: 1.95;
       color: var(--text);
       text-indent: 2em;
+      text-align: justify;
     }
 
     .text-page p:first-child {
@@ -291,7 +323,28 @@
       width: 100%;
       border-radius: 16px;
       overflow: hidden;
+      position: relative;
     }
+
+    .img-loader {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      border-radius: 16px;
+      transition: opacity .3s;
+    }
+    .img-loader.hidden { opacity: 0; pointer-events: none; }
+    .img-loader-ring {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     .arch-wrap img {
       display: block;
@@ -309,6 +362,10 @@
   <!-- Top bar -->
   <nav class="topbar">
     <a class="topbar-logo" href="../index.html"><span>DA</span></a>
+    <div class="font-size-controls">
+      <button class="fs-small" onclick="adjustFontSize(-1)" title="Smaller text">A−</button>
+      <button class="fs-large" onclick="adjustFontSize(1)" title="Larger text">A+</button>
+    </div>
     <a class="back-link" href="../index.html">Back to Contents</a>
   </nav>
 
@@ -654,7 +711,8 @@
     <!-- Right: photo -->
     <div class="right-col">
       <div class="arch-wrap">
-        <img src="../assets/images/Chapter 1.png" alt="God With Us — Chapter 1 illustration" />
+        <div class="img-loader" id="img-loader"><div class="img-loader-ring"></div></div>
+        <img id="ch1-img" src="" alt="God With Us — Chapter 1 illustration" style="opacity:0;transition:opacity .3s;" />
       </div>
     </div>
 
@@ -741,6 +799,22 @@
     localStorage.setItem('doa_anon_progress', JSON.stringify(anon));
     window.location.href = '../index.html';
   }
+
+  const FONT_SIZES = [0.85, 0.95, 1.05, 1.15, 1.25, 1.35];
+  const DEFAULT_FONT_IDX = 2;
+  function applyFontSize(idx) {
+    document.documentElement.style.setProperty('--reading-font-size', FONT_SIZES[idx] + 'rem');
+  }
+  function adjustFontSize(dir) {
+    let idx = parseInt(localStorage.getItem('doa_font_size_idx') ?? DEFAULT_FONT_IDX, 10);
+    idx = Math.max(0, Math.min(FONT_SIZES.length - 1, idx + dir));
+    localStorage.setItem('doa_font_size_idx', idx);
+    applyFontSize(idx);
+  }
+  (function initFontSize() {
+    const saved = localStorage.getItem('doa_font_size_idx');
+    if (saved !== null) applyFontSize(parseInt(saved, 10));
+  })();
 </script>
 
 </body>
