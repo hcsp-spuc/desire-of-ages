@@ -752,7 +752,7 @@
       <form id="reg-form">
         <input class="reg-input" id="reg-name" type="text" placeholder="Your name" required maxlength="60" autocomplete="name" />
         <input class="reg-input" id="reg-email" type="email" placeholder="Email (optional)" maxlength="120" autocomplete="email" />
-        <select class="reg-input" id="reg-institution" required>
+        <select class="reg-input" id="reg-institution" required onchange="document.getElementById('reg-institution-other').style.display=this.value==='Others'?'block':'none';if(this.value==='Others'){document.getElementById('reg-institution-specify').focus();}">
           <option value="" disabled selected>Select Institution</option>
           <option value="SwPUC">SwPUC</option>
           <option value="CMM">CMM</option>
@@ -760,7 +760,11 @@
           <option value="NEMM">NEMM</option>
           <option value="WMC">WMC</option>
           <option value="ZPM">ZPM</option>
+          <option value="Others">Others</option>
         </select>
+        <div id="reg-institution-other" style="display:none">
+          <input class="reg-input" id="reg-institution-specify" type="text" placeholder="Please specify…" maxlength="80" autocomplete="off" />
+        </div>
         <input class="reg-input" id="reg-position" type="text" placeholder="Position" required maxlength="80" />
         <p class="pin-label" style="margin-top:6px">Create a 4-digit PIN</p>
         <div class="pin-row">
@@ -1349,6 +1353,11 @@ const db = firebase.firestore();
       var name        = document.getElementById('reg-name').value.trim();
       var email       = document.getElementById('reg-email').value.trim();
       var institution = document.getElementById('reg-institution').value;
+      if (institution === 'Others') {
+        var specified = document.getElementById('reg-institution-specify').value.trim();
+        if (!specified) { document.getElementById('reg-institution-specify').focus(); return; }
+        institution = specified;
+      }
       var position    = document.getElementById('reg-position').value.trim();
       var pin         = getPin(['rp1','rp2','rp3','rp4']);
       var pinConfirm  = getPin(['rc1','rc2','rc3','rc4']);
