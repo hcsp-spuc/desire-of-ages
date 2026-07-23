@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week — The Desire of Ages</title>
+  <link rel="stylesheet" href="../assets/css/shared.css" />
+  <style>
+    html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Lora', Georgia, serif; margin: 0; }
+    .page-shell { display: flex; flex-direction: column; height: 100%; }
+
+    /* Topbar */
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 40px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .topbar-logo { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--accent); text-decoration: none; }
+    .topbar-logo span { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700; color: #fff; letter-spacing: .5px; }
+    .back-link { display: flex; align-items: center; gap: 6px; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color .2s; }
+    .back-link::before { content: '←'; font-size: 1rem; }
+    .back-link:hover { color: var(--accent); }
+    .font-size-controls { display: flex; align-items: center; gap: 4px; }
+    .font-size-controls button { background: transparent; border: 1.5px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; font-family: 'Lora', Georgia, serif; padding: 4px 10px; transition: border-color .2s, color .2s; line-height: 1; }
+    .font-size-controls button:hover { border-color: var(--accent); color: var(--accent); }
+    .fs-small { font-size: .75rem; } .fs-large { font-size: 1rem; }
+
+    /* Week header */
+    .week-header { padding: 14px 40px 0; flex-shrink: 0; }
+    .week-label { font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+    .week-title-text { font-family: 'Playfair Display', serif; font-size: clamp(1rem, 2vw, 1.4rem); font-style: italic; color: var(--accent); margin: 4px 0 2px; }
+    .week-dates-text { font-size: .8rem; color: var(--muted); }
+
+    /* Day tabs */
+    .day-tabs { display: flex; padding: 12px 40px 0; flex-shrink: 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .day-tab { flex: 1; min-width: 60px; text-align: center; padding: 10px 4px; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; position: relative; user-select: none; white-space: nowrap; }
+    .day-tab:hover { color: var(--accent); }
+    .day-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+    .day-tab.done::after { content: '✓'; font-size: .6rem; position: absolute; top: 3px; right: 6px; color: #3a7d44; }
+
+    /* Reading area */
+    .reading-area { flex: 1; overflow-y: auto; padding: 36px 0 80px; }
+    .reading-inner { max-width: 720px; margin: 0 auto; padding: 0 40px; }
+
+    /* Chapter image */
+    .day-image { width: 100%; max-height: 280px; object-fit: cover; border-radius: 12px; margin-bottom: 28px; opacity: 0; transition: opacity .4s; }
+    .day-image.visible { opacity: 1; }
+
+    /* Day title */
+    .day-heading { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--accent); font-style: italic; margin: 0 0 20px; }
+
+    /* Reading text */
+    .reading-text p { font-size: var(--reading-font-size, 1.05rem); line-height: 1.95; color: var(--text); text-indent: 2em; text-align: justify; margin: 0 0 .6em; }
+    .reading-text p:first-child { text-indent: 0; }
+
+    /* No content */
+    .no-content { color: var(--muted); font-style: italic; font-size: 1rem; line-height: 1.8; padding: 20px 0; }
+
+    /* Quiz */
+    .quiz-block { margin-top: 36px; padding: 24px 28px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; }
+    .quiz-label { font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+    .quiz-question { font-size: var(--reading-font-size, .98rem); line-height: 1.8; color: var(--text); font-style: italic; margin: 12px 0 18px; }
+    .quiz-choices { display: flex; flex-wrap: wrap; gap: 10px; }
+    .choice-btn { padding: 10px 22px; font-family: 'Lora', Georgia, serif; font-size: .88rem; color: var(--accent); background: transparent; border: 1.5px solid var(--accent); border-radius: 40px; cursor: pointer; letter-spacing: .04em; transition: background .2s, color .2s; }
+    .choice-btn:hover:not(:disabled) { background: var(--accent); color: #fff; }
+    .choice-btn:disabled { cursor: default; }
+    .choice-btn.correct { background: #3a7d44; border-color: #3a7d44; color: #fff; }
+    .choice-btn.wrong { background: #b94040; border-color: #b94040; color: #fff; opacity: .7; }
+    .quiz-feedback { font-size: .9rem; font-style: italic; line-height: 1.6; margin-top: 14px; min-height: 18px; }
+    .quiz-feedback.correct { color: #3a7d44; }
+    .quiz-feedback.wrong { color: #b94040; }
+
+    /* Complete Day btn */
+    .complete-day-btn { display: none; margin-top: 28px; padding: 12px 36px; background: var(--accent); color: #fff; border: none; border-radius: 40px; font-family: 'Lora', Georgia, serif; font-size: .9rem; letter-spacing: .04em; cursor: pointer; transition: opacity .2s; }
+    .complete-day-btn:hover { opacity: .85; }
+    .complete-day-btn.show { display: inline-block; }
+
+    /* Done banner */
+    .done-banner { display: none; align-items: center; gap: 10px; margin-top: 28px; padding: 14px 20px; border: 1px solid #3a7d44; border-radius: 10px; color: #3a7d44; font-size: .9rem; }
+    .done-banner.show { display: flex; }
+
+    /* Spinner */
+    .spinner { display: flex; align-items: center; gap: 10px; padding: 40px 0; color: var(--muted); font-size: .9rem; font-style: italic; }
+    .spinner::before { content: ''; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="page-shell">
+
+  <nav class="topbar">
+    <a class="topbar-logo" href="../index.html"><span>DA</span></a>
+    <div class="font-size-controls">
+      <button class="fs-small" onclick="adjustFontSize(-1)" title="Smaller text">A−</button>
+      <button class="fs-large" onclick="adjustFontSize(1)" title="Larger text">A+</button>
+    </div>
+    <a class="back-link" href="../index.html">Back to Contents</a>
+  </nav>
+
+  <div class="week-header">
+    <div class="week-label" id="week-label">Week —</div>
+    <div class="week-title-text" id="week-title">Loading…</div>
+    <div class="week-dates-text" id="week-dates"></div>
+  </div>
+
+  <div class="day-tabs" id="day-tabs"></div>
+
+  <div class="reading-area" id="reading-area">
+    <div class="reading-inner"><div class="spinner">Loading content…</div></div>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: 'AIzaSyBCWFsEuFtH8LMpwAZ9F0AUzCmQBV8yxhA',
+  authDomain: 'desire-of-ages-treasury.firebaseapp.com',
+  projectId: 'desire-of-ages-treasury'
+});
+const db = firebase.firestore();
+
+// ── Week schedule ──────────────────────────────────────────────────────────
+const WEEKS = [
+  { n:1,  start:'2026-07-25', end:'2026-07-31', chapters:[1,2],    title:'God With Us; The Chosen People' },
+  { n:2,  start:'2026-08-01', end:'2026-08-07', chapters:[3,4],    title:'The Fullness of the Time; Unto You a Saviour' },
+  { n:3,  start:'2026-08-08', end:'2026-08-14', chapters:[5],      title:'The Dedication' },
+  { n:4,  start:'2026-08-15', end:'2026-08-21', chapters:[6,7],    title:'We Have Seen His Star; As a Child' },
+  { n:5,  start:'2026-08-22', end:'2026-08-28', chapters:[8],      title:'The Passover Visit' },
+  { n:6,  start:'2026-08-29', end:'2026-09-04', chapters:[9,10],   title:'Days of Conflict; The Voice in the Wilderness' },
+  { n:7,  start:'2026-09-05', end:'2026-09-11', chapters:[11],     title:'The Baptism' },
+  { n:8,  start:'2026-09-12', end:'2026-09-18', chapters:[12,13],  title:'The Temptation; The Victory' },
+  { n:9,  start:'2026-09-19', end:'2026-09-25', chapters:[14],     title:'We Have Found the Messiah' },
+  { n:10, start:'2026-09-26', end:'2026-10-02', chapters:[15,16],  title:'At the Marriage Feast; In His Temple' },
+  { n:11, start:'2026-10-03', end:'2026-10-09', chapters:[17],     title:'Nicodemus' },
+  { n:12, start:'2026-10-10', end:'2026-10-16', chapters:[18,19],  title:"He Must Increase; At Jacob's Well" },
+  { n:13, start:'2026-10-17', end:'2026-10-23', chapters:[20],     title:'Except Ye See Signs and Wonders' },
+  { n:14, start:'2026-10-24', end:'2026-10-30', chapters:[21,22],  title:'Bethesda and the Sanhedrin; Imprisonment and Death of John' },
+  { n:15, start:'2026-10-31', end:'2026-11-06', chapters:[23],     title:'The Kingdom of God Is at Hand' },
+  { n:16, start:'2026-11-07', end:'2026-11-13', chapters:[24,25],  title:"Is Not This the Carpenter's Son?; The Call by the Sea" },
+  { n:17, start:'2026-11-14', end:'2026-11-20', chapters:[26],     title:'At Capernaum' },
+  { n:18, start:'2026-11-21', end:'2026-11-27', chapters:[27,28],  title:'Thou Canst Make Me Clean; Levi-Matthew' },
+  { n:19, start:'2026-11-28', end:'2026-12-04', chapters:[29,30],  title:'The Sabbath; He Ordained Twelve' },
+  { n:20, start:'2026-12-05', end:'2026-12-11', chapters:[31],     title:'The Sermon on the Mount' },
+  { n:21, start:'2026-12-12', end:'2026-12-18', chapters:[32,33],  title:'The Centurion; Who Are My Brethren?' },
+  { n:22, start:'2026-12-19', end:'2026-12-25', chapters:[34],     title:'The Invitation' },
+  { n:23, start:'2026-12-26', end:'2027-01-01', chapters:[35,36],  title:'Peace, Be Still; The Touch of Faith' },
+  { n:24, start:'2027-01-02', end:'2027-01-08', chapters:[37],     title:'The First Evangelists' },
+  { n:25, start:'2027-01-09', end:'2027-01-15', chapters:[38,39],  title:'Come Rest Awhile; Give Ye Them to Eat' },
+  { n:26, start:'2027-01-16', end:'2027-01-22', chapters:[40],     title:'A Night on the Lake' },
+  { n:27, start:'2027-01-23', end:'2027-01-29', chapters:[41,42],  title:'The Crisis in Galilee; Tradition' },
+  { n:28, start:'2027-01-30', end:'2027-02-05', chapters:[43],     title:'Barriers Broken Down' },
+  { n:29, start:'2027-02-06', end:'2027-02-12', chapters:[44,45],  title:'The True Sign; The Foreshadowing of the Cross' },
+  { n:30, start:'2027-02-13', end:'2027-02-19', chapters:[46,47],  title:'He Was Transfigured; Ministry' },
+  { n:31, start:'2027-02-20', end:'2027-02-26', chapters:[48],     title:'Who Is the Greatest?' },
+  { n:32, start:'2027-02-27', end:'2027-03-05', chapters:[49,50],  title:'At the Feast of Tabernacles; Among Snares' },
+  { n:33, start:'2027-03-06', end:'2027-03-12', chapters:[51],     title:'The Light of Life' },
+  { n:34, start:'2027-03-13', end:'2027-03-19', chapters:[52,53],  title:'The Divine Shepherd; The Last Journey from Galilee' },
+  { n:35, start:'2027-03-20', end:'2027-03-26', chapters:[54],     title:'The Good Samaritan' },
+  { n:36, start:'2027-03-27', end:'2027-04-02', chapters:[55,56],  title:'Not With Outward Show; Blessing the Children' },
+  { n:37, start:'2027-04-03', end:'2027-04-09', chapters:[57],     title:'One Thing Thou Lackest' },
+  { n:38, start:'2027-04-10', end:'2027-04-16', chapters:[58,59],  title:'Lazarus, Come Forth; Priestly Plottings' },
+  { n:39, start:'2027-04-17', end:'2027-04-23', chapters:[60],     title:'The Law of the New Kingdom' },
+  { n:40, start:'2027-04-24', end:'2027-04-30', chapters:[61,62],  title:"Zacchaeus; The Feast at Simon's House" },
+  { n:41, start:'2027-05-01', end:'2027-05-07', chapters:[63],     title:'Thy King Cometh' },
+  { n:42, start:'2027-05-08', end:'2027-05-14', chapters:[64,65],  title:'A Doomed People; The Temple Cleansed Again' },
+  { n:43, start:'2027-05-15', end:'2027-05-21', chapters:[66],     title:'Controversy' },
+  { n:44, start:'2027-05-22', end:'2027-05-28', chapters:[67,68],  title:'Woes on the Pharisees; In the Outer Court' },
+  { n:45, start:'2027-05-29', end:'2027-06-04', chapters:[69],     title:'On the Mount of Olives' },
+  { n:46, start:'2027-06-05', end:'2027-06-11', chapters:[70,71],  title:'The Least of These My Brethren; A Servant of Servants' },
+  { n:47, start:'2027-06-12', end:'2027-06-18', chapters:[72],     title:'In Remembrance of Me' },
+  { n:48, start:'2027-06-19', end:'2027-06-25', chapters:[73,74],  title:'Let Not Your Heart Be Troubled; Gethsemane' },
+  { n:49, start:'2027-06-26', end:'2027-07-02', chapters:[75],     title:'Before Annas and Caiaphas' },
+  { n:50, start:'2027-07-03', end:'2027-07-09', chapters:[76],     title:'Judas' },
+  { n:51, start:'2027-07-10', end:'2027-07-16', chapters:[77],     title:"In Pilate's Judgment Hall" },
+  { n:52, start:'2027-07-17', end:'2027-07-23', chapters:[78],     title:'Calvary' },
+  { n:53, start:'2027-07-24', end:'2027-07-30', chapters:[79,80],  title:"It Is Finished; In Joseph's Tomb" },
+  { n:54, start:'2027-07-31', end:'2027-08-06', chapters:[81],     title:'The Lord Is Risen' },
+  { n:55, start:'2027-08-07', end:'2027-08-13', chapters:[82,83],  title:'Why Weepest Thou?; The Walk to Emmaus' },
+  { n:56, start:'2027-08-14', end:'2027-08-20', chapters:[84],     title:'Peace Be Unto You' },
+  { n:57, start:'2027-08-21', end:'2027-08-27', chapters:[85,86],  title:'By the Sea Once More; Go Teach All Nations' },
+  { n:58, start:'2027-08-28', end:'2027-09-03', chapters:[87],     title:"To My Father's Throne" },
+];
+const DAYS     = ['sun','mon','tue','wed','thu','fri','sat'];
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+// ── Progress ───────────────────────────────────────────────────────────────
+const WP_KEY = 'doa_week_progress';
+function getWP()    { try { return JSON.parse(localStorage.getItem(WP_KEY)||'{}'); } catch(e) { return {}; } }
+function saveWP(wp) { localStorage.setItem(WP_KEY, JSON.stringify(wp)); }
+function isDayDone(weekN, day) { const wp = getWP(); return !!(wp['w'+weekN] && wp['w'+weekN][day]); }
+function isWeekDone(n) { return DAYS.every(d => isDayDone(n, d)); }
+
+function markDayDone(weekN, day) {
+  const wp = getWP();
+  const wk = 'w' + weekN;
+  if (!wp[wk]) wp[wk] = {};
+  wp[wk][day] = true;
+  saveWP(wp);
+  const uid = localStorage.getItem('doa_current_user_id');
+  if (uid) {
+    const upd = {};
+    upd['progress.' + wk + '_' + day] = { read: true, readAt: new Date().toISOString() };
+    db.collection('users').doc(uid).update(upd).catch(() => {});
+  }
+}
+
+// ── Font size ──────────────────────────────────────────────────────────────
+const FONT_SIZES = [0.85, 0.95, 1.05, 1.15, 1.25, 1.35];
+function applyFontSize(idx) { document.documentElement.style.setProperty('--reading-font-size', FONT_SIZES[idx] + 'rem'); }
+function adjustFontSize(dir) {
+  let idx = parseInt(localStorage.getItem('doa_font_size_idx') || '2', 10);
+  idx = Math.max(0, Math.min(FONT_SIZES.length - 1, idx + dir));
+  localStorage.setItem('doa_font_size_idx', idx);
+  applyFontSize(idx);
+}
+(function() { const s = localStorage.getItem('doa_font_size_idx'); if (s !== null) applyFontSize(parseInt(s, 10)); })();
+
+// ── Content helpers ────────────────────────────────────────────────────────
+function parseContent(text) {
+  if (!text) return [];
+  if (/<[a-z]/i.test(text)) {
+    const div = document.createElement('div');
+    div.innerHTML = text;
+    const ps = div.querySelectorAll('p');
+    if (ps.length) return Array.from(ps).map(p => p.outerHTML);
+    return ['<p>' + text + '</p>'];
+  }
+  return text.split(/\n{2,}/).map(s => s.trim()).filter(Boolean).map(s => '<p>' + s + '</p>');
+}
+
+function splitIntoNParts(arr, n) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const s = Math.floor((i * arr.length) / n);
+    const e = Math.floor(((i + 1) * arr.length) / n);
+    out.push(arr.slice(s, e));
+  }
+  return out;
+}
+
+function formatDateRange(start, end) {
+  const f = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return f(start) + ' – ' + f(end) + ', ' + new Date(end + 'T12:00:00').getFullYear();
+}
+
+// ── State ──────────────────────────────────────────────────────────────────
+let weekN = 1, weekMeta = null, currentDay = 0;
+let dayParas = [], dayQuizzes = [], dayImages = [];
+let quizAnswered = false;
+
+// ── Init ───────────────────────────────────────────────────────────────────
+async function init() {
+  const params = new URLSearchParams(location.search);
+  weekN = parseInt(params.get('w') || '1', 10);
+
+  const dayParam = params.get('day');
+  currentDay = dayParam ? Math.max(0, DAYS.indexOf(dayParam.toLowerCase())) : new Date().getDay();
+
+  weekMeta = WEEKS.find(w => w.n === weekN);
+  if (!weekMeta) { document.getElementById('reading-area').innerHTML = '<div class="reading-inner"><p>Week not found.</p></div>'; return; }
+
+  document.title = 'Week ' + weekN + ' — The Desire of Ages';
+  document.getElementById('week-label').textContent = 'Week ' + weekN;
+  document.getElementById('week-title').textContent = weekMeta.title;
+  document.getElementById('week-dates').textContent = formatDateRange(weekMeta.start, weekMeta.end);
+
+  // Fetch chapters from Firebase
+  const snaps = await Promise.all(
+    weekMeta.chapters.map(n => db.collection('chExtras').doc('ch-' + n).get().catch(() => null))
+  );
+
+  let allParas = [], quizBoundaries = [];
+  const imgByChIdx = {};
+
+  snaps.forEach((snap, ci) => {
+    if (!snap || !snap.exists) return;
+    const d = snap.data();
+    if (d.images && d.images[0] && d.images[0].url) imgByChIdx[ci] = d.images[0].url;
+
+    const p1 = parseContent(d.content);
+    const p2 = parseContent(d.content2);
+
+    if (d.quiz && d.quiz[0]) quizBoundaries.push({ afterIdx: allParas.length + p1.length - 1, quiz: d.quiz[0] });
+    allParas = allParas.concat(p1);
+    if (d.quiz && d.quiz[1]) quizBoundaries.push({ afterIdx: allParas.length + p2.length - 1, quiz: d.quiz[1] });
+    allParas = allParas.concat(p2);
+  });
+
+  // Split into 7 days
+  dayParas   = splitIntoNParts(allParas, 7);
+  dayQuizzes = new Array(7).fill(null);
+  dayImages  = new Array(7).fill(null);
+
+  // Assign quizzes
+  let parasCounted = 0;
+  for (let d = 0; d < 7; d++) {
+    parasCounted += dayParas[d].length;
+    for (const qb of quizBoundaries) {
+      if (qb.afterIdx < parasCounted && !dayQuizzes[d] && !Object.values(dayQuizzes).includes(qb.quiz)) {
+        dayQuizzes[d] = qb.quiz;
+      }
+    }
+  }
+  // Cascade any unassigned quizzes
+  const assigned = new Set(dayQuizzes.filter(Boolean));
+  const unassigned = quizBoundaries.map(q => q.quiz).filter(q => !assigned.has(q));
+  for (let d = 0; d < 7; d++) {
+    if (!dayQuizzes[d] && unassigned.length) dayQuizzes[d] = unassigned.shift();
+  }
+
+  // Assign images
+  if (imgByChIdx[0]) dayImages[0] = imgByChIdx[0];
+  if (imgByChIdx[1]) dayImages[3] = imgByChIdx[1];
+
+  renderTabs();
+  renderDay(currentDay);
+}
+
+// ── Tabs ───────────────────────────────────────────────────────────────────
+function renderTabs() {
+  const el = document.getElementById('day-tabs');
+  el.innerHTML = '';
+  DAYS.forEach((day, i) => {
+    const done = isDayDone(weekN, day);
+    const tab = document.createElement('div');
+    tab.className = 'day-tab' + (i === currentDay ? ' active' : '') + (done ? ' done' : '');
+    tab.textContent = DAY_NAMES[i].slice(0, 3).toUpperCase();
+    tab.onclick = () => switchDay(i);
+    el.appendChild(tab);
+  });
+}
+
+function switchDay(i) {
+  currentDay = i;
+  renderTabs();
+  renderDay(i);
+  document.getElementById('reading-area').scrollTop = 0;
+}
+
+// ── Render day ─────────────────────────────────────────────────────────────
+function renderDay(dayIdx) {
+  quizAnswered = isDayDone(weekN, DAYS[dayIdx]);
+  const paras  = dayParas[dayIdx]  || [];
+  const quiz   = dayQuizzes[dayIdx];
+  const imgUrl = dayImages[dayIdx];
+  const done   = isDayDone(weekN, DAYS[dayIdx]);
+
+  let html = '<div class="reading-inner">';
+
+  // Image
+  if (imgUrl) html += '<img class="day-image" id="day-img" src="' + imgUrl + '" alt="" />';
+
+  // Day heading
+  html += '<div class="day-heading">' + DAY_NAMES[dayIdx] + ' — ' + weekMeta.title.split(';')[Math.floor(dayIdx / (weekMeta.chapters.length === 1 ? 7 : 3.5))] + '</div>';
+
+  // Reading text
+  if (paras.length) {
+    html += '<div class="reading-text">' + paras.join('') + '</div>';
+  } else {
+    html += '<p class="no-content">Reading content for this chapter is being prepared. Please check back soon.</p>';
+  }
+
+  // Quiz
+  if (quiz) html += buildQuizHTML(quiz, done);
+
+  // Complete button / done banner
+  if (done) {
+    const isLast = dayIdx === 6;
+    html += '<div class="done-banner show">✓ ' + DAY_NAMES[dayIdx] + ' completed'
+      + (isLast && weekN === 58 ? ' — You have completed all 58 weeks!' : '') + '</div>';
+    if (!isLast || weekN < 58) {
+      html += '<button class="complete-day-btn show" onclick="advanceDay(' + dayIdx + ')">'
+        + (isLast ? 'Back to Contents' : DAY_NAMES[dayIdx + 1] + ' →') + '</button>';
+    }
+  } else {
+    const btnLabel = dayIdx === 6
+      ? (weekN < 58 ? 'Complete Week ' + weekN + ' →' : 'Complete Final Week →')
+      : 'Complete ' + DAY_NAMES[dayIdx] + ' →';
+    html += '<button class="complete-day-btn" id="complete-btn" onclick="completeDay(' + dayIdx + ')">' + btnLabel + '</button>';
+  }
+
+  html += '</div>';
+  document.getElementById('reading-area').innerHTML = html;
+
+  // Fade in image
+  const img = document.getElementById('day-img');
+  if (img) img.onload = function() { img.classList.add('visible'); };
+
+  // Show complete btn immediately if no quiz or day already done
+  if (!quiz || done) {
+    const btn = document.getElementById('complete-btn');
+    if (btn) btn.classList.add('show');
+    if (done) document.querySelectorAll('.choice-btn').forEach(b => { b.disabled = true; });
+  }
+}
+
+function buildQuizHTML(quiz, alreadyDone) {
+  let html = '<div class="quiz-block"><span class="quiz-label">Discussion Question</span>';
+  html += '<p class="quiz-question">' + quiz.question + '</p>';
+  html += '<div class="quiz-choices">';
+  if (quiz.options && quiz.options.length) {
+    quiz.options.forEach((opt, i) => {
+      html += '<button class="choice-btn"' + (alreadyDone ? ' disabled' : '') + ' onclick="handleAnswer(this,' + (i === quiz.correct) + ',' + i + ',' + quiz.correct + ')">' + opt + '</button>';
+    });
+  } else {
+    html += '<button class="choice-btn"' + (alreadyDone ? ' disabled' : '') + ' onclick="handleAnswer(this,true,0,0)">True</button>';
+    html += '<button class="choice-btn"' + (alreadyDone ? ' disabled' : '') + ' onclick="handleAnswer(this,false,1,0)">False</button>';
+  }
+  html += '</div><div class="quiz-feedback" id="quiz-fb"></div></div>';
+  return html;
+}
+
+function handleAnswer(btn, isCorrect, chosenIdx, correctIdx) {
+  if (quizAnswered) return;
+  btn.closest('.quiz-choices').querySelectorAll('.choice-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (i === correctIdx) b.classList.add('correct');
+  });
+  if (!isCorrect) btn.classList.add('wrong');
+
+  const quiz = dayQuizzes[currentDay];
+  const fb   = document.getElementById('quiz-fb');
+  if (fb && quiz) {
+    fb.className = 'quiz-feedback ' + (isCorrect ? 'correct' : 'wrong');
+    fb.textContent = (isCorrect ? '✓ ' : '✗ ') + (isCorrect ? (quiz.explanation_correct || 'Correct!') : (quiz.explanation_wrong || 'Not quite — review the reading and try again.'));
+  }
+
+  quizAnswered = true;
+  const btn2 = document.getElementById('complete-btn');
+  if (btn2) btn2.classList.add('show');
+}
+
+function completeDay(dayIdx) {
+  markDayDone(weekN, DAYS[dayIdx]);
+  renderTabs();
+  if (dayIdx === 6) {
+    if (weekN < 58) sessionStorage.setItem('doa_just_unlocked', 'w' + (weekN + 1));
+    window.location.href = '../index.html';
+  } else {
+    switchDay(dayIdx + 1);
+  }
+}
+
+function advanceDay(dayIdx) {
+  if (dayIdx === 6) { window.location.href = '../index.html'; }
+  else { switchDay(dayIdx + 1); }
+}
+
+init();
+</script>
+</body>
+</html>

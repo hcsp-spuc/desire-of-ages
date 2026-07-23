@@ -147,71 +147,42 @@
       color: var(--muted);
     }
 
-    /* ── Chapter list ── */
-    .chapter-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
+    /* ── Week / TOC list ── */
+    .preface-item {
+      display: flex; align-items: center; gap: 18px; padding: 20px 0;
+      border-bottom: 1px solid var(--border); border-top: 1px solid var(--border);
+      cursor: pointer; transition: padding-left .2s;
     }
+    .preface-item:hover { padding-left: 10px; }
+    .preface-item .chapter-label { flex: 1; font-size: 1.1rem; font-style: italic; color: var(--accent); }
+    .preface-item .chapter-num { font-size: .95rem; font-style: italic; color: var(--accent); }
 
-    .chapter-item {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      padding: 20px 0;
-      border-bottom: 1px solid var(--border);
-      cursor: pointer;
-      transition: padding-left 0.2s ease;
-    }
+    .month-group { margin-top: 28px; }
+    .month-label { font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-family: 'Playfair Display', serif; font-style: normal; font-weight: 400; }
 
-    .chapter-item:first-child {
-      border-top: 1px solid var(--border);
-    }
+    .week-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
 
-    .chapter-item:hover {
-      padding-left: 10px;
+    .week-item {
+      display: flex; align-items: center; gap: 14px; padding: 16px 0;
+      border-bottom: 1px solid var(--border); cursor: pointer; transition: padding-left .2s;
     }
+    .week-item:first-child { border-top: 1px solid var(--border); }
+    .week-item:hover { padding-left: 8px; }
 
-    .chapter-label {
-      flex: 1;
-      font-size: 1.15rem;
-      line-height: 1.5;
-      color: var(--text);
-    }
+    .week-num-badge { font-size: .72rem; letter-spacing: .1em; color: var(--muted); min-width: 52px; text-transform: uppercase; flex-shrink: 0; }
+    .week-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .week-title-label { font-size: 1rem; color: var(--text); line-height: 1.4; }
+    .week-dates-label { font-size: .78rem; color: var(--muted); }
+    .week-done-check { font-size: .85rem; color: #3a7d44; flex-shrink: 0; display: none; }
+    .week-item.done .week-done-check { display: inline; }
 
-    .chapter-num {
-      min-width: 28px;
-      font-size: 0.95rem;
-      font-style: italic;
-      color: var(--muted);
-      text-align: right;
-    }
+    .lock-icon { font-size: 0.85rem; color: var(--border); flex-shrink: 0; }
+    .week-item.locked { cursor: not-allowed; opacity: 0.45; }
+    .week-item.locked:hover { padding-left: 0; }
 
-    /* Preface entry overrides */
-    .chapter-item--preface .chapter-label {
-      font-style: italic;
-      color: var(--accent);
-    }
-
-    .chapter-item--preface .chapter-num {
-      color: var(--accent);
-    }
-
-    /* Locked chapter */
-    .chapter-item.locked {
-      cursor: not-allowed;
-      opacity: 0.45;
-    }
-
-    .chapter-item.locked:hover {
-      padding-left: 0;
-    }
-
-    .lock-icon {
-      font-size: 0.85rem;
-      color: var(--border);
-      flex-shrink: 0;
-    }
+    /* legacy compat kept for chapter pages */
+    .chapter-label { flex: 1; font-size: 1.15rem; line-height: 1.5; color: var(--text); }
+    .chapter-num   { min-width: 28px; font-size: .95rem; font-style: italic; color: var(--muted); text-align: right; }
 
     /* ── Unlock animation ── */
     @keyframes lockPop {
@@ -818,7 +789,7 @@
       This profound work serves as a sacred vessel of divine truth, illuminating the narrow path of righteousness through the timeless wisdom of Scripture. It invites devout believers to surrender their hearts to the Almighty, deepening their walk of faith and drawing them closer to the eternal grace of our Lord Jesus Christ.
     </p>
 
-    <a class="read-link" href="#chapters">Read now</a>
+    <a class="read-link" id="read-now-link" href="pages/week.html?w=1">Read now</a>
   </header>
 
   <div class="divider"></div>
@@ -827,7 +798,7 @@
   <div id="progress-banner" class="progress-banner" style="display:none">
     <div class="progress-top">
       <span class="progress-title">Your Progress</span>
-      <span class="progress-label" id="prog-label">0 / 88 chapters</span>
+      <span class="progress-label" id="prog-label">0 / 58 weeks</span>
     </div>
     <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
   </div>
@@ -838,102 +809,13 @@
 
     <p class="section-label">Table of Contents</p>
 
-    <ul class="chapter-list" id="chapters">
-
-      <li class="chapter-item chapter-item--preface" onclick="window.location.href='pages/preface.html'">
+    <div id="toc-root">
+      <div class="preface-item" onclick="window.location.href='pages/preface.html'">
         <span class="chapter-label">Preface</span>
         <span class="chapter-num">→</span>
-      </li>
-
-      <li class="chapter-item" id="ch01" data-href="pages/chapter-01.html"><span class="chapter-label">"God With Us"</span><span class="lock-icon">🔒</span><span class="chapter-num">01</span></li>
-      <li class="chapter-item" id="ch02" data-href=""><span class="chapter-label">The Chosen People</span><span class="lock-icon">🔒</span><span class="chapter-num">02</span></li>
-      <li class="chapter-item" id="ch03" data-href=""><span class="chapter-label">"The Fullness of the Time"</span><span class="lock-icon">🔒</span><span class="chapter-num">03</span></li>
-      <li class="chapter-item" id="ch04" data-href=""><span class="chapter-label">Unto You a Saviour</span><span class="lock-icon">🔒</span><span class="chapter-num">04</span></li>
-      <li class="chapter-item" id="ch05" data-href=""><span class="chapter-label">The Dedication</span><span class="lock-icon">🔒</span><span class="chapter-num">05</span></li>
-      <li class="chapter-item" id="ch06" data-href=""><span class="chapter-label">"We Have Seen His Star"</span><span class="lock-icon">🔒</span><span class="chapter-num">06</span></li>
-      <li class="chapter-item" id="ch07" data-href=""><span class="chapter-label">As a Child</span><span class="lock-icon">🔒</span><span class="chapter-num">07</span></li>
-      <li class="chapter-item" id="ch08" data-href=""><span class="chapter-label">The Passover Visit</span><span class="lock-icon">🔒</span><span class="chapter-num">08</span></li>
-      <li class="chapter-item" id="ch09" data-href=""><span class="chapter-label">Days of Conflict</span><span class="lock-icon">🔒</span><span class="chapter-num">09</span></li>
-      <li class="chapter-item" id="ch10" data-href=""><span class="chapter-label">A Voice in the Wilderness</span><span class="lock-icon">🔒</span><span class="chapter-num">10</span></li>
-      <li class="chapter-item" id="ch11" data-href=""><span class="chapter-label">The Baptism</span><span class="lock-icon">🔒</span><span class="chapter-num">11</span></li>
-      <li class="chapter-item" id="ch12" data-href=""><span class="chapter-label">The Temptation</span><span class="lock-icon">🔒</span><span class="chapter-num">12</span></li>
-      <li class="chapter-item" id="ch13" data-href=""><span class="chapter-label">The Victory</span><span class="lock-icon">🔒</span><span class="chapter-num">13</span></li>
-      <li class="chapter-item" id="ch14" data-href=""><span class="chapter-label">"We Have Found the Messiah"</span><span class="lock-icon">🔒</span><span class="chapter-num">14</span></li>
-      <li class="chapter-item" id="ch15" data-href=""><span class="chapter-label">At the Marriage Feast</span><span class="lock-icon">🔒</span><span class="chapter-num">15</span></li>
-      <li class="chapter-item" id="ch16" data-href=""><span class="chapter-label">In His Temple</span><span class="lock-icon">🔒</span><span class="chapter-num">16</span></li>
-      <li class="chapter-item" id="ch17" data-href=""><span class="chapter-label">Nicodemus</span><span class="lock-icon">🔒</span><span class="chapter-num">17</span></li>
-      <li class="chapter-item" id="ch18" data-href=""><span class="chapter-label">"He Must Increase"</span><span class="lock-icon">🔒</span><span class="chapter-num">18</span></li>
-      <li class="chapter-item" id="ch19" data-href=""><span class="chapter-label">At Jacob's Well</span><span class="lock-icon">🔒</span><span class="chapter-num">19</span></li>
-      <li class="chapter-item" id="ch20" data-href=""><span class="chapter-label">"Except Ye See Signs and Wonders"</span><span class="lock-icon">🔒</span><span class="chapter-num">20</span></li>
-      <li class="chapter-item" id="ch21" data-href=""><span class="chapter-label">Bethesda and the Sabbath</span><span class="lock-icon">🔒</span><span class="chapter-num">21</span></li>
-      <li class="chapter-item" id="ch22" data-href=""><span class="chapter-label">Imprisonment and Death of John</span><span class="lock-icon">🔒</span><span class="chapter-num">22</span></li>
-      <li class="chapter-item" id="ch23" data-href=""><span class="chapter-label">"The Kingdom of God Is at Hand"</span><span class="lock-icon">🔒</span><span class="chapter-num">23</span></li>
-      <li class="chapter-item" id="ch24" data-href=""><span class="chapter-label">"Is Not This the Carpenter's Son?"</span><span class="lock-icon">🔒</span><span class="chapter-num">24</span></li>
-      <li class="chapter-item" id="ch25" data-href=""><span class="chapter-label">The Call by the Sea</span><span class="lock-icon">🔒</span><span class="chapter-num">25</span></li>
-      <li class="chapter-item" id="ch26" data-href=""><span class="chapter-label">At Capernaum</span><span class="lock-icon">🔒</span><span class="chapter-num">26</span></li>
-      <li class="chapter-item" id="ch27" data-href=""><span class="chapter-label">"Thou Canst Make Me Clean"</span><span class="lock-icon">🔒</span><span class="chapter-num">27</span></li>
-      <li class="chapter-item" id="ch28" data-href=""><span class="chapter-label">Levi-Matthew</span><span class="lock-icon">🔒</span><span class="chapter-num">28</span></li>
-      <li class="chapter-item" id="ch29" data-href=""><span class="chapter-label">The Sabbath</span><span class="lock-icon">🔒</span><span class="chapter-num">29</span></li>
-      <li class="chapter-item" id="ch30" data-href=""><span class="chapter-label">"He Ordained Twelve"</span><span class="lock-icon">🔒</span><span class="chapter-num">30</span></li>
-      <li class="chapter-item" id="ch31" data-href=""><span class="chapter-label">The Sermon on the Mount</span><span class="lock-icon">🔒</span><span class="chapter-num">31</span></li>
-      <li class="chapter-item" id="ch32" data-href=""><span class="chapter-label">The Centurion</span><span class="lock-icon">🔒</span><span class="chapter-num">32</span></li>
-      <li class="chapter-item" id="ch33" data-href=""><span class="chapter-label">"Who Are My Brethren?"</span><span class="lock-icon">🔒</span><span class="chapter-num">33</span></li>
-      <li class="chapter-item" id="ch34" data-href=""><span class="chapter-label">The Invitation</span><span class="lock-icon">🔒</span><span class="chapter-num">34</span></li>
-      <li class="chapter-item" id="ch35" data-href=""><span class="chapter-label">"Peace, Be Still"</span><span class="lock-icon">🔒</span><span class="chapter-num">35</span></li>
-      <li class="chapter-item" id="ch36" data-href=""><span class="chapter-label">The Touch of Faith</span><span class="lock-icon">🔒</span><span class="chapter-num">36</span></li>
-      <li class="chapter-item" id="ch37" data-href=""><span class="chapter-label">The First Evangelists</span><span class="lock-icon">🔒</span><span class="chapter-num">37</span></li>
-      <li class="chapter-item" id="ch38" data-href=""><span class="chapter-label">Come Rest Awhile</span><span class="lock-icon">🔒</span><span class="chapter-num">38</span></li>
-      <li class="chapter-item" id="ch39" data-href=""><span class="chapter-label">"Give Ye Them to Eat"</span><span class="lock-icon">🔒</span><span class="chapter-num">39</span></li>
-      <li class="chapter-item" id="ch40" data-href=""><span class="chapter-label">A Night on the Lake</span><span class="lock-icon">🔒</span><span class="chapter-num">40</span></li>
-      <li class="chapter-item" id="ch41" data-href=""><span class="chapter-label">The Crisis in Galilee</span><span class="lock-icon">🔒</span><span class="chapter-num">41</span></li>
-      <li class="chapter-item" id="ch42" data-href=""><span class="chapter-label">Tradition</span><span class="lock-icon">🔒</span><span class="chapter-num">42</span></li>
-      <li class="chapter-item" id="ch43" data-href=""><span class="chapter-label">The Barriers Broken Down</span><span class="lock-icon">🔒</span><span class="chapter-num">43</span></li>
-      <li class="chapter-item" id="ch44" data-href=""><span class="chapter-label">The True Sign</span><span class="lock-icon">🔒</span><span class="chapter-num">44</span></li>
-      <li class="chapter-item" id="ch45" data-href=""><span class="chapter-label">The Foreshadowing of the Cross</span><span class="lock-icon">🔒</span><span class="chapter-num">45</span></li>
-      <li class="chapter-item" id="ch46" data-href=""><span class="chapter-label">"Who Are Ye Transfigured"</span><span class="lock-icon">🔒</span><span class="chapter-num">46</span></li>
-      <li class="chapter-item" id="ch47" data-href=""><span class="chapter-label">Mystery</span><span class="lock-icon">🔒</span><span class="chapter-num">47</span></li>
-      <li class="chapter-item" id="ch48" data-href=""><span class="chapter-label">"Who Is the Greatest?"</span><span class="lock-icon">🔒</span><span class="chapter-num">48</span></li>
-      <li class="chapter-item" id="ch49" data-href=""><span class="chapter-label">At the Feast of Tabernacles</span><span class="lock-icon">🔒</span><span class="chapter-num">49</span></li>
-      <li class="chapter-item" id="ch50" data-href=""><span class="chapter-label">Among Snares</span><span class="lock-icon">🔒</span><span class="chapter-num">50</span></li>
-      <li class="chapter-item" id="ch51" data-href=""><span class="chapter-label">The Light of Life</span><span class="lock-icon">🔒</span><span class="chapter-num">51</span></li>
-      <li class="chapter-item" id="ch52" data-href=""><span class="chapter-label">The Divine Shepherd</span><span class="lock-icon">🔒</span><span class="chapter-num">52</span></li>
-      <li class="chapter-item" id="ch53" data-href=""><span class="chapter-label">The Last Journey From Galilee</span><span class="lock-icon">🔒</span><span class="chapter-num">53</span></li>
-      <li class="chapter-item" id="ch54" data-href=""><span class="chapter-label">The Good Samaritan</span><span class="lock-icon">🔒</span><span class="chapter-num">54</span></li>
-      <li class="chapter-item" id="ch55" data-href=""><span class="chapter-label">Not With Outward Show</span><span class="lock-icon">🔒</span><span class="chapter-num">55</span></li>
-      <li class="chapter-item" id="ch56" data-href=""><span class="chapter-label">Blessing the Children</span><span class="lock-icon">🔒</span><span class="chapter-num">56</span></li>
-      <li class="chapter-item" id="ch57" data-href=""><span class="chapter-label">"One Thing Thou Lackest"</span><span class="lock-icon">🔒</span><span class="chapter-num">57</span></li>
-      <li class="chapter-item" id="ch58" data-href=""><span class="chapter-label">Lazarus, Come Forth!</span><span class="lock-icon">🔒</span><span class="chapter-num">58</span></li>
-      <li class="chapter-item" id="ch59" data-href=""><span class="chapter-label">Priestly Plottings</span><span class="lock-icon">🔒</span><span class="chapter-num">59</span></li>
-      <li class="chapter-item" id="ch60" data-href=""><span class="chapter-label">The Law of the New Kingdom</span><span class="lock-icon">🔒</span><span class="chapter-num">60</span></li>
-      <li class="chapter-item" id="ch61" data-href=""><span class="chapter-label">Zacchaeus</span><span class="lock-icon">🔒</span><span class="chapter-num">61</span></li>
-      <li class="chapter-item" id="ch62" data-href=""><span class="chapter-label">The Feast at Simon's House</span><span class="lock-icon">🔒</span><span class="chapter-num">62</span></li>
-      <li class="chapter-item" id="ch63" data-href=""><span class="chapter-label">"Thy King Cometh"</span><span class="lock-icon">🔒</span><span class="chapter-num">63</span></li>
-      <li class="chapter-item" id="ch64" data-href=""><span class="chapter-label">A Doomed People</span><span class="lock-icon">🔒</span><span class="chapter-num">64</span></li>
-      <li class="chapter-item" id="ch65" data-href=""><span class="chapter-label">The Temple Cleansed Again</span><span class="lock-icon">🔒</span><span class="chapter-num">65</span></li>
-      <li class="chapter-item" id="ch66" data-href=""><span class="chapter-label">Controversy</span><span class="lock-icon">🔒</span><span class="chapter-num">66</span></li>
-      <li class="chapter-item" id="ch67" data-href=""><span class="chapter-label">Woes on the Pharisees</span><span class="lock-icon">🔒</span><span class="chapter-num">67</span></li>
-      <li class="chapter-item" id="ch68" data-href=""><span class="chapter-label">In the Quiet Court</span><span class="lock-icon">🔒</span><span class="chapter-num">68</span></li>
-      <li class="chapter-item" id="ch69" data-href=""><span class="chapter-label">On the Mount of Olives</span><span class="lock-icon">🔒</span><span class="chapter-num">69</span></li>
-      <li class="chapter-item" id="ch70" data-href=""><span class="chapter-label">"The Least of These My Brethren"</span><span class="lock-icon">🔒</span><span class="chapter-num">70</span></li>
-      <li class="chapter-item" id="ch71" data-href=""><span class="chapter-label">A Servant of Servants</span><span class="lock-icon">🔒</span><span class="chapter-num">71</span></li>
-      <li class="chapter-item" id="ch72" data-href=""><span class="chapter-label">In Remembrance of Me</span><span class="lock-icon">🔒</span><span class="chapter-num">72</span></li>
-      <li class="chapter-item" id="ch73" data-href=""><span class="chapter-label">"Let Not Your Heart Be Troubled"</span><span class="lock-icon">🔒</span><span class="chapter-num">73</span></li>
-      <li class="chapter-item" id="ch74" data-href=""><span class="chapter-label">Gethsemane</span><span class="lock-icon">🔒</span><span class="chapter-num">74</span></li>
-      <li class="chapter-item" id="ch75" data-href=""><span class="chapter-label">Before Annas and the Court of Caiaphas</span><span class="lock-icon">🔒</span><span class="chapter-num">75</span></li>
-      <li class="chapter-item" id="ch76" data-href=""><span class="chapter-label">Judas</span><span class="lock-icon">🔒</span><span class="chapter-num">76</span></li>
-      <li class="chapter-item" id="ch77" data-href=""><span class="chapter-label">In Pilate's Judgment Hall</span><span class="lock-icon">🔒</span><span class="chapter-num">77</span></li>
-      <li class="chapter-item" id="ch78" data-href=""><span class="chapter-label">Calvary</span><span class="lock-icon">🔒</span><span class="chapter-num">78</span></li>
-      <li class="chapter-item" id="ch79" data-href=""><span class="chapter-label">"It Is Finished"</span><span class="lock-icon">🔒</span><span class="chapter-num">79</span></li>
-      <li class="chapter-item" id="ch80" data-href=""><span class="chapter-label">In Joseph's Tomb</span><span class="lock-icon">🔒</span><span class="chapter-num">80</span></li>
-      <li class="chapter-item" id="ch81" data-href=""><span class="chapter-label">"The Lord Is Risen"</span><span class="lock-icon">🔒</span><span class="chapter-num">81</span></li>
-      <li class="chapter-item" id="ch82" data-href=""><span class="chapter-label">"Why Weepest Thou?"</span><span class="lock-icon">🔒</span><span class="chapter-num">82</span></li>
-      <li class="chapter-item" id="ch83" data-href=""><span class="chapter-label">The Walk to Emmaus</span><span class="lock-icon">🔒</span><span class="chapter-num">83</span></li>
-      <li class="chapter-item" id="ch84" data-href=""><span class="chapter-label">"Peace Be Unto You"</span><span class="lock-icon">🔒</span><span class="chapter-num">84</span></li>
-      <li class="chapter-item" id="ch85" data-href=""><span class="chapter-label">"He Is Seen Once More"</span><span class="lock-icon">🔒</span><span class="chapter-num">85</span></li>
-      <li class="chapter-item" id="ch86" data-href=""><span class="chapter-label">Go Teach All Nations</span><span class="lock-icon">🔒</span><span class="chapter-num">86</span></li>
-      <li class="chapter-item" id="ch87" data-href=""><span class="chapter-label">"To My Father and Your Father"</span><span class="lock-icon">🔒</span><span class="chapter-num">87</span></li>
-
-    </ul>
+      </div>
+      <!-- Week groups built by JS below -->
+    </div>
   </main>
 
   <footer>The Desire of Ages &mdash; NSB Writings &nbsp;|&nbsp; <a href="admin.html" style="color:inherit;text-decoration:none">Admin</a></footer>
@@ -1056,6 +938,150 @@ const db = firebase.firestore();
     localStorage.setItem(MIG_KEY, '1');
   }
 
+  // ── Week schedule ──
+  var WEEKS = [
+    { n:1,  start:'2026-07-25', end:'2026-07-31', chapters:[1,2],    title:'God With Us; The Chosen People' },
+    { n:2,  start:'2026-08-01', end:'2026-08-07', chapters:[3,4],    title:'The Fullness of the Time; Unto You a Saviour' },
+    { n:3,  start:'2026-08-08', end:'2026-08-14', chapters:[5],      title:'The Dedication' },
+    { n:4,  start:'2026-08-15', end:'2026-08-21', chapters:[6,7],    title:'We Have Seen His Star; As a Child' },
+    { n:5,  start:'2026-08-22', end:'2026-08-28', chapters:[8],      title:'The Passover Visit' },
+    { n:6,  start:'2026-08-29', end:'2026-09-04', chapters:[9,10],   title:'Days of Conflict; The Voice in the Wilderness' },
+    { n:7,  start:'2026-09-05', end:'2026-09-11', chapters:[11],     title:'The Baptism' },
+    { n:8,  start:'2026-09-12', end:'2026-09-18', chapters:[12,13],  title:'The Temptation; The Victory' },
+    { n:9,  start:'2026-09-19', end:'2026-09-25', chapters:[14],     title:'We Have Found the Messiah' },
+    { n:10, start:'2026-09-26', end:'2026-10-02', chapters:[15,16],  title:'At the Marriage Feast; In His Temple' },
+    { n:11, start:'2026-10-03', end:'2026-10-09', chapters:[17],     title:'Nicodemus' },
+    { n:12, start:'2026-10-10', end:'2026-10-16', chapters:[18,19],  title:'He Must Increase; At Jacob\'s Well' },
+    { n:13, start:'2026-10-17', end:'2026-10-23', chapters:[20],     title:'Except Ye See Signs and Wonders' },
+    { n:14, start:'2026-10-24', end:'2026-10-30', chapters:[21,22],  title:'Bethesda and the Sanhedrin; Imprisonment and Death of John' },
+    { n:15, start:'2026-10-31', end:'2026-11-06', chapters:[23],     title:'The Kingdom of God Is at Hand' },
+    { n:16, start:'2026-11-07', end:'2026-11-13', chapters:[24,25],  title:'Is Not This the Carpenter\'s Son?; The Call by the Sea' },
+    { n:17, start:'2026-11-14', end:'2026-11-20', chapters:[26],     title:'At Capernaum' },
+    { n:18, start:'2026-11-21', end:'2026-11-27', chapters:[27,28],  title:'Thou Canst Make Me Clean; Levi-Matthew' },
+    { n:19, start:'2026-11-28', end:'2026-12-04', chapters:[29,30],  title:'The Sabbath; He Ordained Twelve' },
+    { n:20, start:'2026-12-05', end:'2026-12-11', chapters:[31],     title:'The Sermon on the Mount' },
+    { n:21, start:'2026-12-12', end:'2026-12-18', chapters:[32,33],  title:'The Centurion; Who Are My Brethren?' },
+    { n:22, start:'2026-12-19', end:'2026-12-25', chapters:[34],     title:'The Invitation' },
+    { n:23, start:'2026-12-26', end:'2027-01-01', chapters:[35,36],  title:'Peace, Be Still; The Touch of Faith' },
+    { n:24, start:'2027-01-02', end:'2027-01-08', chapters:[37],     title:'The First Evangelists' },
+    { n:25, start:'2027-01-09', end:'2027-01-15', chapters:[38,39],  title:'Come Rest Awhile; Give Ye Them to Eat' },
+    { n:26, start:'2027-01-16', end:'2027-01-22', chapters:[40],     title:'A Night on the Lake' },
+    { n:27, start:'2027-01-23', end:'2027-01-29', chapters:[41,42],  title:'The Crisis in Galilee; Tradition' },
+    { n:28, start:'2027-01-30', end:'2027-02-05', chapters:[43],     title:'Barriers Broken Down' },
+    { n:29, start:'2027-02-06', end:'2027-02-12', chapters:[44,45],  title:'The True Sign; The Foreshadowing of the Cross' },
+    { n:30, start:'2027-02-13', end:'2027-02-19', chapters:[46,47],  title:'He Was Transfigured; Ministry' },
+    { n:31, start:'2027-02-20', end:'2027-02-26', chapters:[48],     title:'Who Is the Greatest?' },
+    { n:32, start:'2027-02-27', end:'2027-03-05', chapters:[49,50],  title:'At the Feast of Tabernacles; Among Snares' },
+    { n:33, start:'2027-03-06', end:'2027-03-12', chapters:[51],     title:'The Light of Life' },
+    { n:34, start:'2027-03-13', end:'2027-03-19', chapters:[52,53],  title:'The Divine Shepherd; The Last Journey from Galilee' },
+    { n:35, start:'2027-03-20', end:'2027-03-26', chapters:[54],     title:'The Good Samaritan' },
+    { n:36, start:'2027-03-27', end:'2027-04-02', chapters:[55,56],  title:'Not With Outward Show; Blessing the Children' },
+    { n:37, start:'2027-04-03', end:'2027-04-09', chapters:[57],     title:'One Thing Thou Lackest' },
+    { n:38, start:'2027-04-10', end:'2027-04-16', chapters:[58,59],  title:'Lazarus, Come Forth; Priestly Plottings' },
+    { n:39, start:'2027-04-17', end:'2027-04-23', chapters:[60],     title:'The Law of the New Kingdom' },
+    { n:40, start:'2027-04-24', end:'2027-04-30', chapters:[61,62],  title:'Zacchaeus; The Feast at Simon\'s House' },
+    { n:41, start:'2027-05-01', end:'2027-05-07', chapters:[63],     title:'Thy King Cometh' },
+    { n:42, start:'2027-05-08', end:'2027-05-14', chapters:[64,65],  title:'A Doomed People; The Temple Cleansed Again' },
+    { n:43, start:'2027-05-15', end:'2027-05-21', chapters:[66],     title:'Controversy' },
+    { n:44, start:'2027-05-22', end:'2027-05-28', chapters:[67,68],  title:'Woes on the Pharisees; In the Outer Court' },
+    { n:45, start:'2027-05-29', end:'2027-06-04', chapters:[69],     title:'On the Mount of Olives' },
+    { n:46, start:'2027-06-05', end:'2027-06-11', chapters:[70,71],  title:'The Least of These My Brethren; A Servant of Servants' },
+    { n:47, start:'2027-06-12', end:'2027-06-18', chapters:[72],     title:'In Remembrance of Me' },
+    { n:48, start:'2027-06-19', end:'2027-06-25', chapters:[73,74],  title:'Let Not Your Heart Be Troubled; Gethsemane' },
+    { n:49, start:'2027-06-26', end:'2027-07-02', chapters:[75],     title:'Before Annas and Caiaphas' },
+    { n:50, start:'2027-07-03', end:'2027-07-09', chapters:[76],     title:'Judas' },
+    { n:51, start:'2027-07-10', end:'2027-07-16', chapters:[77],     title:'In Pilate\'s Judgment Hall' },
+    { n:52, start:'2027-07-17', end:'2027-07-23', chapters:[78],     title:'Calvary' },
+    { n:53, start:'2027-07-24', end:'2027-07-30', chapters:[79,80],  title:'It Is Finished; In Joseph\'s Tomb' },
+    { n:54, start:'2027-07-31', end:'2027-08-06', chapters:[81],     title:'The Lord Is Risen' },
+    { n:55, start:'2027-08-07', end:'2027-08-13', chapters:[82,83],  title:'Why Weepest Thou?; The Walk to Emmaus' },
+    { n:56, start:'2027-08-14', end:'2027-08-20', chapters:[84],     title:'Peace Be Unto You' },
+    { n:57, start:'2027-08-21', end:'2027-08-27', chapters:[85,86],  title:'By the Sea Once More; Go Teach All Nations' },
+    { n:58, start:'2027-08-28', end:'2027-09-03', chapters:[87],     title:'To My Father\'s Throne' },
+  ];
+  var W_DAYS = ['sun','mon','tue','wed','thu','fri','sat'];
+
+  var WP_KEY = 'doa_week_progress';
+  function getWP()    { try { return JSON.parse(localStorage.getItem(WP_KEY)||'{}'); } catch(e) { return {}; } }
+  function saveWP(wp) { localStorage.setItem(WP_KEY, JSON.stringify(wp)); }
+
+  function isDayDone(weekN, day) {
+    var wp = getWP();
+    return !!(wp['w'+weekN] && wp['w'+weekN][day]);
+  }
+  function isWeekDone(n) {
+    return W_DAYS.every(function(d) { return isDayDone(n, d); });
+  }
+  function isWeekUnlocked(n) {
+    if (n === 1) return true;
+    return isWeekDone(n - 1);
+  }
+
+  function buildTOC() {
+    var root = document.getElementById('toc-root');
+    if (!root) return;
+    var months = [], curKey = null;
+    WEEKS.forEach(function(w) {
+      var d = new Date(w.start + 'T12:00:00');
+      var mk = d.getFullYear() + '-' + d.getMonth();
+      var ml = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+      if (mk !== curKey) { curKey = mk; months.push({ label: ml, weeks: [] }); }
+      months[months.length-1].weeks.push(w);
+    });
+    var html = '';
+    months.forEach(function(m) {
+      html += '<section class="month-group"><p class="month-label">' + m.label + '</p><ul class="week-list">';
+      m.weeks.forEach(function(w) {
+        var s = new Date(w.start+'T12:00:00'), e = new Date(w.end+'T12:00:00');
+        var sf = s.toLocaleString('en-US',{month:'short',day:'numeric'});
+        var ef = e.toLocaleString('en-US',{month:'short',day:'numeric'});
+        html += '<li class="week-item locked" id="w'+w.n+'" data-week="'+w.n+'">'
+          + '<span class="week-num-badge">Week '+w.n+'</span>'
+          + '<span class="week-info"><span class="week-title-label">'+w.title+'</span>'
+          + '<span class="week-dates-label">'+sf+' – '+ef+'</span></span>'
+          + '<span class="week-done-check">✓</span>'
+          + '<span class="lock-icon">🔒</span>'
+          + '</li>';
+      });
+      html += '</ul></section>';
+    });
+    root.insertAdjacentHTML('beforeend', html);
+  }
+
+  function updateReadNowLink() {
+    var link = document.getElementById('read-now-link');
+    if (!link) return;
+    var today = new Date();
+    var weekN = 1, dayIdx = 0;
+    for (var i = 0; i < WEEKS.length; i++) {
+      var w = WEEKS[i];
+      var s = new Date(w.start+'T00:00:00'), e = new Date(w.end+'T23:59:59');
+      if (today >= s && today <= e) { weekN = w.n; dayIdx = today.getDay(); break; }
+    }
+    link.href = 'pages/week.html?w='+weekN+'&day='+W_DAYS[dayIdx];
+  }
+
+  function migrateWeekProgress() {
+    if (localStorage.getItem('doa_migrated_weeks')) return;
+    var anon = getAnon();
+    var wp = getWP();
+    WEEKS.forEach(function(w) {
+      var doneChs = w.chapters.filter(function(n) {
+        var chId = 'ch-' + n;
+        return _user ? (_user.progress && _user.progress[chId] && _user.progress[chId].read) : !!anon[chId];
+      });
+      if (!doneChs.length) return;
+      if (!wp['w'+w.n]) wp['w'+w.n] = {};
+      if (doneChs.length >= w.chapters.length) {
+        W_DAYS.forEach(function(d) { wp['w'+w.n][d] = true; });
+      } else {
+        W_DAYS.slice(0,3).forEach(function(d) { wp['w'+w.n][d] = true; });
+      }
+    });
+    saveWP(wp);
+    localStorage.setItem('doa_migrated_weeks', '1');
+  }
+
   function chIdFromItem(item) {
     var numEl = item.querySelector('.chapter-num');
     if (!numEl) return null;
@@ -1119,45 +1145,35 @@ const db = firebase.firestore();
   function updateProgress() {
     var u = getCurrUser();
     if (!u) return;
-    var items = document.querySelectorAll('.chapter-item');
-    var total = items.length, done = 0;
-    for (var i=0; i<items.length; i++) {
-      var chId = chIdFromItem(items[i]);
-      if (chId && isDone(chId)) done++;
-    }
+    var done = 0;
+    WEEKS.forEach(function(w) { if (isWeekDone(w.n)) done++; });
+    var total = WEEKS.length;
     var pct = total ? Math.round(done/total*100) : 0;
     var f = document.getElementById('prog-fill');
     var l = document.getElementById('prog-label');
     if (f) f.style.width = pct + '%';
-    if (l) l.textContent = done + ' / ' + total + ' chapters (' + pct + '%)';
+    if (l) l.textContent = done + ' / ' + total + ' weeks (' + pct + '%)';
   }
 
-  function playUnlockAnimation(chId) {
-    var n    = parseInt(chId.replace('ch-', ''), 10);
-    var elId = 'ch' + String(n).padStart(2, '0');
-    var item = document.getElementById(elId);
+  function playUnlockAnimation(weekId) {
+    var item = document.getElementById(weekId);
     if (!item) return;
-
     item.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
     setTimeout(function() {
-      // 1. Lock icon pops and dissolves
       var lockEl = item.querySelector('.lock-icon');
       if (lockEl) {
         lockEl.classList.add('popping');
         setTimeout(function() { lockEl.style.display = 'none'; }, 560);
       }
-      // 2. Shimmer sweep across the row
       setTimeout(function() {
         item.classList.add('unlock-sweep');
         setTimeout(function() { item.classList.remove('unlock-sweep'); }, 900);
       }, 180);
-      // 3. Floating badge rises up
       setTimeout(function() {
         var rect  = item.getBoundingClientRect();
         var badge = document.createElement('div');
         badge.className   = 'unlock-float';
-        badge.textContent = '✦ Chapter Unlocked';
+        badge.textContent = '✦ Week Unlocked';
         badge.style.top   = (rect.top + rect.height / 2) + 'px';
         badge.style.left  = (rect.left + rect.width / 2) + 'px';
         document.body.appendChild(badge);
@@ -1166,50 +1182,33 @@ const db = firebase.firestore();
     }, 120);
   }
 
-  // Apply locked/unlocked state to every chapter row
+  // Apply locked/unlocked state to every week row
   function applyStates() {
-    var items = document.querySelectorAll('.chapter-item');
-    for (var i=0; i<items.length; i++) {
-      (function(item) {
-        var chId = chIdFromItem(item);
-        if (!chId) return;
+    var items = document.querySelectorAll('.week-item');
+    items.forEach(function(item) {
+      var n = parseInt(item.getAttribute('data-week'), 10);
+      var lockEl = item.querySelector('.lock-icon');
+      var unlocked = isWeekUnlocked(n);
+      var done = isWeekDone(n);
 
-        // Remove any leftover check buttons from a previous version
-        var old = item.querySelector('.ch-check');
-        if (old) old.remove();
+      if (done) item.classList.add('done'); else item.classList.remove('done');
 
-        var lockEl = item.querySelector('.lock-icon');
-        var unlocked = isUnlocked(chId);
+      if (unlocked) {
+        item.classList.remove('locked');
+        if (lockEl) lockEl.style.display = 'none';
+      } else {
+        item.classList.add('locked');
+        if (lockEl) lockEl.style.display = '';
+      }
 
-        if (unlocked) {
-          item.classList.remove('locked');
-          if (lockEl) lockEl.style.display = 'none';
-        } else {
-          item.classList.add('locked');
-          if (lockEl) lockEl.style.display = '';
+      item.onclick = function() {
+        if (!isWeekUnlocked(n)) {
+          showToast('Complete Week ' + (n - 1) + ' first.');
+          return;
         }
-
-        item.onclick = function() {
-          if (!isUnlocked(chId)) {
-            var msg = chId === 'ch-1'
-              ? 'Complete the Preface first.'
-              : 'Complete ' + prevName(chId) + ' first.';
-            showToast(msg);
-            return;
-          }
-          if (chId === 'preface') { window.location.href = 'pages/preface.html'; return; }
-          var ex   = _extras[chId] || {};
-          var href = item.getAttribute('data-href') || ex.url || '';
-          if (!href) { href = 'pages/chapter.html?id=' + chId; }
-          window.location.href = href;
-        };
-      })(items[i]);
-    }
-  }
-
-  function prevName(chId) {
-    var n = parseInt(chId.replace('ch-',''), 10);
-    return n === 2 ? 'Chapter 1' : 'Chapter ' + (n - 1);
+        window.location.href = 'pages/week.html?w=' + n;
+      };
+    });
   }
 
   // Content modal
@@ -1296,22 +1295,9 @@ const db = firebase.firestore();
         }
       } catch(e) {}
     }
-    // Clean up orphaned anon progress — remove entries whose chain is broken
-    (function() {
-      var anon = getAnon();
-      var valid = {};
-      if (anon['preface']) valid['preface'] = true;
-      for (var n = 1; n <= 87; n++) {
-        var cid = 'ch-' + n;
-        var pid = n === 1 ? 'preface' : 'ch-' + (n - 1);
-        if (anon[cid] && valid[pid]) valid[cid] = true;
-      }
-      var cleaned = {};
-      Object.keys(anon).forEach(function(k) { if (valid[k]) cleaned[k] = true; });
-      saveAnon(cleaned);
-    })();
-
-    applyStates(); // renders chapter list immediately with anon state
+    buildTOC();
+    updateReadNowLink();
+    applyStates(); // renders week list immediately with anon state
 
     // Migration runs silently in background — never blocks UI
     migrateIfNeeded().catch(function(){});
@@ -1326,7 +1312,21 @@ const db = firebase.firestore();
         if (_user.progress[chId] && _user.progress[chId].read) freshAnon[chId] = true;
       });
       saveAnon(freshAnon);
+
+      // Sync Firebase week progress (keys like "w1_sun") into doa_week_progress
+      var wp = getWP(), wpChanged = false;
+      Object.keys(_user.progress).forEach(function(key) {
+        var m = key.match(/^w(\d+)_([a-z]+)$/);
+        if (m && _user.progress[key] && _user.progress[key].read) {
+          var wKey = 'w' + m[1];
+          if (!wp[wKey]) wp[wKey] = {};
+          if (!wp[wKey][m[2]]) { wp[wKey][m[2]] = true; wpChanged = true; }
+        }
+      });
+      if (wpChanged) saveWP(wp);
     }
+
+    migrateWeekProgress();
 
     var anon = getAnon();
 
