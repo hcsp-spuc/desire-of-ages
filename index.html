@@ -1330,7 +1330,7 @@ const db = firebase.firestore();
 
     var anon = getAnon();
 
-    if (!_user && anon['ch-1']) {
+    if (!_user && isWeekDone(1)) {
       document.getElementById('register-overlay').classList.remove('hidden');
     } else if (_user) {
       showUserBar();
