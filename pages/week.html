@@ -1,99 +1,190 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="sepia" data-font="serif" data-spacing="normal" data-margins="normal">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Week — The Desire of Ages</title>
   <link rel="stylesheet" href="../assets/css/shared.css" />
   <style>
-    html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Lora', Georgia, serif; margin: 0; }
-    .page-shell { display: flex; flex-direction: column; height: 100%; }
+    /* ── Theme variables ── */
+    html { --reading-font: 'Lora', Georgia, serif; --reading-lh: 1.95; --reading-px: 40px; }
+    html[data-theme="light"] { --bg:#ffffff; --text:#1a1614; --border:#e0d8d0; --muted:#8b7355; }
+    html[data-theme="dark"]  { --bg:#18120e; --text:#e8e0d4; --border:#3a2e28; --muted:#9a8a7a; --accent:#c4724a; }
+    html[data-font="sans"]   { --reading-font: -apple-system,'Segoe UI',Arial,sans-serif; }
+    html[data-spacing="compact"]  { --reading-lh: 1.55; }
+    html[data-spacing="relaxed"]  { --reading-lh: 2.45; }
+    html[data-margins="narrow"]   { --reading-px: 14px; }
+    html[data-margins="wide"]     { --reading-px: 72px; }
 
-    /* Topbar */
-    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 40px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .topbar-logo { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--accent); text-decoration: none; }
-    .topbar-logo span { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700; color: #fff; letter-spacing: .5px; }
-    .back-link { display: flex; align-items: center; gap: 6px; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color .2s; }
-    .back-link::before { content: '←'; font-size: 1rem; }
-    .back-link:hover { color: var(--accent); }
-    .font-size-controls { display: flex; align-items: center; gap: 4px; }
-    .font-size-controls button { background: transparent; border: 1.5px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; font-family: 'Lora', Georgia, serif; padding: 4px 10px; transition: border-color .2s, color .2s; line-height: 1; }
-    .font-size-controls button:hover { border-color: var(--accent); color: var(--accent); }
-    .fs-small { font-size: .75rem; } .fs-large { font-size: 1rem; }
+    html, body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:var(--reading-font); margin:0; transition:background .25s,color .25s; }
+    .page-shell { display:flex; flex-direction:column; height:100%; }
 
-    /* Week header */
-    .week-header { padding: 14px 40px 0; flex-shrink: 0; }
-    .week-label { font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
-    .week-title-text { font-family: 'Playfair Display', serif; font-size: clamp(1rem, 2vw, 1.4rem); font-style: italic; color: var(--accent); margin: 4px 0 2px; }
-    .week-dates-text { font-size: .8rem; color: var(--muted); }
+    /* ── Topbar ── */
+    .topbar { display:flex; align-items:center; justify-content:space-between; padding:13px 28px; border-bottom:1px solid var(--border); flex-shrink:0; background:var(--bg); transition:background .25s; }
+    .topbar-logo { display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:50%; background:var(--accent); text-decoration:none; flex-shrink:0; }
+    .topbar-logo span { font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:#fff; letter-spacing:.5px; }
+    .topbar-center { display:flex; align-items:center; gap:6px; }
+    .tb-btn { background:transparent; border:1.5px solid var(--border); border-radius:7px; color:var(--muted); cursor:pointer; font-family:var(--reading-font); padding:5px 11px; line-height:1; transition:border-color .2s,color .2s,background .2s; font-size:.82rem; }
+    .tb-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .tb-btn.icon-btn { font-size:1rem; padding:5px 9px; }
+    .back-link { display:flex; align-items:center; gap:5px; font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color .2s; flex-shrink:0; }
+    .back-link::before { content:'←'; font-size:.9rem; }
+    .back-link:hover { color:var(--accent); }
 
-    /* Day tabs */
-    .day-tabs { display: flex; padding: 12px 40px 0; flex-shrink: 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
-    .day-tab { flex: 1; min-width: 60px; text-align: center; padding: 10px 4px; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; position: relative; user-select: none; white-space: nowrap; }
-    .day-tab:hover { color: var(--accent); }
-    .day-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
-    .day-tab.done::after { content: '✓'; font-size: .6rem; position: absolute; top: 3px; right: 6px; color: #3a7d44; }
+    /* ── Settings panel ── */
+    .settings-panel { display:none; background:var(--bg); border-bottom:1px solid var(--border); padding:14px 28px 16px; flex-shrink:0; transition:background .25s; }
+    .settings-panel.open { display:block; }
+    .settings-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+    .settings-row:last-child { margin-bottom:0; }
+    .settings-label { font-size:.68rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); min-width:64px; flex-shrink:0; }
+    .seg-group { display:flex; gap:4px; }
+    .seg-btn { font-size:.78rem; padding:5px 13px; background:transparent; border:1.5px solid var(--border); border-radius:20px; color:var(--muted); cursor:pointer; font-family:var(--reading-font); transition:all .18s; white-space:nowrap; }
+    .seg-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .seg-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
 
-    /* Reading area */
-    .reading-area { flex: 1; overflow-y: auto; padding: 36px 0 80px; }
-    .reading-inner { max-width: 720px; margin: 0 auto; padding: 0 40px; }
+    /* ── Week header ── */
+    .week-header { padding:12px 28px 0; flex-shrink:0; }
+    .week-label { font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+    .week-title-text { font-family:'Playfair Display',serif; font-size:clamp(.95rem,2vw,1.3rem); font-style:italic; color:var(--accent); margin:3px 0 2px; }
+    .week-dates-text { font-size:.78rem; color:var(--muted); }
 
-    /* Chapter image */
-    .day-image { width: 100%; max-height: 280px; object-fit: cover; border-radius: 12px; margin-bottom: 28px; opacity: 0; transition: opacity .4s; }
-    .day-image.visible { opacity: 1; }
+    /* ── Day tabs ── */
+    .day-tabs { display:flex; padding:10px 28px 0; flex-shrink:0; border-bottom:1px solid var(--border); overflow-x:auto; }
+    .day-tab { flex:1; min-width:52px; text-align:center; padding:9px 4px; font-size:.67rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; position:relative; user-select:none; white-space:nowrap; }
+    .day-tab:hover { color:var(--accent); }
+    .day-tab.active { color:var(--accent); border-bottom-color:var(--accent); font-weight:600; }
+    .day-tab.done::after { content:'✓'; font-size:.55rem; position:absolute; top:3px; right:5px; color:#3a7d44; }
 
-    /* Day title */
-    .day-heading { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--accent); font-style: italic; margin: 0 0 20px; }
+    /* ── Reading area ── */
+    .reading-area { flex:1; overflow-y:auto; overflow-x:hidden; padding:32px 0 80px; position:relative; }
+    .reading-area.page-mode { overflow-y:hidden; padding:0; display:flex; flex-direction:column; }
+    .reading-inner { max-width:720px; margin:0 auto; padding:0 var(--reading-px); }
+    .reading-area.page-mode .reading-inner { flex:1; overflow-y:auto; padding:28px var(--reading-px) 12px; }
 
-    /* Reading text */
-    .reading-text p { font-size: var(--reading-font-size, 1.05rem); line-height: 1.95; color: var(--text); text-indent: 2em; text-align: justify; margin: 0 0 .6em; }
-    .reading-text p:first-child { text-indent: 0; }
+    /* ── Chapter image ── */
+    .day-image { width:100%; max-height:260px; object-fit:cover; border-radius:10px; margin-bottom:24px; opacity:0; transition:opacity .4s; }
+    .day-image.visible { opacity:1; }
 
-    /* No content */
-    .no-content { color: var(--muted); font-style: italic; font-size: 1rem; line-height: 1.8; padding: 20px 0; }
+    /* ── Day title ── */
+    .day-heading { font-family:'Playfair Display',serif; font-size:1rem; color:var(--accent); font-style:italic; margin:0 0 18px; }
 
-    /* Quiz */
-    .quiz-block { margin-top: 36px; padding: 24px 28px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; }
-    .quiz-label { font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
-    .quiz-question { font-size: var(--reading-font-size, .98rem); line-height: 1.8; color: var(--text); font-style: italic; margin: 12px 0 18px; }
-    .quiz-choices { display: flex; flex-wrap: wrap; gap: 10px; }
-    .choice-btn { padding: 10px 22px; font-family: 'Lora', Georgia, serif; font-size: .88rem; color: var(--accent); background: transparent; border: 1.5px solid var(--accent); border-radius: 40px; cursor: pointer; letter-spacing: .04em; transition: background .2s, color .2s; }
-    .choice-btn:hover:not(:disabled) { background: var(--accent); color: #fff; }
-    .choice-btn:disabled { cursor: default; }
-    .choice-btn.correct { background: #3a7d44; border-color: #3a7d44; color: #fff; }
-    .choice-btn.wrong { background: #b94040; border-color: #b94040; color: #fff; opacity: .7; }
-    .quiz-feedback { font-size: .9rem; font-style: italic; line-height: 1.6; margin-top: 14px; min-height: 18px; }
-    .quiz-feedback.correct { color: #3a7d44; }
-    .quiz-feedback.wrong { color: #b94040; }
+    /* ── Reading text ── */
+    .reading-text p { font-family:var(--reading-font); font-size:var(--reading-font-size,1.05rem); line-height:var(--reading-lh); color:var(--text); text-indent:2em; text-align:justify; margin:0 0 .6em; transition:color .25s; }
+    .reading-text p:first-child { text-indent:0; }
 
-    /* Complete Day btn */
-    .complete-day-btn { display: none; margin-top: 28px; padding: 12px 36px; background: var(--accent); color: #fff; border: none; border-radius: 40px; font-family: 'Lora', Georgia, serif; font-size: .9rem; letter-spacing: .04em; cursor: pointer; transition: opacity .2s; }
-    .complete-day-btn:hover { opacity: .85; }
-    .complete-day-btn.show { display: inline-block; }
+    /* ── No content ── */
+    .no-content { color:var(--muted); font-style:italic; font-size:1rem; line-height:1.8; padding:20px 0; }
 
-    /* Done banner */
-    .done-banner { display: none; align-items: center; gap: 10px; margin-top: 28px; padding: 14px 20px; border: 1px solid #3a7d44; border-radius: 10px; color: #3a7d44; font-size: .9rem; }
-    .done-banner.show { display: flex; }
+    /* ── Pagination nav ── */
+    .page-nav { display:flex; align-items:center; justify-content:space-between; padding:10px 28px 14px; border-top:1px solid var(--border); flex-shrink:0; background:var(--bg); }
+    .page-nav-btn { background:transparent; border:1.5px solid var(--border); border-radius:8px; color:var(--muted); cursor:pointer; font-size:.85rem; padding:7px 18px; font-family:var(--reading-font); transition:all .2s; }
+    .page-nav-btn:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); }
+    .page-nav-btn:disabled { opacity:.35; cursor:default; }
+    .page-counter { font-size:.72rem; letter-spacing:.1em; color:var(--muted); }
 
-    /* Spinner */
-    .spinner { display: flex; align-items: center; gap: 10px; padding: 40px 0; color: var(--muted); font-size: .9rem; font-style: italic; }
-    .spinner::before { content: ''; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── Quiz ── */
+    .quiz-block { margin-top:32px; padding:22px 24px; background:var(--bg); border:1px solid var(--border); border-radius:12px; }
+    .quiz-label { font-size:.67rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); font-weight:600; }
+    .quiz-question { font-size:var(--reading-font-size,.98rem); line-height:1.75; color:var(--text); font-style:italic; margin:10px 0 16px; font-family:var(--reading-font); }
+    .quiz-choices { display:flex; flex-wrap:wrap; gap:9px; }
+    .choice-btn { padding:9px 20px; font-family:var(--reading-font); font-size:.86rem; color:var(--accent); background:transparent; border:1.5px solid var(--accent); border-radius:40px; cursor:pointer; letter-spacing:.04em; transition:background .2s,color .2s; }
+    .choice-btn:hover:not(:disabled) { background:var(--accent); color:#fff; }
+    .choice-btn:disabled { cursor:default; }
+    .choice-btn.correct { background:#3a7d44; border-color:#3a7d44; color:#fff; }
+    .choice-btn.wrong   { background:#b94040; border-color:#b94040; color:#fff; opacity:.7; }
+    .quiz-feedback { font-size:.88rem; font-style:italic; line-height:1.6; margin-top:12px; min-height:18px; font-family:var(--reading-font); }
+    .quiz-feedback.correct { color:#3a7d44; }
+    .quiz-feedback.wrong   { color:#b94040; }
+
+    /* ── Complete Day btn ── */
+    .complete-day-btn { display:none; margin-top:24px; padding:11px 34px; background:var(--accent); color:#fff; border:none; border-radius:40px; font-family:var(--reading-font); font-size:.88rem; letter-spacing:.04em; cursor:pointer; transition:opacity .2s; }
+    .complete-day-btn:hover { opacity:.85; }
+    .complete-day-btn.show { display:inline-block; }
+
+    /* ── Done banner ── */
+    .done-banner { display:none; align-items:center; gap:9px; margin-top:24px; padding:13px 18px; border:1px solid #3a7d44; border-radius:10px; color:#3a7d44; font-size:.88rem; }
+    .done-banner.show { display:flex; }
+
+    /* ── Spinner ── */
+    .spinner { display:flex; align-items:center; gap:10px; padding:40px 0; color:var(--muted); font-size:.9rem; font-style:italic; }
+    .spinner::before { content:''; width:18px; height:18px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── Fullscreen ── */
+    .page-shell.fullscreen .topbar,
+    .page-shell.fullscreen .settings-panel,
+    .page-shell.fullscreen .week-header,
+    .page-shell.fullscreen .day-tabs { display:none !important; }
+    .page-shell.fullscreen .reading-area { padding-top:20px; }
+    .page-shell.fullscreen .reading-area.page-mode { padding-top:0; }
+    .fs-exit-hint { display:none; position:fixed; top:14px; right:14px; z-index:999; font-size:.72rem; color:var(--muted); background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; opacity:.7; }
+    .page-shell.fullscreen .fs-exit-hint { display:block; }
+
+    @media(max-width:600px) {
+      .topbar { padding:11px 16px; }
+      .settings-panel { padding:12px 16px 14px; }
+      html[data-margins="wide"] { --reading-px: 20px; }
+      .page-nav { padding:8px 16px 12px; }
+    }
   </style>
 </head>
 <body>
-<div class="page-shell">
+<div class="page-shell" id="page-shell">
 
   <nav class="topbar">
     <a class="topbar-logo" href="../index.html"><span>DA</span></a>
-    <div class="font-size-controls">
-      <button class="fs-small" onclick="adjustFontSize(-1)" title="Smaller text">A−</button>
-      <button class="fs-large" onclick="adjustFontSize(1)" title="Larger text">A+</button>
+    <div class="topbar-center">
+      <button class="tb-btn" onclick="adjustFontSize(-1)" title="Smaller text">A−</button>
+      <button class="tb-btn" onclick="adjustFontSize(1)" title="Larger text">A+</button>
+      <button class="tb-btn icon-btn" id="settings-btn" onclick="toggleSettings()" title="Display settings">⚙</button>
+      <button class="tb-btn icon-btn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
     </div>
-    <a class="back-link" href="../index.html">Back to Contents</a>
+    <a class="back-link" href="../index.html">Contents</a>
   </nav>
 
-  <div class="week-header">
+  <!-- Settings panel -->
+  <div class="settings-panel" id="settings-panel">
+    <div class="settings-row">
+      <span class="settings-label">Theme</span>
+      <div class="seg-group">
+        <button class="seg-btn" data-setting="theme" data-val="light"  onclick="setSetting('theme','light')">Light</button>
+        <button class="seg-btn" data-setting="theme" data-val="sepia"  onclick="setSetting('theme','sepia')">Sepia</button>
+        <button class="seg-btn" data-setting="theme" data-val="dark"   onclick="setSetting('theme','dark')">Dark</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Font</span>
+      <div class="seg-group">
+        <button class="seg-btn" data-setting="font" data-val="serif"  onclick="setSetting('font','serif')" style="font-family:'Lora',Georgia,serif">Serif</button>
+        <button class="seg-btn" data-setting="font" data-val="sans"   onclick="setSetting('font','sans')"  style="font-family:-apple-system,sans-serif">Sans</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Spacing</span>
+      <div class="seg-group">
+        <button class="seg-btn" data-setting="spacing" data-val="compact"  onclick="setSetting('spacing','compact')">Compact</button>
+        <button class="seg-btn" data-setting="spacing" data-val="normal"   onclick="setSetting('spacing','normal')">Normal</button>
+        <button class="seg-btn" data-setting="spacing" data-val="relaxed"  onclick="setSetting('spacing','relaxed')">Relaxed</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Margins</span>
+      <div class="seg-group">
+        <button class="seg-btn" data-setting="margins" data-val="narrow" onclick="setSetting('margins','narrow')">Narrow</button>
+        <button class="seg-btn" data-setting="margins" data-val="normal" onclick="setSetting('margins','normal')">Normal</button>
+        <button class="seg-btn" data-setting="margins" data-val="wide"   onclick="setSetting('margins','wide')">Wide</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">View</span>
+      <div class="seg-group">
+        <button class="seg-btn" data-setting="view" data-val="scroll" onclick="setSetting('view','scroll')">Scroll</button>
+        <button class="seg-btn" data-setting="view" data-val="page"   onclick="setSetting('view','page')">Pages</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="week-header" id="week-header">
     <div class="week-label" id="week-label">Week —</div>
     <div class="week-title-text" id="week-title">Loading…</div>
     <div class="week-dates-text" id="week-dates"></div>
@@ -105,13 +196,21 @@
     <div class="reading-inner"><div class="spinner">Loading content…</div></div>
   </div>
 
+  <!-- Pagination nav (shown in page mode) -->
+  <div class="page-nav" id="page-nav" style="display:none">
+    <button class="page-nav-btn" id="prev-page-btn" onclick="goPage(-1)" disabled>← Prev</button>
+    <span class="page-counter" id="page-counter"></span>
+    <button class="page-nav-btn" id="next-page-btn" onclick="goPage(1)">Next →</button>
+  </div>
+
+  <div class="fs-exit-hint" onclick="toggleFullscreen()">Press Esc or tap to exit</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
 firebase.initializeApp({
-  apiKey: 'AIzaSyBCWFsEuFtH8LMpwAZ9F0AUzCmQBV8yxhA',
+  apiKey: 'AIzaSyCZMh4KUoXtSgCP3xCQ7atA8cJ7CQOGgfU',
   authDomain: 'desire-of-ages-treasury.firebaseapp.com',
   projectId: 'desire-of-ages-treasury'
 });
@@ -178,7 +277,7 @@ const WEEKS = [
   { n:57, start:'2027-08-21', end:'2027-08-27', chapters:[85,86],  title:'By the Sea Once More; Go Teach All Nations' },
   { n:58, start:'2027-08-28', end:'2027-09-03', chapters:[87],     title:"To My Father's Throne" },
 ];
-const DAYS     = ['sun','mon','tue','wed','thu','fri','sat'];
+const DAYS      = ['sun','mon','tue','wed','thu','fri','sat'];
 const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
 // ── Progress ───────────────────────────────────────────────────────────────
@@ -189,29 +288,157 @@ function isDayDone(weekN, day) { const wp = getWP(); return !!(wp['w'+weekN] && 
 function isWeekDone(n) { return DAYS.every(d => isDayDone(n, d)); }
 
 function markDayDone(weekN, day) {
-  const wp = getWP();
-  const wk = 'w' + weekN;
+  const wp = getWP(), wk = 'w'+weekN;
   if (!wp[wk]) wp[wk] = {};
   wp[wk][day] = true;
   saveWP(wp);
   const uid = localStorage.getItem('doa_current_user_id');
   if (uid) {
     const upd = {};
-    upd['progress.' + wk + '_' + day] = { read: true, readAt: new Date().toISOString() };
-    db.collection('users').doc(uid).update(upd).catch(() => {});
+    upd['progress.'+wk+'_'+day] = { read:true, readAt:new Date().toISOString() };
+    db.collection('users').doc(uid).update(upd).catch(()=>{});
   }
 }
 
+// ── Display settings ───────────────────────────────────────────────────────
+const SETTINGS_KEYS = { theme:'doa_theme', font:'doa_font_type', spacing:'doa_line_spacing', margins:'doa_margins', view:'doa_view_mode' };
+const SETTINGS_DEFAULTS = { theme:'sepia', font:'serif', spacing:'normal', margins:'normal', view:'scroll' };
+
+function loadSettings() {
+  const root = document.documentElement;
+  Object.keys(SETTINGS_KEYS).forEach(k => {
+    const val = localStorage.getItem(SETTINGS_KEYS[k]) || SETTINGS_DEFAULTS[k];
+    root.setAttribute('data-'+k, val);
+  });
+  const fsIdx = localStorage.getItem('doa_font_size_idx');
+  if (fsIdx !== null) applyFontSize(parseInt(fsIdx, 10));
+  syncSettingButtons();
+}
+
+function setSetting(key, val) {
+  document.documentElement.setAttribute('data-'+key, val);
+  localStorage.setItem(SETTINGS_KEYS[key], val);
+  syncSettingButtons();
+  if (key === 'view') applyViewMode(val);
+}
+
+function syncSettingButtons() {
+  document.querySelectorAll('.seg-btn[data-setting]').forEach(btn => {
+    const cur = document.documentElement.getAttribute('data-'+btn.dataset.setting);
+    btn.classList.toggle('active', btn.dataset.val === cur);
+  });
+}
+
+function toggleSettings() {
+  const panel = document.getElementById('settings-panel');
+  panel.classList.toggle('open');
+}
+
 // ── Font size ──────────────────────────────────────────────────────────────
-const FONT_SIZES = [0.85, 0.95, 1.05, 1.15, 1.25, 1.35];
-function applyFontSize(idx) { document.documentElement.style.setProperty('--reading-font-size', FONT_SIZES[idx] + 'rem'); }
+const FONT_SIZES = [0.82, 0.92, 1.02, 1.12, 1.22, 1.35];
+function applyFontSize(idx) { document.documentElement.style.setProperty('--reading-font-size', FONT_SIZES[idx]+'rem'); }
 function adjustFontSize(dir) {
-  let idx = parseInt(localStorage.getItem('doa_font_size_idx') || '2', 10);
-  idx = Math.max(0, Math.min(FONT_SIZES.length - 1, idx + dir));
+  let idx = parseInt(localStorage.getItem('doa_font_size_idx')||'2', 10);
+  idx = Math.max(0, Math.min(FONT_SIZES.length-1, idx+dir));
   localStorage.setItem('doa_font_size_idx', idx);
   applyFontSize(idx);
 }
-(function() { const s = localStorage.getItem('doa_font_size_idx'); if (s !== null) applyFontSize(parseInt(s, 10)); })();
+
+// ── Fullscreen ─────────────────────────────────────────────────────────────
+function toggleFullscreen() {
+  const shell = document.getElementById('page-shell');
+  const isFs  = shell.classList.contains('fullscreen');
+  if (isFs) {
+    shell.classList.remove('fullscreen');
+    if (document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+  } else {
+    shell.classList.add('fullscreen');
+    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+  }
+}
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) document.getElementById('page-shell').classList.remove('fullscreen');
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('page-shell').classList.remove('fullscreen');
+  if (e.key === 'ArrowRight') goPage(1);
+  if (e.key === 'ArrowLeft')  goPage(-1);
+});
+
+// ── Pagination ─────────────────────────────────────────────────────────────
+const PARAS_PER_PAGE = 4;
+let currentPage = 0, totalPages = 1;
+let _currentDayParas = [], _currentDayQuiz = null, _currentDayDone = false, _currentDayIdx = 0;
+
+function applyViewMode(mode) {
+  const area = document.getElementById('reading-area');
+  const nav  = document.getElementById('page-nav');
+  if (mode === 'page') {
+    area.classList.add('page-mode');
+    nav.style.display = 'flex';
+    renderPage(currentPage);
+  } else {
+    area.classList.remove('page-mode');
+    nav.style.display = 'none';
+    renderDayContent(_currentDayIdx, true);
+  }
+}
+
+function goPage(dir) {
+  const newPage = currentPage + dir;
+  if (newPage < 0 || newPage >= totalPages) return;
+  currentPage = newPage;
+  renderPage(currentPage);
+  document.getElementById('reading-area').scrollTop = 0;
+}
+
+function renderPage(pageIdx) {
+  const paras   = _currentDayParas;
+  const quiz    = _currentDayQuiz;
+  const done    = _currentDayDone;
+  const dayIdx  = _currentDayIdx;
+  const isLastPage = pageIdx === totalPages - 1;
+
+  const start = pageIdx * PARAS_PER_PAGE;
+  const end   = Math.min(start + PARAS_PER_PAGE, paras.length);
+  const slice = paras.slice(start, end);
+
+  let html = '<div class="reading-inner">';
+  if (pageIdx === 0) {
+    const imgUrl = dayImages[dayIdx];
+    if (imgUrl) html += '<img class="day-image" id="day-img" src="'+imgUrl+'" alt="" />';
+    html += '<div class="day-heading">'+DAY_NAMES[dayIdx]+' — '+headingTitle(dayIdx)+'</div>';
+  }
+  if (slice.length) html += '<div class="reading-text">'+slice.join('')+'</div>';
+  else html += '<p class="no-content">Reading content for this chapter is being prepared. Please check back soon.</p>';
+
+  if (isLastPage) {
+    if (quiz) html += buildQuizHTML(quiz, done);
+    if (done) {
+      html += '<div class="done-banner show">✓ '+DAY_NAMES[dayIdx]+' completed</div>';
+      if (dayIdx < 6 || weekN < 58) {
+        html += '<button class="complete-day-btn show" onclick="advanceDay('+dayIdx+')">'+(dayIdx===6?'Back to Contents':DAY_NAMES[dayIdx+1]+' →')+'</button>';
+      }
+    } else {
+      const lbl = dayIdx===6 ? (weekN<58?'Complete Week '+weekN+' →':'Complete Final Week →') : 'Complete '+DAY_NAMES[dayIdx]+' →';
+      html += '<button class="complete-day-btn'+((!quiz||done)?' show':'')+'" id="complete-btn" onclick="completeDay('+dayIdx+')">'+lbl+'</button>';
+    }
+  }
+  html += '</div>';
+  document.getElementById('reading-area').innerHTML = html;
+
+  // Update nav
+  const prevBtn = document.getElementById('prev-page-btn');
+  const nextBtn = document.getElementById('next-page-btn');
+  const counter = document.getElementById('page-counter');
+  if (prevBtn) prevBtn.disabled = pageIdx === 0;
+  if (nextBtn) { nextBtn.disabled = isLastPage; nextBtn.textContent = isLastPage ? '—' : 'Next →'; }
+  if (counter) counter.textContent = 'Page '+(pageIdx+1)+' of '+totalPages;
+
+  const img = document.getElementById('day-img');
+  if (img) img.onload = function() { img.classList.add('visible'); };
+  if (!quiz || done) { const b = document.getElementById('complete-btn'); if (b) b.classList.add('show'); }
+}
 
 // ── Content helpers ────────────────────────────────────────────────────────
 function parseContent(text) {
@@ -221,24 +448,28 @@ function parseContent(text) {
     div.innerHTML = text;
     const ps = div.querySelectorAll('p');
     if (ps.length) return Array.from(ps).map(p => p.outerHTML);
-    return ['<p>' + text + '</p>'];
+    return ['<p>'+text+'</p>'];
   }
-  return text.split(/\n{2,}/).map(s => s.trim()).filter(Boolean).map(s => '<p>' + s + '</p>');
+  return text.split(/\n{2,}/).map(s => s.trim()).filter(Boolean).map(s => '<p>'+s+'</p>');
 }
 
 function splitIntoNParts(arr, n) {
   const out = [];
-  for (let i = 0; i < n; i++) {
-    const s = Math.floor((i * arr.length) / n);
-    const e = Math.floor(((i + 1) * arr.length) / n);
+  for (let i=0; i<n; i++) {
+    const s = Math.floor((i*arr.length)/n), e = Math.floor(((i+1)*arr.length)/n);
     out.push(arr.slice(s, e));
   }
   return out;
 }
 
 function formatDateRange(start, end) {
-  const f = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  return f(start) + ' – ' + f(end) + ', ' + new Date(end + 'T12:00:00').getFullYear();
+  const f = d => new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  return f(start)+' – '+f(end)+', '+new Date(end+'T12:00:00').getFullYear();
+}
+
+function headingTitle(dayIdx) {
+  const parts = weekMeta.title.split(';');
+  return (parts[Math.floor(dayIdx/(weekMeta.chapters.length===1?7:3.5))] || parts[0]).trim();
 }
 
 // ── State ──────────────────────────────────────────────────────────────────
@@ -248,24 +479,22 @@ let quizAnswered = false;
 
 // ── Init ───────────────────────────────────────────────────────────────────
 async function init() {
-  const params = new URLSearchParams(location.search);
-  weekN = parseInt(params.get('w') || '1', 10);
+  loadSettings();
 
+  const params = new URLSearchParams(location.search);
+  weekN = parseInt(params.get('w')||'1', 10);
   const dayParam = params.get('day');
   currentDay = dayParam ? Math.max(0, DAYS.indexOf(dayParam.toLowerCase())) : new Date().getDay();
 
   weekMeta = WEEKS.find(w => w.n === weekN);
   if (!weekMeta) { document.getElementById('reading-area').innerHTML = '<div class="reading-inner"><p>Week not found.</p></div>'; return; }
 
-  document.title = 'Week ' + weekN + ' — The Desire of Ages';
-  document.getElementById('week-label').textContent = 'Week ' + weekN;
+  document.title = 'Week '+weekN+' — The Desire of Ages';
+  document.getElementById('week-label').textContent = 'Week '+weekN;
   document.getElementById('week-title').textContent = weekMeta.title;
   document.getElementById('week-dates').textContent = formatDateRange(weekMeta.start, weekMeta.end);
 
-  // Fetch chapters from Firebase
-  const snaps = await Promise.all(
-    weekMeta.chapters.map(n => db.collection('chExtras').doc('ch-' + n).get().catch(() => null))
-  );
+  const snaps = await Promise.all(weekMeta.chapters.map(n => db.collection('chExtras').doc('ch-'+n).get().catch(()=>null)));
 
   let allParas = [], quizBoundaries = [];
   const imgByChIdx = {};
@@ -274,44 +503,42 @@ async function init() {
     if (!snap || !snap.exists) return;
     const d = snap.data();
     if (d.images && d.images[0] && d.images[0].url) imgByChIdx[ci] = d.images[0].url;
-
-    const p1 = parseContent(d.content);
-    const p2 = parseContent(d.content2);
-
-    if (d.quiz && d.quiz[0]) quizBoundaries.push({ afterIdx: allParas.length + p1.length - 1, quiz: d.quiz[0] });
+    const p1 = parseContent(d.content), p2 = parseContent(d.content2);
+    if (d.quiz && d.quiz[0]) quizBoundaries.push({ afterIdx: allParas.length+p1.length-1, quiz:d.quiz[0] });
     allParas = allParas.concat(p1);
-    if (d.quiz && d.quiz[1]) quizBoundaries.push({ afterIdx: allParas.length + p2.length - 1, quiz: d.quiz[1] });
+    if (d.quiz && d.quiz[1]) quizBoundaries.push({ afterIdx: allParas.length+p2.length-1, quiz:d.quiz[1] });
     allParas = allParas.concat(p2);
   });
 
-  // Split into 7 days
   dayParas   = splitIntoNParts(allParas, 7);
   dayQuizzes = new Array(7).fill(null);
   dayImages  = new Array(7).fill(null);
 
-  // Assign quizzes
   let parasCounted = 0;
-  for (let d = 0; d < 7; d++) {
+  for (let d=0; d<7; d++) {
     parasCounted += dayParas[d].length;
     for (const qb of quizBoundaries) {
-      if (qb.afterIdx < parasCounted && !dayQuizzes[d] && !Object.values(dayQuizzes).includes(qb.quiz)) {
+      if (qb.afterIdx < parasCounted && !dayQuizzes[d] && !Object.values(dayQuizzes).includes(qb.quiz))
         dayQuizzes[d] = qb.quiz;
-      }
     }
   }
-  // Cascade any unassigned quizzes
   const assigned = new Set(dayQuizzes.filter(Boolean));
-  const unassigned = quizBoundaries.map(q => q.quiz).filter(q => !assigned.has(q));
-  for (let d = 0; d < 7; d++) {
-    if (!dayQuizzes[d] && unassigned.length) dayQuizzes[d] = unassigned.shift();
-  }
+  const unassigned = quizBoundaries.map(q=>q.quiz).filter(q=>!assigned.has(q));
+  for (let d=0; d<7; d++) { if (!dayQuizzes[d] && unassigned.length) dayQuizzes[d] = unassigned.shift(); }
 
-  // Assign images
   if (imgByChIdx[0]) dayImages[0] = imgByChIdx[0];
   if (imgByChIdx[1]) dayImages[3] = imgByChIdx[1];
 
   renderTabs();
   renderDay(currentDay);
+
+  // Touch swipe for pagination
+  let touchStartX = 0;
+  document.getElementById('reading-area').addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive:true });
+  document.getElementById('reading-area').addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) goPage(dx < 0 ? 1 : -1);
+  }, { passive:true });
 }
 
 // ── Tabs ───────────────────────────────────────────────────────────────────
@@ -319,10 +546,9 @@ function renderTabs() {
   const el = document.getElementById('day-tabs');
   el.innerHTML = '';
   DAYS.forEach((day, i) => {
-    const done = isDayDone(weekN, day);
     const tab = document.createElement('div');
-    tab.className = 'day-tab' + (i === currentDay ? ' active' : '') + (done ? ' done' : '');
-    tab.textContent = DAY_NAMES[i].slice(0, 3).toUpperCase();
+    tab.className = 'day-tab'+(i===currentDay?' active':'')+(isDayDone(weekN,day)?' done':'');
+    tab.textContent = DAY_NAMES[i].slice(0,3).toUpperCase();
     tab.onclick = () => switchDay(i);
     el.appendChild(tab);
   });
@@ -338,71 +564,68 @@ function switchDay(i) {
 // ── Render day ─────────────────────────────────────────────────────────────
 function renderDay(dayIdx) {
   quizAnswered = isDayDone(weekN, DAYS[dayIdx]);
-  const paras  = dayParas[dayIdx]  || [];
-  const quiz   = dayQuizzes[dayIdx];
+  _currentDayParas = dayParas[dayIdx] || [];
+  _currentDayQuiz  = dayQuizzes[dayIdx];
+  _currentDayDone  = isDayDone(weekN, DAYS[dayIdx]);
+  _currentDayIdx   = dayIdx;
+  currentPage = 0;
+
+  const viewMode = localStorage.getItem('doa_view_mode') || 'scroll';
+
+  if (viewMode === 'page') {
+    totalPages = Math.max(1, Math.ceil(_currentDayParas.length / PARAS_PER_PAGE));
+    document.getElementById('reading-area').classList.add('page-mode');
+    document.getElementById('page-nav').style.display = 'flex';
+    renderPage(0);
+  } else {
+    document.getElementById('reading-area').classList.remove('page-mode');
+    document.getElementById('page-nav').style.display = 'none';
+    renderDayContent(dayIdx, false);
+  }
+}
+
+function renderDayContent(dayIdx, fromSettingsChange) {
+  const paras  = _currentDayParas;
+  const quiz   = _currentDayQuiz;
+  const done   = _currentDayDone;
   const imgUrl = dayImages[dayIdx];
-  const done   = isDayDone(weekN, DAYS[dayIdx]);
 
   let html = '<div class="reading-inner">';
+  if (imgUrl) html += '<img class="day-image" id="day-img" src="'+imgUrl+'" alt="" />';
+  html += '<div class="day-heading">'+DAY_NAMES[dayIdx]+' — '+headingTitle(dayIdx)+'</div>';
 
-  // Image
-  if (imgUrl) html += '<img class="day-image" id="day-img" src="' + imgUrl + '" alt="" />';
+  if (paras.length) html += '<div class="reading-text">'+paras.join('')+'</div>';
+  else html += '<p class="no-content">Reading content for this chapter is being prepared. Please check back soon.</p>';
 
-  // Day heading
-  html += '<div class="day-heading">' + DAY_NAMES[dayIdx] + ' — ' + weekMeta.title.split(';')[Math.floor(dayIdx / (weekMeta.chapters.length === 1 ? 7 : 3.5))] + '</div>';
-
-  // Reading text
-  if (paras.length) {
-    html += '<div class="reading-text">' + paras.join('') + '</div>';
-  } else {
-    html += '<p class="no-content">Reading content for this chapter is being prepared. Please check back soon.</p>';
-  }
-
-  // Quiz
   if (quiz) html += buildQuizHTML(quiz, done);
 
-  // Complete button / done banner
   if (done) {
-    const isLast = dayIdx === 6;
-    html += '<div class="done-banner show">✓ ' + DAY_NAMES[dayIdx] + ' completed'
-      + (isLast && weekN === 58 ? ' — You have completed all 58 weeks!' : '') + '</div>';
-    if (!isLast || weekN < 58) {
-      html += '<button class="complete-day-btn show" onclick="advanceDay(' + dayIdx + ')">'
-        + (isLast ? 'Back to Contents' : DAY_NAMES[dayIdx + 1] + ' →') + '</button>';
-    }
+    html += '<div class="done-banner show">✓ '+DAY_NAMES[dayIdx]+' completed'+(dayIdx===6&&weekN===58?' — You have completed all 58 weeks!':'')+'</div>';
+    if (dayIdx<6||weekN<58) html += '<button class="complete-day-btn show" onclick="advanceDay('+dayIdx+')">'+(dayIdx===6?'Back to Contents':DAY_NAMES[dayIdx+1]+' →')+'</button>';
   } else {
-    const btnLabel = dayIdx === 6
-      ? (weekN < 58 ? 'Complete Week ' + weekN + ' →' : 'Complete Final Week →')
-      : 'Complete ' + DAY_NAMES[dayIdx] + ' →';
-    html += '<button class="complete-day-btn" id="complete-btn" onclick="completeDay(' + dayIdx + ')">' + btnLabel + '</button>';
+    const lbl = dayIdx===6?(weekN<58?'Complete Week '+weekN+' →':'Complete Final Week →'):'Complete '+DAY_NAMES[dayIdx]+' →';
+    html += '<button class="complete-day-btn" id="complete-btn" onclick="completeDay('+dayIdx+')">'+lbl+'</button>';
   }
-
   html += '</div>';
   document.getElementById('reading-area').innerHTML = html;
 
-  // Fade in image
   const img = document.getElementById('day-img');
   if (img) img.onload = function() { img.classList.add('visible'); };
-
-  // Show complete btn immediately if no quiz or day already done
-  if (!quiz || done) {
-    const btn = document.getElementById('complete-btn');
-    if (btn) btn.classList.add('show');
-    if (done) document.querySelectorAll('.choice-btn').forEach(b => { b.disabled = true; });
-  }
+  if (!quiz||done) { const b = document.getElementById('complete-btn'); if (b) b.classList.add('show'); }
+  if (done) document.querySelectorAll('.choice-btn').forEach(b => { b.disabled = true; });
 }
 
 function buildQuizHTML(quiz, alreadyDone) {
   let html = '<div class="quiz-block"><span class="quiz-label">Discussion Question</span>';
-  html += '<p class="quiz-question">' + quiz.question + '</p>';
+  html += '<p class="quiz-question">'+quiz.question+'</p>';
   html += '<div class="quiz-choices">';
   if (quiz.options && quiz.options.length) {
-    quiz.options.forEach((opt, i) => {
-      html += '<button class="choice-btn"' + (alreadyDone ? ' disabled' : '') + ' onclick="handleAnswer(this,' + (i === quiz.correct) + ',' + i + ',' + quiz.correct + ')">' + opt + '</button>';
+    quiz.options.forEach((opt,i) => {
+      html += '<button class="choice-btn"'+(alreadyDone?' disabled':'')+' onclick="handleAnswer(this,'+(i===quiz.correct)+','+i+','+quiz.correct+')">'+opt+'</button>';
     });
   } else {
-    html += '<button class="choice-btn"' + (alreadyDone ? ' disabled' : '') + ' onclick="handleAnswer(this,true,0,0)">True</button>';
-    html += '<button class="choice-btn"' + (alreadyDone ? ' disabled' : '') + ' onclick="handleAnswer(this,false,1,0)">False</button>';
+    html += '<button class="choice-btn"'+(alreadyDone?' disabled':'')+' onclick="handleAnswer(this,true,0,0)">True</button>';
+    html += '<button class="choice-btn"'+(alreadyDone?' disabled':'')+' onclick="handleAnswer(this,false,1,0)">False</button>';
   }
   html += '</div><div class="quiz-feedback" id="quiz-fb"></div></div>';
   return html;
@@ -410,19 +633,17 @@ function buildQuizHTML(quiz, alreadyDone) {
 
 function handleAnswer(btn, isCorrect, chosenIdx, correctIdx) {
   if (quizAnswered) return;
-  btn.closest('.quiz-choices').querySelectorAll('.choice-btn').forEach((b, i) => {
+  btn.closest('.quiz-choices').querySelectorAll('.choice-btn').forEach((b,i) => {
     b.disabled = true;
     if (i === correctIdx) b.classList.add('correct');
   });
   if (!isCorrect) btn.classList.add('wrong');
-
-  const quiz = dayQuizzes[currentDay];
+  const quiz = _currentDayQuiz;
   const fb   = document.getElementById('quiz-fb');
   if (fb && quiz) {
-    fb.className = 'quiz-feedback ' + (isCorrect ? 'correct' : 'wrong');
-    fb.textContent = (isCorrect ? '✓ ' : '✗ ') + (isCorrect ? (quiz.explanation_correct || 'Correct!') : (quiz.explanation_wrong || 'Not quite — review the reading and try again.'));
+    fb.className = 'quiz-feedback '+(isCorrect?'correct':'wrong');
+    fb.textContent = (isCorrect?'✓ ':'✗ ')+(isCorrect?(quiz.explanation_correct||'Correct!'):(quiz.explanation_wrong||'Not quite — review the reading and try again.'));
   }
-
   quizAnswered = true;
   const btn2 = document.getElementById('complete-btn');
   if (btn2) btn2.classList.add('show');
@@ -432,16 +653,16 @@ function completeDay(dayIdx) {
   markDayDone(weekN, DAYS[dayIdx]);
   renderTabs();
   if (dayIdx === 6) {
-    if (weekN < 58) sessionStorage.setItem('doa_just_unlocked', 'w' + (weekN + 1));
+    if (weekN < 58) sessionStorage.setItem('doa_just_unlocked', 'w'+(weekN+1));
     window.location.href = '../index.html';
   } else {
-    switchDay(dayIdx + 1);
+    switchDay(dayIdx+1);
   }
 }
 
 function advanceDay(dayIdx) {
-  if (dayIdx === 6) { window.location.href = '../index.html'; }
-  else { switchDay(dayIdx + 1); }
+  if (dayIdx === 6) window.location.href = '../index.html';
+  else switchDay(dayIdx+1);
 }
 
 init();
