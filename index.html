@@ -1063,12 +1063,17 @@ const db = firebase.firestore();
 
   function migrateWeekProgress() {
     if (localStorage.getItem('doa_migrated_weeks')) return;
+    if (_user) {
+      // Logged-in users: week progress comes from Firebase sync only — no chapter migration needed
+      localStorage.setItem('doa_migrated_weeks', '1');
+      return;
+    }
     var anon = getAnon();
     var wp = getWP();
     WEEKS.forEach(function(w) {
       var doneChs = w.chapters.filter(function(n) {
         var chId = 'ch-' + n;
-        return _user ? (_user.progress && _user.progress[chId] && _user.progress[chId].read) : !!anon[chId];
+        return !!anon[chId];
       });
       if (!doneChs.length) return;
       if (!wp['w'+w.n]) wp['w'+w.n] = {};
