@@ -401,51 +401,72 @@ function goPage(dir) {
 }
 
 function renderPage(pageIdx) {
-  const paras   = _currentDayParas;
-  const quiz    = _currentDayQuiz;
-  const done    = _currentDayDone;
-  const dayIdx  = _currentDayIdx;
+  const paras  = _currentDayParas;
+  const quiz   = _currentDayQuiz;
+  const done   = _currentDayDone;
+  const dayIdx = _currentDayIdx;
+
+  // Last page is a dedicated quiz/complete page when there's a quiz
+  const textPages  = Math.max(1, Math.ceil(paras.length / PARAS_PER_PAGE));
+  const isQuizPage = quiz && pageIdx === totalPages - 1;
   const isLastPage = pageIdx === totalPages - 1;
 
-  const start = pageIdx * PARAS_PER_PAGE;
-  const end   = Math.min(start + PARAS_PER_PAGE, paras.length);
-  const slice = paras.slice(start, end);
-
   let html = '<div class="reading-inner">';
-  if (pageIdx === 0) {
-    const imgUrl = dayImages[dayIdx];
-    if (imgUrl) html += '<img class="day-image" id="day-img" src="'+imgUrl+'" alt="" />';
-    html += '<div class="day-heading">'+DAY_NAMES[dayIdx]+' — '+headingTitle(dayIdx)+'</div>';
-  }
-  if (slice.length) html += '<div class="reading-text">'+slice.join('')+'</div>';
-  else html += '<p class="no-content">Reading content for this chapter is being prepared. Please check back soon.</p>';
 
-  if (isLastPage) {
-    if (quiz) html += buildQuizHTML(quiz, done);
+  if (isQuizPage) {
+    // Dedicated quiz page
+    html += '<div class="day-heading" style="margin-bottom:24px">'+DAY_NAMES[dayIdx]+' — Discussion</div>';
+    html += buildQuizHTML(quiz, done);
     if (done) {
       html += '<div class="done-banner show">✓ '+DAY_NAMES[dayIdx]+' completed</div>';
-      if (dayIdx < 6 || weekN < 58) {
+      if (dayIdx < 6 || weekN < 58)
         html += '<button class="complete-day-btn show" onclick="advanceDay('+dayIdx+')">'+(dayIdx===6?'Back to Contents':DAY_NAMES[dayIdx+1]+' →')+'</button>';
-      }
     } else {
-      const lbl = dayIdx===6 ? (weekN<58?'Complete Week '+weekN+' →':'Complete Final Week →') : 'Complete '+DAY_NAMES[dayIdx]+' →';
-      html += '<button class="complete-day-btn'+((!quiz||done)?' show':'')+'" id="complete-btn" onclick="completeDay('+dayIdx+')">'+lbl+'</button>';
+      const lbl = dayIdx===6?(weekN<58?'Complete Week '+weekN+' →':'Complete Final Week →'):'Complete '+DAY_NAMES[dayIdx]+' →';
+      html += '<button class="complete-day-btn" id="complete-btn" onclick="completeDay('+dayIdx+')">'+lbl+'</button>';
+    }
+  } else {
+    // Text page
+    if (pageIdx === 0) {
+      const imgUrl = dayImages[dayIdx];
+      if (imgUrl) html += '<img class="day-image" id="day-img" src="'+imgUrl+'" alt="" />';
+      html += '<div class="day-heading">'+DAY_NAMES[dayIdx]+' — '+headingTitle(dayIdx)+'</div>';
+    }
+    const start = pageIdx * PARAS_PER_PAGE;
+    const slice = paras.slice(start, start + PARAS_PER_PAGE);
+    if (slice.length) html += '<div class="reading-text">'+slice.join('')+'</div>';
+    else html += '<p class="no-content">Reading content for this chapter is being prepared. Please check back soon.</p>';
+
+    // If no quiz, show complete button on last text page
+    if (!quiz && isLastPage) {
+      if (done) {
+        html += '<div class="done-banner show">✓ '+DAY_NAMES[dayIdx]+' completed</div>';
+        if (dayIdx < 6 || weekN < 58)
+          html += '<button class="complete-day-btn show" onclick="advanceDay('+dayIdx+')">'+(dayIdx===6?'Back to Contents':DAY_NAMES[dayIdx+1]+' →')+'</button>';
+      } else {
+        const lbl = dayIdx===6?(weekN<58?'Complete Week '+weekN+' →':'Complete Final Week →'):'Complete '+DAY_NAMES[dayIdx]+' →';
+        html += '<button class="complete-day-btn show" id="complete-btn" onclick="completeDay('+dayIdx+')">'+lbl+'</button>';
+      }
     }
   }
+
   html += '</div>';
   document.getElementById('reading-area').innerHTML = html;
 
-  // Update nav
+  // Update nav buttons
   const prevBtn = document.getElementById('prev-page-btn');
   const nextBtn = document.getElementById('next-page-btn');
   const counter = document.getElementById('page-counter');
   if (prevBtn) prevBtn.disabled = pageIdx === 0;
-  if (nextBtn) { nextBtn.disabled = isLastPage; nextBtn.textContent = isLastPage ? '—' : 'Next →'; }
-  if (counter) counter.textContent = 'Page '+(pageIdx+1)+' of '+totalPages;
+  if (nextBtn) {
+    nextBtn.disabled = isLastPage;
+    nextBtn.textContent = isLastPage ? '—' : (pageIdx === totalPages - 2 && quiz ? 'Quiz →' : 'Next →');
+  }
+  if (counter) counter.textContent = isQuizPage ? 'Quiz' : 'Page '+(pageIdx+1)+' of '+textPages;
 
   const img = document.getElementById('day-img');
-  if (img) img.onload = function() { img.classList.add('visible'); };
-  if (!quiz || done) { const b = document.getElementById('complete-btn'); if (b) b.classList.add('show'); }
+  if (img) img.onload = () => img.classList.add('visible');
+  if (isQuizPage && done) document.querySelectorAll('.choice-btn').forEach(b => { b.disabled = true; });
 }
 
 // ── Content helpers ────────────────────────────────────────────────────────
@@ -581,7 +602,8 @@ function renderDay(dayIdx) {
   const viewMode = localStorage.getItem('doa_view_mode') || 'scroll';
 
   if (viewMode === 'page') {
-    totalPages = Math.max(1, Math.ceil(_currentDayParas.length / PARAS_PER_PAGE));
+    const textPgs = Math.max(1, Math.ceil(_currentDayParas.length / PARAS_PER_PAGE));
+    totalPages = _currentDayQuiz ? textPgs + 1 : textPgs;
     document.getElementById('reading-area').classList.add('page-mode');
     document.getElementById('page-nav').style.display = 'flex';
     renderPage(0);
