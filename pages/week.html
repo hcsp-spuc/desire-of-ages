@@ -60,9 +60,9 @@
 
     /* ── Reading area ── */
     .reading-area { flex:1; overflow-y:auto; overflow-x:hidden; padding:32px 0 80px; position:relative; }
-    .reading-area.page-mode { overflow-y:hidden; padding:0; display:flex; flex-direction:column; }
+    .reading-area.page-mode { overflow:hidden; padding:0; }
     .reading-inner { max-width:720px; margin:0 auto; padding:0 var(--reading-px); }
-    .reading-area.page-mode .reading-inner { flex:1; overflow-y:auto; padding:28px var(--reading-px) 12px; }
+    .reading-area.page-mode .reading-inner { overflow:hidden; height:100%; padding:24px var(--reading-px) 12px; box-sizing:border-box; }
 
     /* ── Chapter image ── */
     .day-image { width:100%; max-height:260px; object-fit:cover; border-radius:10px; margin-bottom:24px; opacity:0; transition:opacity .4s; }
@@ -79,11 +79,12 @@
     .no-content { color:var(--muted); font-style:italic; font-size:1rem; line-height:1.8; padding:20px 0; }
 
     /* ── Pagination nav ── */
-    .page-nav { display:flex; align-items:center; justify-content:space-between; padding:10px 28px 14px; border-top:1px solid var(--border); flex-shrink:0; background:var(--bg); }
-    .page-nav-btn { background:transparent; border:1.5px solid var(--border); border-radius:8px; color:var(--muted); cursor:pointer; font-size:.85rem; padding:7px 18px; font-family:var(--reading-font); transition:all .2s; }
-    .page-nav-btn:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); }
-    .page-nav-btn:disabled { opacity:.35; cursor:default; }
-    .page-counter { font-size:.72rem; letter-spacing:.1em; color:var(--muted); }
+    .page-nav { display:flex; align-items:center; justify-content:space-between; padding:10px 20px 14px; border-top:1px solid var(--border); flex-shrink:0; background:var(--bg); gap:12px; }
+    .page-nav-btn { display:flex; align-items:center; gap:6px; background:var(--accent); border:none; border-radius:40px; color:#fff; cursor:pointer; font-size:.82rem; padding:9px 22px; font-family:var(--reading-font); transition:opacity .2s, transform .15s; letter-spacing:.04em; flex-shrink:0; }
+    .page-nav-btn:hover:not(:disabled) { opacity:.85; }
+    .page-nav-btn:active:not(:disabled) { transform:scale(.96); }
+    .page-nav-btn:disabled { background:var(--border); color:var(--muted); cursor:default; opacity:.6; }
+    .page-counter { font-size:.72rem; letter-spacing:.12em; color:var(--muted); text-align:center; flex:1; }
 
     /* ── Quiz ── */
     .quiz-block { margin-top:32px; padding:22px 24px; background:var(--bg); border:1px solid var(--border); border-radius:12px; }
@@ -203,7 +204,7 @@
 
   <!-- Pagination nav (shown in page mode) -->
   <div class="page-nav" id="page-nav" style="display:none">
-    <button class="page-nav-btn" id="prev-page-btn" onclick="goPage(-1)" disabled>← Prev</button>
+    <button class="page-nav-btn" id="prev-page-btn" onclick="goPage(-1)" disabled>← Previous</button>
     <span class="page-counter" id="page-counter"></span>
     <button class="page-nav-btn" id="next-page-btn" onclick="goPage(1)">Next →</button>
   </div>
@@ -373,7 +374,7 @@ document.addEventListener('keydown', e => {
 });
 
 // ── Pagination ─────────────────────────────────────────────────────────────
-const PARAS_PER_PAGE = 4;
+const PARAS_PER_PAGE = 3;
 let currentPage = 0, totalPages = 1;
 let _currentDayParas = [], _currentDayQuiz = null, _currentDayDone = false, _currentDayIdx = 0;
 
