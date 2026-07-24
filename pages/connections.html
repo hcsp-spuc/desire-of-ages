@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reading Group — The Desire of Ages</title>
+  <link rel="stylesheet" href="../assets/css/shared.css" />
+  <style>
+    body { background:var(--bg); color:var(--text); font-family:'Lora',Georgia,serif; min-height:100vh; margin:0; }
+
+    /* ── Top bar ── */
+    .topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 32px; border-bottom:1px solid var(--border); background:var(--bg); }
+    .topbar-logo { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text); font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; }
+    .logo-badge { width:30px; height:30px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:.65rem; font-weight:700; color:#fff; letter-spacing:.5px; flex-shrink:0; }
+    .back-link { font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color .2s; }
+    .back-link:hover { color:var(--accent); }
+
+    /* ── Page layout ── */
+    .page-content { max-width:800px; margin:0 auto; padding:40px 32px 80px; }
+    .page-title { font-family:'Playfair Display',serif; font-size:clamp(1.6rem,4vw,2.4rem); font-weight:700; color:var(--accent); margin:0 0 6px; }
+    .page-sub { font-size:.9rem; color:var(--muted); margin:0 0 36px; line-height:1.6; }
+
+    /* ── Invite section ── */
+    .invite-section { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:22px 24px; margin-bottom:32px; }
+    .invite-section h2 { font-family:'Playfair Display',serif; font-size:1.05rem; margin:0 0 6px; color:var(--text); }
+    .invite-section p { font-size:.82rem; color:var(--muted); margin:0 0 16px; line-height:1.6; }
+    .invite-row { display:flex; gap:10px; flex-wrap:wrap; }
+    .invite-link-input { flex:1; min-width:160px; font-size:.8rem; padding:9px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); font-family:inherit; }
+    .btn-accent { padding:9px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-size:.82rem; cursor:pointer; font-family:inherit; transition:opacity .2s; white-space:nowrap; }
+    .btn-accent:hover { opacity:.85; }
+    .invite-copied { font-size:.75rem; color:#3a7d44; margin-top:8px; min-height:18px; }
+
+    /* ── Members list ── */
+    .section-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+    .section-label { font-size:.67rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+    .member-list { display:flex; flex-direction:column; gap:16px; }
+    .member-card { border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+    .member-top { display:flex; align-items:flex-start; gap:14px; padding:18px 20px 14px; }
+    .member-avatar { width:42px; height:42px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:.88rem; font-weight:700; color:#fff; flex-shrink:0; }
+    .member-info { flex:1; min-width:0; }
+    .member-name { font-size:.96rem; font-weight:700; margin:0 0 2px; }
+    .member-last-login { font-size:.73rem; color:var(--muted); margin:0 0 12px; }
+    .member-last-login strong { color:var(--accent); }
+    .member-progress { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .prog-track { flex:1; height:4px; background:var(--border); border-radius:99px; overflow:hidden; }
+    .prog-fill { height:100%; background:var(--accent); border-radius:99px; transition:width .5s; }
+    .prog-label { font-size:.71rem; color:var(--muted); white-space:nowrap; }
+    .member-quiz { font-size:.74rem; color:var(--muted); }
+    .quiz-correct { color:#3a7d44; font-weight:600; }
+
+    /* ── Activity section ── */
+    .member-activity { border-top:1px solid var(--border); padding:14px 20px; background:rgba(122,59,30,.03); }
+    .activity-title { font-size:.63rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin:0 0 10px; }
+    .activity-empty { font-size:.78rem; color:var(--muted); font-style:italic; }
+    .activity-items { display:flex; flex-direction:column; gap:8px; }
+    .activity-item { display:flex; gap:10px; align-items:flex-start; }
+    .activity-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+    .activity-dot.hl  { background:#ffd93d; border:1.5px solid #c8a800; }
+    .activity-dot.note { background:var(--accent); opacity:.7; }
+    .activity-body { flex:1; min-width:0; }
+    .activity-quote { font-size:.78rem; font-style:italic; color:var(--text); line-height:1.55; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .activity-note-text { font-size:.75rem; color:var(--muted); line-height:1.5; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .activity-when { font-size:.68rem; color:var(--muted); white-space:nowrap; margin-top:1px; }
+    .activity-color { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+
+    .empty-state { text-align:center; padding:40px 20px; color:var(--muted); font-style:italic; font-size:.9rem; line-height:1.8; }
+    .loading-state { text-align:center; padding:30px; color:var(--muted); font-size:.85rem; }
+
+    /* ── No user state ── */
+    .no-user { text-align:center; padding:60px 20px; }
+    .no-user p { color:var(--muted); font-size:.95rem; line-height:1.8; }
+    .no-user a { color:var(--accent); text-decoration:none; }
+  </style>
+</head>
+<body>
+
+<nav class="topbar">
+  <a class="topbar-logo" href="../index.html">
+    <div class="logo-badge">DA</div>
+    The Desire of Ages
+  </a>
+  <a class="back-link" href="../index.html">← Back to Contents</a>
+</nav>
+
+<div class="page-content">
+  <h1 class="page-title">Reading Group</h1>
+  <p class="page-sub">Invite friends to read along with you. Track their progress and have discussions together.</p>
+
+  <!-- Invite section -->
+  <div class="invite-section" id="invite-section" style="display:none">
+    <h2>Invite a Friend</h2>
+    <p>Share this link — your friend can start reading right away and create an account later to save progress. The link expires in 7 days.</p>
+    <div class="invite-row">
+      <input class="invite-link-input" id="invite-link-input" readonly placeholder="Click Generate to create a link" />
+      <button class="btn-accent" onclick="generateLink()">Generate Link</button>
+      <button class="btn-accent" onclick="copyLink()" style="background:transparent;color:var(--accent);border:1px solid var(--accent);">Copy</button>
+    </div>
+    <div class="invite-copied" id="invite-copied"></div>
+  </div>
+
+  <!-- Members -->
+  <div id="members-wrap">
+    <div class="loading-state" id="loading-state">Loading your reading group…</div>
+    <div class="no-user" id="no-user-state" style="display:none">
+      <p>You need to be logged in to see your reading group.<br><a href="../index.html">Go to the home page</a> and log in.</p>
+    </div>
+    <div id="members-content" style="display:none">
+      <div class="section-head">
+        <span class="section-label" id="members-label">Members</span>
+      </div>
+      <div class="member-list" id="member-list"></div>
+      <div class="empty-state" id="empty-state" style="display:none">No connections yet. Invite a friend using the link above.</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCZMh4KUoXtSgCP3xCQ7atA8cJ7CQOGgfU",
+  authDomain: "desire-of-ages-treasury.firebaseapp.com",
+  projectId: "desire-of-ages-treasury",
+  storageBucket: "desire-of-ages-treasury.firebasestorage.app",
+  messagingSenderId: "472087552829",
+  appId: "1:472087552829:web:9fafa1c0c6af4bce4a9b54"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+
+var _user = null;
+var UID_KEY = 'doa_current_user_id';
+
+function initials(name) {
+  return (name||'?').trim().split(/\s+/).map(function(w){ return w[0]; }).slice(0,2).join('').toUpperCase();
+}
+
+var HL_COLORS = { yellow:'#f5c800', green:'#50c86e', blue:'#4d96ff', pink:'#ff6b9d' };
+
+function formatDate(iso) {
+  if (!iso) return 'Never';
+  var d = new Date(iso);
+  var now = new Date();
+  var diff = Math.floor((now - d) / (1000*60*60*24));
+  var time = d.toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' });
+  if (diff === 0) return 'Today at ' + time;
+  if (diff === 1) return 'Yesterday at ' + time;
+  if (diff < 7) return diff + ' days ago';
+  return d.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+}
+
+function formatShort(iso) {
+  if (!iso) return '';
+  var d = new Date(iso);
+  var now = new Date();
+  var diff = Math.floor((now - d) / (1000*60*60*24));
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Yesterday';
+  if (diff < 7) return diff + 'd ago';
+  return d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function countProgress(progress) {
+  if (!progress) return { weeks: 0 };
+  var wKeys = Object.keys(progress).filter(function(k){ return /^w\d+_[a-z]+$/.test(k) && progress[k] && progress[k].read; });
+  var weekSet = new Set(wKeys.map(function(k){ return k.split('_')[0]; }));
+  return { weeks: weekSet.size };
+}
+
+function calcQuizStats(progress) {
+  if (!progress) return null;
+  var quizKeys = Object.keys(progress).filter(function(k){ return k.endsWith('_quiz'); });
+  if (!quizKeys.length) return null;
+  var correct = quizKeys.filter(function(k){ return progress[k] && progress[k].correct; }).length;
+  return { correct: correct, total: quizKeys.length };
+}
+
+async function buildMemberCard(userData) {
+  var prog = countProgress(userData.progress);
+  var pct  = Math.round((prog.weeks / 58) * 100);
+  var quiz = calcQuizStats(userData.progress);
+  var loginDate = userData.lastLoginAt || userData.lastActive;
+
+  // Fetch shared highlights/notes by this user
+  var notes = [];
+  try {
+    var snap = await db.collection('marginNotes')
+      .where('authorId', '==', userData.id)
+      .where('shared', '==', true)
+      .get();
+    notes = snap.docs
+      .map(function(d){ return Object.assign({ _id: d.id }, d.data()); })
+      .filter(function(n){ return n.shared; })
+      .sort(function(a,b){ return (b.createdAt||'') > (a.createdAt||'') ? 1 : -1; })
+      .slice(0, 5);
+  } catch(e) {}
+
+  // ── Card HTML ──
+  var card = document.createElement('div');
+  card.className = 'member-card';
+
+  // Top section
+  var topHtml =
+    '<div class="member-top">' +
+      '<div class="member-avatar">' + initials(userData.name) + '</div>' +
+      '<div class="member-info">' +
+        '<div class="member-name">' + esc(userData.name||'') + '</div>' +
+        '<div class="member-last-login">Last logged in: <strong>' + formatDate(loginDate) + '</strong>' +
+          (userData.institution ? ' &nbsp;·&nbsp; ' + esc(userData.institution) : '') +
+        '</div>' +
+        '<div class="member-progress">' +
+          '<div class="prog-track"><div class="prog-fill" style="width:' + pct + '%"></div></div>' +
+          '<span class="prog-label">' + prog.weeks + '/58 weeks</span>' +
+        '</div>' +
+        (quiz
+          ? '<div class="member-quiz">Quizzes: <span class="quiz-correct">' + quiz.correct + ' correct</span> / ' + quiz.total + ' answered</div>'
+          : '<div class="member-quiz">No quizzes answered yet</div>') +
+      '</div>' +
+    '</div>';
+
+  // Activity section
+  var actHtml = '<div class="member-activity"><div class="activity-title">Highlights &amp; Notes</div>';
+  if (!notes.length) {
+    actHtml += '<div class="activity-empty">No shared highlights or notes yet.</div>';
+  } else {
+    actHtml += '<div class="activity-items">';
+    notes.forEach(function(n) {
+      var color = HL_COLORS[n.color] || '#ccc';
+      actHtml +=
+        '<div class="activity-item">' +
+          '<div class="activity-dot hl" style="background:' + color + ';border-color:' + color + '"></div>' +
+          '<div class="activity-body">' +
+            '<div class="activity-quote">' +
+              '<span class="activity-color" style="background:' + color + '"></span>' +
+              '"' + esc((n.highlightText||'').slice(0,90)) + (n.highlightText && n.highlightText.length > 90 ? '…' : '') + '"' +
+            '</div>' +
+            (n.note ? '<div class="activity-note-text">Note: ' + esc(n.note.slice(0,100)) + (n.note.length > 100 ? '…' : '') + '</div>' : '') +
+            '<div class="activity-when">Week ' + (n.weekN||'?') + ' · ' + formatShort(n.createdAt) + '</div>' +
+          '</div>' +
+        '</div>';
+    });
+    actHtml += '</div>';
+  }
+  actHtml += '</div>';
+
+  card.innerHTML = topHtml + actHtml;
+  return card;
+}
+
+async function loadPage() {
+  var uid = localStorage.getItem(UID_KEY);
+  document.getElementById('loading-state').style.display = 'none';
+  if (!uid) { document.getElementById('no-user-state').style.display = 'block'; return; }
+
+  try {
+    var userDoc = await db.collection('users').doc(uid).get();
+    if (!userDoc.exists) { document.getElementById('no-user-state').style.display = 'block'; return; }
+    _user = Object.assign({ id: userDoc.id }, userDoc.data());
+  } catch(e) { document.getElementById('no-user-state').style.display = 'block'; return; }
+
+  document.getElementById('invite-section').style.display = 'block';
+  document.getElementById('members-content').style.display = 'block';
+
+  var connSnap  = await db.collection('connections').where('fromId','==',uid).get().catch(function(){ return {docs:[]}; });
+  var connSnap2 = await db.collection('connections').where('toId',  '==',uid).get().catch(function(){ return {docs:[]}; });
+
+  var peerIds = new Set();
+  connSnap.docs.forEach(function(d)  { peerIds.add(d.data().toId); });
+  connSnap2.docs.forEach(function(d) { peerIds.add(d.data().fromId); });
+  peerIds.delete(uid);
+
+  var list = document.getElementById('member-list');
+  list.innerHTML = '';
+
+  if (!peerIds.size) {
+    document.getElementById('empty-state').style.display = 'block';
+    document.getElementById('members-label').textContent = 'Members (0)';
+    return;
+  }
+
+  var peerArr = Array.from(peerIds);
+  document.getElementById('members-label').textContent = 'Members (' + peerArr.length + ')';
+
+  await Promise.all(peerArr.map(async function(peerId) {
+    try {
+      var pDoc = await db.collection('users').doc(peerId).get();
+      if (!pDoc.exists) return;
+      var card = await buildMemberCard(Object.assign({ id: pDoc.id }, pDoc.data()));
+      list.appendChild(card);
+    } catch(e) {}
+  }));
+}
+
+function genToken() {
+  return Math.random().toString(36).slice(2,9) + Date.now().toString(36);
+}
+
+async function generateLink() {
+  if (!_user) return;
+  var token = genToken();
+  var expires = new Date(Date.now() + 7 * 24 * 3600 * 1000);
+  await db.collection('magicLinks').doc(token).set({
+    fromUserId: _user.id, fromName: _user.name,
+    createdAt: new Date().toISOString(), expiresAt: expires.toISOString()
+  });
+  var base = location.origin + '/index.html';
+  document.getElementById('invite-link-input').value = base + '?invite=' + token;
+  document.getElementById('invite-copied').textContent = '';
+}
+
+function copyLink() {
+  var val = document.getElementById('invite-link-input').value;
+  if (!val || val === '') return;
+  navigator.clipboard.writeText(val).then(function() {
+    document.getElementById('invite-copied').textContent = '✓ Link copied to clipboard!';
+    setTimeout(function(){ document.getElementById('invite-copied').textContent = ''; }, 3000);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', loadPage);
+</script>
+</body>
+</html>

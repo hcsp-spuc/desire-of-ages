@@ -103,9 +103,9 @@
 
     /* ── Main ── */
     main {
-      max-width: 780px;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 0 24px 80px;
+      padding: 0 32px 80px;
     }
 
     /* ── Breadcrumb ── */
@@ -158,27 +158,31 @@
     .preface-item .chapter-num { font-size: .95rem; font-style: italic; color: var(--accent); }
 
     .month-group { margin-top: 28px; }
-    .month-label { font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-family: 'Playfair Display', serif; font-style: normal; font-weight: 400; }
+    .month-label { font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
 
-    .week-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
+    .week-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 
     .week-item {
-      display: flex; align-items: center; gap: 14px; padding: 16px 0;
-      border-bottom: 1px solid var(--border); cursor: pointer; transition: padding-left .2s;
+      display: flex; flex-direction: column; gap: 4px;
+      padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px;
+      cursor: pointer; transition: border-color .18s, background .18s, transform .15s;
+      position: relative; background: transparent;
     }
-    .week-item:first-child { border-top: 1px solid var(--border); }
-    .week-item:hover { padding-left: 8px; }
+    .week-item:hover { border-color: var(--accent); background: var(--hover-bg, rgba(122,59,30,.04)); transform: translateY(-1px); }
 
-    .week-num-badge { font-size: .72rem; letter-spacing: .1em; color: var(--muted); min-width: 52px; text-transform: uppercase; flex-shrink: 0; }
-    .week-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-    .week-title-label { font-size: 1rem; color: var(--text); line-height: 1.4; }
-    .week-dates-label { font-size: .78rem; color: var(--muted); }
-    .week-done-check { font-size: .85rem; color: #3a7d44; flex-shrink: 0; display: none; }
+    .week-num-badge { font-size: .6rem; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
+    .week-title-label { font-size: .88rem; color: var(--text); line-height: 1.35; }
+    .week-dates-label { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+    .week-done-check { position: absolute; top: 10px; right: 12px; font-size: .78rem; color: #3a7d44; display: none; }
     .week-item.done .week-done-check { display: inline; }
+    .week-item.done { border-color: rgba(58,125,68,.35); }
 
-    .lock-icon { font-size: 0.85rem; color: var(--border); flex-shrink: 0; }
-    .week-item.locked { cursor: not-allowed; opacity: 0.45; }
-    .week-item.locked:hover { padding-left: 0; }
+    .lock-icon { position: absolute; top: 10px; right: 12px; font-size: 0.75rem; color: var(--border); }
+    .week-item.locked { cursor: not-allowed; opacity: 0.42; }
+    .week-item.locked:hover { border-color: var(--border); background: transparent; transform: none; }
+
+    @media (max-width: 800px) { .week-list { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 500px) { .week-list { grid-template-columns: 1fr; } }
 
     /* legacy compat kept for chapter pages */
     .chapter-label { flex: 1; font-size: 1.15rem; line-height: 1.5; color: var(--text); }
@@ -263,7 +267,7 @@
     .user-action:hover { color: var(--accent); }
 
     /* ── Progress banner ── */
-    .progress-banner { max-width: 780px; margin: 0 auto 28px; padding: 0 24px; }
+    .progress-banner { max-width: 1100px; margin: 0 auto 28px; padding: 0 32px; }
     .progress-top { display: flex; justify-content: space-between; margin-bottom: 7px; }
     .progress-title { font-size: 0.72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
     .progress-label { font-size: 0.75rem; color: var(--muted); }
@@ -356,6 +360,31 @@
       text-align: center;
     }
 
+    /* ── Invite modal ── */
+    #invite-modal { position:fixed; inset:0; z-index:900; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; }
+    #invite-modal.open { display:flex; }
+    .invite-card { background:var(--bg); border-radius:16px; padding:32px 28px 26px; width:100%; max-width:380px; box-shadow:0 12px 40px rgba(0,0,0,.2); }
+    .invite-card h3 { font-family:'Playfair Display',serif; font-size:1.15rem; margin:0 0 6px; color:var(--accent); }
+    .invite-card p { font-size:.82rem; color:var(--muted); margin:0 0 20px; line-height:1.6; }
+    .invite-link-box { display:flex; gap:8px; margin-bottom:16px; }
+    .invite-link-input { flex:1; font-size:.78rem; padding:9px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); font-family:inherit; }
+    .invite-copy-btn { padding:9px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-size:.8rem; cursor:pointer; white-space:nowrap; font-family:inherit; transition:background .25s, transform .15s; }
+    .invite-copy-btn:hover { opacity:.88; }
+    .invite-copy-btn.copied { background:#3a7d44; }
+    .invite-copy-btn.copied::before { content:'✓ '; }
+    @keyframes copyPop { 0%{transform:scale(1)} 40%{transform:scale(1.08)} 100%{transform:scale(1)} }
+    .invite-copy-btn.pop { animation:copyPop .25s ease; }
+    .invite-copied { font-size:.75rem; color:#3a7d44; text-align:center; min-height:18px; opacity:0; transition:opacity .2s; }
+    .invite-copied.show { opacity:1; }
+    .invite-close { width:100%; margin-top:14px; padding:9px; background:transparent; border:1px solid var(--border); border-radius:8px; font-size:.8rem; color:var(--muted); cursor:pointer; font-family:inherit; transition:border-color .2s,color .2s; }
+    .invite-close:hover { border-color:var(--accent); color:var(--accent); }
+
+    /* ── Guest banner ── */
+    #guest-banner { display:none; align-items:center; justify-content:space-between; gap:12px; padding:9px 32px; background:var(--accent); color:#fff; font-size:.82rem; font-family:'Lora',serif; }
+    #guest-banner.show { display:flex; }
+    .guest-banner-text { opacity:.9; }
+    .guest-save-btn { padding:5px 14px; background:#fff; color:var(--accent); border:none; border-radius:20px; font-size:.78rem; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; }
+
     /* ── Login bar ── */
     #login-bar {
       display: none;
@@ -404,36 +433,34 @@
       color: var(--muted);
       margin-bottom: 20px;
     }
-    .lm-user {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 12px; border-radius: 8px; cursor: pointer;
-      border: 1px solid var(--border); margin-bottom: 9px;
-      transition: border-color .2s, background .2s;
-    }
-    .lm-user:hover { border-color: var(--accent); background: #f9f4ef; }
-    .lm-avatar {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: var(--accent); color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Playfair Display', serif; font-size: 0.75rem; font-weight: 700;
-      flex-shrink: 0;
-    }
-    .lm-name { font-size: 0.88rem; color: var(--text); }
     .lm-search-input {
-      width: 100%; padding: 9px 13px; margin-bottom: 12px;
+      width: 100%; padding: 10px 13px; margin-bottom: 12px;
       border: 1.5px solid var(--border); border-radius: 8px;
       font-family: 'Lora', serif; font-size: 0.88rem;
       background: var(--bg); color: var(--text); outline: none;
       transition: border-color .2s; box-sizing: border-box;
     }
     .lm-search-input:focus { border-color: var(--accent); }
+    .lm-continue-btn {
+      width: 100%; padding: 10px; background: var(--accent); color: #fff;
+      border: none; border-radius: 8px; font-family: 'Lora', serif;
+      font-size: 0.88rem; cursor: pointer; transition: opacity .2s; margin-bottom: 10px;
+    }
+    .lm-continue-btn:hover { opacity: .87; }
     .lm-cancel {
-      width: 100%; margin-top: 14px; padding: 9px;
+      width: 100%; margin-top: 8px; padding: 9px;
       background: none; border: none; cursor: pointer;
       font-family: 'Lora', serif; font-size: 0.8rem;
       color: var(--muted); transition: color .2s;
     }
     .lm-cancel:hover { color: var(--accent); }
+    .lm-switch-link { font-size:.78rem; color:var(--muted); text-align:center; margin-top:14px; }
+    .lm-switch-link a { color:var(--accent); text-decoration:none; font-weight:600; cursor:pointer; }
+    .lm-switch-link a:hover { text-decoration:underline; }
+    /* sign-up inside modal */
+    .lm-label { font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 5px; display:block; }
+    .lm-select { width:100%; padding:9px 13px; margin-bottom:12px; border:1.5px solid var(--border); border-radius:8px; font-family:'Lora',serif; font-size:.86rem; background:var(--bg); color:var(--text); outline:none; transition:border-color .2s; box-sizing:border-box; appearance:none; -webkit-appearance:none; }
+    .lm-select:focus { border-color:var(--accent); }
 
     /* ── Org banner ── */
     .org-banner {
@@ -608,31 +635,34 @@
       border-radius: 99px;
     }
   </style>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#7a3b1e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="apple-touch-icon" href="/assets/icons/icon.svg" />
 </head>
 <body>
 
   <!-- Org banner -->
   <div class="org-banner">SouthWestern Philippine Union Conference &nbsp;|&nbsp; Treasury Department</div>
 
-  <!-- Login bar (shown when accounts exist but no one is logged in) -->
-  <div id="login-bar">
-    <button class="login-btn" id="open-login-btn">Log in</button>
-  </div>
 
   <!-- Login modal -->
   <div id="login-modal">
     <div class="lm-card">
 
-      <!-- Step 1: search -->
-      <div id="lm-step-search">
+      <!-- Step 1: Email -->
+      <div id="lm-step-email">
         <h3>Welcome back</h3>
-        <p>Search for your name to continue on any device.</p>
-        <input type="text" id="lm-search" class="lm-search-input" placeholder="Type your name…" autocomplete="off" />
-        <div id="lm-user-list"></div>
+        <p>Enter your email address to continue.</p>
+        <label class="lm-label" for="lm-email-input">Email address</label>
+        <input type="email" id="lm-email-input" class="lm-search-input" placeholder="you@example.com" autocomplete="email" />
+        <div class="pin-error" id="lm-email-error"></div>
+        <button class="lm-continue-btn" id="lm-email-continue-btn">Continue →</button>
         <button class="lm-cancel" id="lm-cancel-btn">Cancel</button>
+        <div class="lm-switch-link">Don't have an account? <a id="lm-goto-signup">Sign up</a></div>
       </div>
 
-      <!-- Step 2: PIN -->
       <!-- Step 2: PIN entry -->
       <div id="lm-step-pin" style="display:none; text-align:center">
         <h3 id="lm-pin-greeting">Hello!</h3>
@@ -652,11 +682,8 @@
       <!-- Step 3: Forgot PIN — email verify -->
       <div id="lm-step-forgot" style="display:none; text-align:center">
         <h3>Reset your PIN</h3>
-        <p style="margin-bottom:14px">Type the full email address linked to your account to verify your identity.</p>
-        <div id="lm-email-hint" style="display:none;margin-bottom:14px;padding:10px 16px;background:rgba(139,74,47,0.07);border:1.5px solid rgba(139,74,47,0.18);border-radius:8px;font-family:'Lora',serif;font-size:0.88rem;color:var(--muted)">
-          Email on file: <strong id="lm-masked-email" style="color:var(--accent);letter-spacing:0.04em"></strong>
-        </div>
-        <input type="email" id="lm-recovery-email" class="lm-search-input" placeholder="Your full email address…" autocomplete="email" />
+        <p style="margin-bottom:14px">Re-enter your email address to verify your identity.</p>
+        <input type="email" id="lm-recovery-email" class="lm-search-input" placeholder="Your email address…" autocomplete="email" />
         <div class="pin-error" id="lm-forgot-error"></div>
         <button class="reg-btn" id="lm-verify-btn" style="margin-bottom:10px">Verify Email →</button>
         <button class="lm-cancel" id="lm-forgot-back">← Back</button>
@@ -682,6 +709,43 @@
         </div>
         <div class="pin-error" id="lm-newpin-error"></div>
         <button class="reg-btn" id="lm-save-newpin-btn" style="margin-bottom:10px">Save new PIN →</button>
+      </div>
+
+      <!-- Step 5: Sign up -->
+      <div id="lm-step-signup" style="display:none">
+        <h3>Create an account</h3>
+        <p>Join the reading community.</p>
+        <label class="lm-label" for="su-name">Full name</label>
+        <input type="text" id="su-name" class="lm-search-input" placeholder="Your name" autocomplete="name" />
+        <label class="lm-label" for="su-email">Email address</label>
+        <input type="email" id="su-email" class="lm-search-input" placeholder="you@example.com" autocomplete="email" />
+        <label class="lm-label" for="su-institution">Institution</label>
+        <select id="su-institution" class="lm-select">
+          <option value="">Select institution…</option>
+          <option>SwPUC</option><option>AIIAS</option><option>CPAC</option><option>NPUM</option>
+          <option>SPUM</option><option>WPUM</option><option>EPUM</option><option>MPUM</option>
+          <option>Others</option>
+        </select>
+        <input type="text" id="su-institution-other" class="lm-search-input" placeholder="Specify institution…" style="display:none" />
+        <label class="lm-label" for="su-position">Position / Role</label>
+        <input type="text" id="su-position" class="lm-search-input" placeholder="e.g. Student, Pastor…" />
+        <label class="lm-label">Choose a 4-digit PIN</label>
+        <div class="pin-row" style="margin-bottom:12px">
+          <input class="pin-box" type="tel" maxlength="1" id="su1" />
+          <input class="pin-box" type="tel" maxlength="1" id="su2" />
+          <input class="pin-box" type="tel" maxlength="1" id="su3" />
+          <input class="pin-box" type="tel" maxlength="1" id="su4" />
+        </div>
+        <label class="lm-label">Confirm PIN</label>
+        <div class="pin-row" style="margin-bottom:12px">
+          <input class="pin-box" type="tel" maxlength="1" id="sc1" />
+          <input class="pin-box" type="tel" maxlength="1" id="sc2" />
+          <input class="pin-box" type="tel" maxlength="1" id="sc3" />
+          <input class="pin-box" type="tel" maxlength="1" id="sc4" />
+        </div>
+        <div class="pin-error" id="su-error"></div>
+        <button class="lm-continue-btn" id="su-submit-btn">Create account →</button>
+        <button class="lm-cancel" id="su-back-btn">← Back to log in</button>
       </div>
 
     </div>
@@ -718,8 +782,8 @@
   <div id="register-overlay" class="hidden">
     <div class="reg-card">
       <div class="reg-badge"><span>DA</span></div>
-      <h2>Chapter 1 Complete!</h2>
-      <p>You've finished reading and answering Chapter 1. Create your reading profile to continue and track your progress through <em>The Desire of Ages</em>.</p>
+      <h2>Sign up now to save your progress</h2>
+      <p>Create your reading profile to track your progress, highlight verses, and take notes through <em>The Desire of Ages</em>.</p>
       <form id="reg-form">
         <input class="reg-input" id="reg-name" type="text" placeholder="Your name" required maxlength="60" autocomplete="name" />
         <input class="reg-input" id="reg-email" type="email" placeholder="Email (optional)" maxlength="120" autocomplete="email" />
@@ -754,8 +818,13 @@
         <div class="pin-error" id="reg-pin-error"></div>
         <button class="reg-btn" type="submit">Continue Reading →</button>
       </form>
-      <p style="margin-top:18px;font-size:.8rem;color:var(--muted);">Already have an account? <a href="#" style="color:var(--accent);text-decoration:none;font-weight:600;" onclick="document.getElementById('register-overlay').classList.add('hidden');document.getElementById('login-modal').classList.add('open');setTimeout(function(){document.getElementById('lm-search').focus();},100);return false;">Log in</a></p>
+      <p style="margin-top:18px;font-size:.8rem;color:var(--muted);">Already have an account? <a href="#" style="color:var(--accent);text-decoration:none;font-weight:600;" onclick="document.getElementById('register-overlay').classList.add('hidden');openLoginModal();return false;">Log in</a></p>
     </div>
+  </div>
+
+  <!-- Login bar (shown when accounts exist but no one is logged in) -->
+  <div id="login-bar">
+    <button class="login-btn" id="open-login-btn">Log in</button>
   </div>
 
   <!-- User bar (hidden until registered) -->
@@ -765,9 +834,31 @@
       <span class="user-name" id="user-name-display"></span>
     </div>
     <div class="user-actions">
+      <a class="user-action" href="pages/connections.html">Reading Group</a>
+      <button class="user-action" id="invite-btn">Invite a Friend</button>
       <a class="user-action" href="admin.html">Admin</a>
       <button class="user-action" id="switch-user-btn">Switch user</button>
       <button class="user-action" id="logout-btn">Log out</button>
+    </div>
+  </div>
+
+  <!-- Guest banner -->
+  <div id="guest-banner">
+    <span class="guest-banner-text" id="guest-banner-text">You are reading as a guest — create an account to save your progress.</span>
+    <button class="guest-save-btn" onclick="openGuestRegister()">Save Progress</button>
+  </div>
+
+  <!-- Invite modal -->
+  <div id="invite-modal">
+    <div class="invite-card">
+      <h3>Invite a Friend</h3>
+      <p>Share this link — your friend can start reading right away and create an account later to save progress.</p>
+      <div class="invite-link-box">
+        <input class="invite-link-input" id="invite-link-input" readonly value="Generating…" />
+        <button class="invite-copy-btn" onclick="copyInviteLink()">Copy</button>
+      </div>
+      <div class="invite-copied" id="invite-copied"></div>
+      <button class="invite-close" onclick="closeInviteModal()">Close</button>
     </div>
   </div>
 
@@ -805,10 +896,7 @@
 
   <!-- Table of contents -->
   <main>
-
-
     <p class="section-label">Table of Contents</p>
-
     <div id="toc-root">
       <div class="preface-item" onclick="window.location.href='pages/preface.html'">
         <span class="chapter-label">Preface</span>
@@ -849,6 +937,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
 </script>
 <script>
 (async function () {
@@ -897,7 +986,10 @@ const db = firebase.firestore();
       var doc = await db.collection('users').doc(id).get();
       _user = doc.exists ? Object.assign({ id: doc.id }, doc.data()) : null;
       if (!_user) { localStorage.removeItem(UID_KEY); localStorage.removeItem(USER_CACHE_KEY); }
-      else { localStorage.setItem(USER_CACHE_KEY, JSON.stringify({ name: _user.name })); }
+      else {
+        localStorage.setItem(USER_CACHE_KEY, JSON.stringify({ name: _user.name }));
+        db.collection('users').doc(id).update({ lastLoginAt: new Date().toISOString() }).catch(function(){});
+      }
     } catch(e) { _user = null; }
   }
 
@@ -1037,8 +1129,8 @@ const db = firebase.firestore();
         var ef = e.toLocaleString('en-US',{month:'short',day:'numeric'});
         html += '<li class="week-item locked" id="w'+w.n+'" data-week="'+w.n+'">'
           + '<span class="week-num-badge">Week '+w.n+'</span>'
-          + '<span class="week-info"><span class="week-title-label">'+w.title+'</span>'
-          + '<span class="week-dates-label">'+sf+' – '+ef+'</span></span>'
+          + '<span class="week-title-label">'+w.title+'</span>'
+          + '<span class="week-dates-label">'+sf+' – '+ef+'</span>'
           + '<span class="week-done-check">✓</span>'
           + '<span class="lock-icon">🔒</span>'
           + '</li>';
@@ -1279,6 +1371,91 @@ const db = firebase.firestore();
     document.getElementById('daily-teaser').style.display = 'flex';
   }
 
+  // ── Magic link / invite ───────────────────────────────────────────────────
+  var _inviteToken = null;
+
+  function genToken() {
+    return Math.random().toString(36).slice(2,9) + Date.now().toString(36);
+  }
+
+  async function openInviteModal() {
+    if (!_user) return;
+    document.getElementById('invite-modal').classList.add('open');
+    var msg = document.getElementById('invite-copied');
+    msg.textContent = ''; msg.classList.remove('show');
+    var copyBtn = document.querySelector('.invite-copy-btn');
+    if (copyBtn) { copyBtn.textContent = 'Copy'; copyBtn.classList.remove('copied','pop'); }
+    document.getElementById('invite-link-input').value = 'Generating…';
+    var token = genToken();
+    var expires = new Date(Date.now() + 7 * 24 * 3600 * 1000);
+    await db.collection('magicLinks').doc(token).set({
+      fromUserId: _user.id, fromName: _user.name,
+      createdAt: new Date().toISOString(), expiresAt: expires.toISOString()
+    });
+    var base = location.origin + location.pathname;
+    document.getElementById('invite-link-input').value = base + '?invite=' + token;
+  }
+
+  function closeInviteModal() {
+    document.getElementById('invite-modal').classList.remove('open');
+  }
+  window.closeInviteModal = closeInviteModal;
+
+  function copyInviteLink() {
+    var val = document.getElementById('invite-link-input').value;
+    if (!val || val === 'Generating…') return;
+    var btn = document.querySelector('.invite-copy-btn');
+    var msg = document.getElementById('invite-copied');
+    navigator.clipboard.writeText(val).then(function() {
+      if (btn) { btn.textContent = 'Copied!'; btn.classList.add('copied','pop'); }
+      msg.textContent = '✓ Link copied — send it to your friend!';
+      msg.classList.add('show');
+      setTimeout(function(){
+        if (btn) { btn.textContent = 'Copy'; btn.classList.remove('copied','pop'); }
+        msg.classList.remove('show');
+      }, 3000);
+    }).catch(function() {
+      // Fallback: select the input
+      var inp = document.getElementById('invite-link-input');
+      if (inp) { inp.select(); inp.setSelectionRange(0, 9999); }
+    });
+  }
+  window.copyInviteLink = copyInviteLink;
+
+  async function handleInviteToken() {
+    var params = new URLSearchParams(location.search);
+    var token = params.get('invite');
+    if (!token) {
+      // Check if already a guest (returning to index from week.html)
+      var gs = JSON.parse(sessionStorage.getItem('doa_guest') || 'null');
+      if (gs) showGuestBanner(gs.fromName);
+      return;
+    }
+    try {
+      var doc = await db.collection('magicLinks').doc(token).get();
+      if (!doc.exists) return;
+      var data = doc.data();
+      if (new Date(data.expiresAt) < new Date()) return;
+      sessionStorage.setItem('doa_guest', JSON.stringify({ token: token, fromUserId: data.fromUserId, fromName: data.fromName }));
+      // Clean URL
+      var clean = location.pathname;
+      history.replaceState(null, '', clean);
+      showGuestBanner(data.fromName);
+    } catch(e) {}
+  }
+
+  function showGuestBanner(fromName) {
+    var banner = document.getElementById('guest-banner');
+    var text = document.getElementById('guest-banner-text');
+    if (fromName) text.textContent = 'You are reading as ' + fromName + "'s guest — create an account to save your progress.";
+    banner.classList.add('show');
+  }
+
+  function openGuestRegister() {
+    document.getElementById('register-overlay').classList.remove('hidden');
+  }
+  window.openGuestRegister = openGuestRegister;
+
   // Boot
   document.addEventListener('DOMContentLoaded', async function() {
     // Phase 1 — instant UI (no Firebase needed)
@@ -1370,61 +1547,91 @@ const db = firebase.firestore();
       if (pin.length < 4) { pinErr.textContent = 'Please enter a 4-digit PIN.'; return; }
       if (pin !== pinConfirm) { pinErr.textContent = 'PINs do not match. Please try again.'; clearPin(['rc1','rc2','rc3','rc4']); document.getElementById('rc1').focus(); return; }
       await registerUser(name, email, institution, position, pin);
+      // If registering from guest session, create connection with inviter
+      var gs = JSON.parse(sessionStorage.getItem('doa_guest') || 'null');
+      if (gs && gs.fromUserId && _user) {
+        var connId = [gs.fromUserId, _user.id].sort().join('_');
+        db.collection('connections').doc(connId).set({ fromId: gs.fromUserId, toId: _user.id, status: 'accepted', createdAt: new Date().toISOString() }).catch(function(){});
+        sessionStorage.removeItem('doa_guest');
+        document.getElementById('guest-banner').classList.remove('show');
+      }
       document.getElementById('register-overlay').classList.add('hidden');
       showUserBar();
       applyStates();
       updateProgress();
     };
 
-    // Login modal — open
-    document.getElementById('open-login-btn').onclick = function() {
-      document.getElementById('lm-search').value = '';
-      document.getElementById('lm-user-list').innerHTML =
-        '<p style="font-size:0.82rem;color:var(--muted);text-align:center;padding:16px 0;">Type your name above to find your profile.</p>';
-      document.getElementById('login-modal').classList.add('open');
-      setTimeout(function(){ document.getElementById('lm-search').focus(); }, 100);
-    };
+    // Invite button
+    var invBtn = document.getElementById('invite-btn');
+    if (invBtn) invBtn.onclick = openInviteModal;
 
-    // Login modal — name search
-    var _searchTimer;
-    document.getElementById('lm-search').addEventListener('input', function() {
-      clearTimeout(_searchTimer);
-      var q    = this.value.trim();
-      var list = document.getElementById('lm-user-list');
-      if (!q) {
-        list.innerHTML = '<p style="font-size:0.82rem;color:var(--muted);text-align:center;padding:16px 0;">Type your name above to find your profile.</p>';
-        return;
-      }
-      list.innerHTML = '<p style="font-size:0.82rem;color:var(--muted);text-align:center;padding:16px 0;">Searching...</p>';
-      _searchTimer = setTimeout(async function() {
-        try {
-          var snap = await db.collection('users').get();
-          var ql   = q.toLowerCase();
-          var hits = snap.docs
-            .map(function(d){ return Object.assign({ id: d.id }, d.data()); })
-            .filter(function(u){ return u.name && u.name.toLowerCase().includes(ql); });
-          list.innerHTML = '';
-          if (!hits.length) {
-            list.innerHTML = '<p style="font-size:0.82rem;color:var(--muted);text-align:center;padding:16px 0;">No profile found for "' + q + '".</p>';
-            return;
-          }
-          hits.forEach(function(u) {
-            var row = document.createElement('div');
-            row.className = 'lm-user';
-            row.innerHTML = '<div class="lm-avatar">' + initials(u.name) + '</div>'
-                          + '<div><div class="lm-name">' + u.name + '</div>'
-                          + (u.email ? '<div style="font-size:0.75rem;color:var(--muted)">' + u.email + '</div>' : '') + '</div>';
-            row.onclick = function() { showPinStep(u); };
-            list.appendChild(row);
-          });
-        } catch(err) {
-          list.innerHTML = '<p style="font-size:0.82rem;color:var(--muted);text-align:center;padding:16px 0;">Could not connect. Check your internet.</p>';
+    // Close invite modal on backdrop click
+    document.getElementById('invite-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeInviteModal();
+    });
+
+    // Handle magic link token in URL
+    await handleInviteToken();
+
+    // Auto-open register if redirected from week.html auth prompt
+    if (sessionStorage.getItem('doa_open_register') && !_user) {
+      sessionStorage.removeItem('doa_open_register');
+      document.getElementById('register-overlay').classList.remove('hidden');
+    }
+    // Auto-open login if redirected from week.html auth prompt
+    if (sessionStorage.getItem('doa_open_login') && !_user) {
+      sessionStorage.removeItem('doa_open_login');
+      openLoginModal();
+    }
+
+    // ── Login modal ──────────────────────────────────────────────────────────
+    function lmShowStep(id) {
+      ['lm-step-email','lm-step-pin','lm-step-forgot','lm-step-newpin','lm-step-signup'].forEach(function(s) {
+        document.getElementById(s).style.display = 'none';
+      });
+      document.getElementById(id).style.display = 'block';
+    }
+
+    function openLoginModal() {
+      document.getElementById('lm-email-input').value = '';
+      document.getElementById('lm-email-error').textContent = '';
+      lmShowStep('lm-step-email');
+      document.getElementById('login-modal').classList.add('open');
+      setTimeout(function(){ document.getElementById('lm-email-input').focus(); }, 100);
+    }
+
+    window.openLoginModal = openLoginModal;
+    document.getElementById('open-login-btn').onclick = openLoginModal;
+
+    // Email continue — look up user by email
+    var _pinUser = null;
+
+    async function doEmailLookup() {
+      var email = document.getElementById('lm-email-input').value.trim().toLowerCase();
+      var errEl = document.getElementById('lm-email-error');
+      errEl.textContent = '';
+      if (!email || !email.includes('@')) { errEl.textContent = 'Please enter a valid email address.'; return; }
+      errEl.textContent = 'Looking up…';
+      try {
+        var snap = await db.collection('users').where('email', '==', email).limit(1).get();
+        if (snap.empty) {
+          errEl.textContent = 'No account found for that email. Sign up below.';
+          return;
         }
-      }, 400);
+        var u = Object.assign({ id: snap.docs[0].id }, snap.docs[0].data());
+        errEl.textContent = '';
+        showPinStep(u);
+      } catch(e) {
+        errEl.textContent = 'Could not connect. Check your internet.';
+      }
+    }
+
+    document.getElementById('lm-email-continue-btn').onclick = doEmailLookup;
+    document.getElementById('lm-email-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doEmailLookup();
     });
 
     // PIN step
-    var _pinUser = null;
     wirePin(['rp1','rp2','rp3','rp4'], function(){});
     wirePin(['rc1','rc2','rc3','rc4'], function(){});
     wirePin(['lp1','lp2','lp3','lp4'], function(pin) {
@@ -1447,53 +1654,83 @@ const db = firebase.firestore();
       clearPin(['lp1','lp2','lp3','lp4']);
       document.getElementById('lm-pin-error').textContent = '';
       document.getElementById('lm-pin-greeting').textContent = 'Hello, ' + u.name + '!';
-      document.getElementById('lm-step-search').style.display = 'none';
-      document.getElementById('lm-step-pin').style.display    = 'block';
+      lmShowStep('lm-step-pin');
       setTimeout(function(){ document.getElementById('lp1').focus(); }, 100);
     }
 
     document.getElementById('lm-pin-back').onclick = function() {
-      document.getElementById('lm-step-pin').style.display    = 'none';
-      document.getElementById('lm-step-search').style.display = 'block';
+      lmShowStep('lm-step-email');
       _pinUser = null;
     };
 
+    // Sign-up step
+    document.getElementById('lm-goto-signup').onclick = function() {
+      document.getElementById('su-name').value = '';
+      document.getElementById('su-email').value = document.getElementById('lm-email-input').value;
+      document.getElementById('su-institution').value = '';
+      document.getElementById('su-position').value = '';
+      document.getElementById('su-institution-other').style.display = 'none';
+      document.getElementById('su-error').textContent = '';
+      clearPin(['su1','su2','su3','su4']); clearPin(['sc1','sc2','sc3','sc4']);
+      lmShowStep('lm-step-signup');
+      setTimeout(function(){ document.getElementById('su-name').focus(); }, 100);
+    };
+
+    document.getElementById('su-back-btn').onclick = function() { lmShowStep('lm-step-email'); };
+
+    document.getElementById('su-institution').addEventListener('change', function() {
+      document.getElementById('su-institution-other').style.display = this.value === 'Others' ? 'block' : 'none';
+    });
+
+    wirePin(['su1','su2','su3','su4'], function(){ setTimeout(function(){ document.getElementById('sc1').focus(); }, 80); });
+    wirePin(['sc1','sc2','sc3','sc4'], function(){});
+
+    document.getElementById('su-submit-btn').onclick = async function() {
+      var name  = document.getElementById('su-name').value.trim();
+      var email = document.getElementById('su-email').value.trim().toLowerCase();
+      var inst  = document.getElementById('su-institution').value;
+      if (inst === 'Others') inst = document.getElementById('su-institution-other').value.trim();
+      var pos   = document.getElementById('su-position').value.trim();
+      var pin   = getPin(['su1','su2','su3','su4']);
+      var pinC  = getPin(['sc1','sc2','sc3','sc4']);
+      var errEl = document.getElementById('su-error');
+      errEl.textContent = '';
+      if (!name)            { errEl.textContent = 'Please enter your name.'; return; }
+      if (!email || !email.includes('@')) { errEl.textContent = 'Please enter a valid email.'; return; }
+      if (!inst)            { errEl.textContent = 'Please select an institution.'; return; }
+      if (!pos)             { errEl.textContent = 'Please enter your position.'; return; }
+      if (pin.length < 4)   { errEl.textContent = 'Please enter a 4-digit PIN.'; return; }
+      if (pin !== pinC)     { errEl.textContent = 'PINs do not match.'; clearPin(['sc1','sc2','sc3','sc4']); document.getElementById('sc1').focus(); return; }
+      // Check if email already registered
+      errEl.textContent = 'Creating account…';
+      try {
+        var existing = await db.collection('users').where('email', '==', email).limit(1).get();
+        if (!existing.empty) { errEl.textContent = 'An account with that email already exists. Log in instead.'; return; }
+        await registerUser(name, email, inst, pos, pin);
+        // Handle guest invite connection
+        var gs = JSON.parse(sessionStorage.getItem('doa_guest') || 'null');
+        if (gs && gs.fromUserId && _user) {
+          var connId = [gs.fromUserId, _user.id].sort().join('_');
+          db.collection('connections').doc(connId).set({ fromId: gs.fromUserId, toId: _user.id, status: 'accepted', createdAt: new Date().toISOString() }).catch(function(){});
+          sessionStorage.removeItem('doa_guest');
+        }
+        document.getElementById('login-modal').classList.remove('open');
+        showUserBar(); applyStates(); updateProgress();
+      } catch(e) {
+        errEl.textContent = 'Could not create account. Check your connection.';
+      }
+    };
+
     // Forgot PIN flow
-    function showStep(id) {
-      ['lm-step-search','lm-step-pin','lm-step-forgot','lm-step-newpin'].forEach(function(s) {
-        document.getElementById(s).style.display = 'none';
-      });
-      document.getElementById(id).style.display = 'block';
-    }
-
-    function maskEmail(email) {
-      if (!email || !email.includes('@')) return null;
-      var parts  = email.split('@');
-      var local  = parts[0];
-      var domain = parts[1].split('.');
-      var maskedLocal  = local.slice(0, 3) + '*'.repeat(Math.max(3, local.length - 3));
-      var maskedDomain = domain[0].slice(0, 1) + '.' + domain.slice(1).join('.');
-      return maskedLocal + '@' + maskedDomain;
-    }
-
     document.getElementById('lm-forgot-btn').onclick = function() {
       document.getElementById('lm-recovery-email').value = '';
       document.getElementById('lm-forgot-error').textContent = '';
-      var hintEl   = document.getElementById('lm-email-hint');
-      var maskedEl = document.getElementById('lm-masked-email');
-      var masked   = _pinUser && _pinUser.email ? maskEmail(_pinUser.email) : null;
-      if (masked) {
-        maskedEl.textContent = masked;
-        hintEl.style.display = 'block';
-      } else {
-        hintEl.style.display = 'none';
-      }
-      showStep('lm-step-forgot');
+      lmShowStep('lm-step-forgot');
       setTimeout(function(){ document.getElementById('lm-recovery-email').focus(); }, 100);
     };
 
     document.getElementById('lm-forgot-back').onclick = function() {
-      showStep('lm-step-pin');
+      lmShowStep('lm-step-pin');
     };
 
     document.getElementById('lm-verify-btn').onclick = async function() {
@@ -1514,7 +1751,7 @@ const db = firebase.firestore();
       clearPin(['np1','np2','np3','np4']);
       clearPin(['nc1','nc2','nc3','nc4']);
       document.getElementById('lm-newpin-error').textContent = '';
-      showStep('lm-step-newpin');
+      lmShowStep('lm-step-newpin');
       setTimeout(function(){ document.getElementById('np1').focus(); }, 100);
     };
 
@@ -1633,6 +1870,55 @@ document.getElementById('daily-modal').addEventListener('click', function(e) {
   var _origShow = window.showUserBar;
   // patch into existing showUserBar
 })();
+</script>
+
+<!-- PWA install banner -->
+<style>
+  #pwa-banner { display:none; position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(10px); background:#1c1612; color:#fff; border-radius:40px; padding:12px 10px 12px 20px; align-items:center; gap:12px; box-shadow:0 8px 28px rgba(0,0,0,.4); z-index:9999; font-family:-apple-system,'Segoe UI',sans-serif; font-size:.84rem; white-space:nowrap; opacity:0; transition:opacity .3s, transform .3s; }
+  #pwa-banner.show { display:flex; }
+  #pwa-banner.visible { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+<div id="pwa-banner">
+  <span>📖 Install app for offline reading</span>
+  <button id="pwa-install-btn" style="background:#7a3b1e;border:none;color:#fff;padding:8px 18px;border-radius:30px;cursor:pointer;font-size:.8rem;font-weight:600;letter-spacing:.03em;">Install</button>
+  <button id="pwa-dismiss-btn" style="background:transparent;border:none;color:rgba(255,255,255,.45);cursor:pointer;font-size:1rem;padding:2px 8px;line-height:1;">✕</button>
+</div>
+
+<script>
+// ── Service Worker & PWA ──────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+let _deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _deferredPrompt = e;
+  if (!localStorage.getItem('doa_pwa_dismissed')) {
+    const banner = document.getElementById('pwa-banner');
+    banner.classList.add('show');
+    requestAnimationFrame(() => banner.classList.add('visible'));
+  }
+});
+
+function hidePwaBanner() {
+  const b = document.getElementById('pwa-banner');
+  b.classList.remove('visible');
+  setTimeout(() => b.classList.remove('show'), 300);
+}
+
+document.getElementById('pwa-install-btn').addEventListener('click', () => {
+  if (!_deferredPrompt) return;
+  _deferredPrompt.prompt();
+  _deferredPrompt.userChoice.then(() => { _deferredPrompt = null; hidePwaBanner(); });
+});
+
+document.getElementById('pwa-dismiss-btn').addEventListener('click', () => {
+  hidePwaBanner();
+  localStorage.setItem('doa_pwa_dismissed', '1');
+});
+
+window.addEventListener('appinstalled', hidePwaBanner);
 </script>
 
 </body>

@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../assets/css/shared.css" />
   <style>
     /* ── Theme variables ── */
-    html { --reading-font: 'Lora', Georgia, serif; --reading-lh: 1.95; --reading-px: 40px; }
+    html { --reading-font: 'Lora', Georgia, serif; --reading-lh: 1.95; --reading-px: 24px; }
     html[data-theme="light"] { --bg:#ffffff; --text:#1a1614; --border:#e0d8d0; --muted:#8b7355; }
     html[data-theme="dark"]  { --bg:#18120e; --text:#e8e0d4; --border:#3a2e28; --muted:#9a8a7a; --accent:#c4724a; }
     html[data-font="sans"]   { --reading-font: -apple-system,'Segoe UI',Arial,sans-serif; }
@@ -20,10 +20,15 @@
     .page-shell { display:flex; flex-direction:column; height:100%; }
 
     /* ── Topbar ── */
-    .topbar { display:flex; align-items:center; justify-content:space-between; padding:13px 28px; border-bottom:1px solid var(--border); flex-shrink:0; background:var(--bg); transition:background .25s; }
-    .topbar-logo { display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:50%; background:var(--accent); text-decoration:none; flex-shrink:0; }
-    .topbar-logo span { font-family:'Playfair Display',serif; font-size:12px; font-weight:700; color:#fff; letter-spacing:.5px; }
-    .topbar-center { display:flex; align-items:center; gap:6px; }
+    .topbar { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:16px; padding:14px 28px; border-bottom:1px solid var(--border); flex-shrink:0; background:var(--bg); transition:background .25s; }
+    .topbar-logo { display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:var(--accent); text-decoration:none; flex-shrink:0; }
+    .topbar-logo span { font-family:'Playfair Display',serif; font-size:11px; font-weight:700; color:#fff; letter-spacing:.5px; }
+    .topbar-meta { display:flex; flex-direction:column; align-items:center; gap:3px; min-width:0; justify-content:center; }
+    .topbar-week-label { font-size:.65rem; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); }
+    .topbar-meta-sep { display:none; }
+    .topbar-week-title { font-family:'Playfair Display',serif; font-size:clamp(1.1rem,2vw,1.5rem); font-style:italic; font-weight:700; color:var(--accent); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.2; }
+    .topbar-week-dates { font-size:.72rem; color:var(--muted); }
+    .topbar-right { display:flex; align-items:center; gap:6px; flex-shrink:0; justify-content:flex-end; }
     .tb-btn { background:transparent; border:1.5px solid var(--border); border-radius:7px; color:var(--muted); cursor:pointer; font-family:var(--reading-font); padding:5px 11px; line-height:1; transition:border-color .2s,color .2s,background .2s; font-size:.82rem; }
     .tb-btn:hover { border-color:var(--accent); color:var(--accent); }
     .tb-btn.icon-btn { font-size:1rem; padding:5px 9px; }
@@ -38,31 +43,44 @@
     .settings-row { display:flex; align-items:center; gap:7px; flex-shrink:0; padding-right:20px; border-right:1px solid var(--border); margin-right:20px; }
     .settings-row:last-child { border-right:none; margin-right:0; padding-right:0; }
     .settings-label { font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
-    .seg-group { display:flex; gap:5px; flex-wrap:wrap; }
-    .seg-btn { font-size:.78rem; padding:6px 14px; background:transparent; border:1.5px solid var(--border); border-radius:20px; color:var(--muted); cursor:pointer; font-family:var(--reading-font); transition:border-color .18s, color .18s, background .18s, transform .12s, box-shadow .18s; white-space:nowrap; }
-    .seg-btn:hover { border-color:var(--accent); color:var(--accent); }
-    .seg-btn:active { transform:scale(.94); }
-    .seg-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 2px 8px rgba(122,59,30,.28); }
+
+    /* ── Sliding pill seg-group ── */
+    .seg-group { position:relative; display:flex; gap:0; background:var(--bg); border:1.5px solid var(--border); border-radius:24px; padding:3px; }
+    .seg-pill { position:absolute; top:3px; left:3px; height:calc(100% - 6px); background:var(--accent); border-radius:20px; transition:left .22s cubic-bezier(.4,0,.2,1), width .22s cubic-bezier(.4,0,.2,1); pointer-events:none; box-shadow:0 2px 8px rgba(122,59,30,.28); }
+    .seg-btn { position:relative; z-index:1; font-size:.78rem; padding:5px 13px; background:transparent; border:none; border-radius:20px; color:var(--muted); cursor:pointer; font-family:var(--reading-font); transition:color .2s; white-space:nowrap; }
+    .seg-btn:active { transform:scale(.95); }
+    .seg-btn.active { color:#fff; }
     #settings-btn { transition:transform .3s ease, border-color .2s, color .2s; }
     #settings-btn.open { transform:rotate(45deg); color:var(--accent); border-color:var(--accent); }
 
-    /* ── Week header ── */
-    .week-header { padding:12px 28px 0; flex-shrink:0; }
-    .week-label { font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
-    .week-title-text { font-family:'Playfair Display',serif; font-size:clamp(.95rem,2vw,1.3rem); font-style:italic; color:var(--accent); margin:3px 0 2px; }
-    .week-dates-text { font-size:.78rem; color:var(--muted); }
+    /* ── Guest banner ── */
+    #guest-banner { display:none; align-items:center; justify-content:space-between; gap:12px; padding:8px 28px; background:var(--accent); color:#fff; font-size:.8rem; flex-shrink:0; }
+    #guest-banner.show { display:flex; }
+    .guest-save-btn { padding:4px 13px; background:#fff; color:var(--accent); border:none; border-radius:20px; font-size:.75rem; font-weight:600; cursor:pointer; font-family:var(--reading-font); white-space:nowrap; }
+
+    /* ── Week header (hidden — info moved to topbar) ── */
+    .week-header { display:none; }
 
     /* ── Day tabs ── */
-    .day-tabs { display:flex; padding:10px 28px 0; flex-shrink:0; border-bottom:1px solid var(--border); overflow-x:auto; }
+    .day-tabs { display:flex; padding:4px 28px 0; flex-shrink:0; border-bottom:1px solid var(--border); overflow-x:auto; }
     .day-tab { flex:1; min-width:52px; text-align:center; padding:9px 4px; font-size:.67rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; position:relative; user-select:none; white-space:nowrap; }
     .day-tab:hover { color:var(--accent); }
     .day-tab.active { color:var(--accent); border-bottom-color:var(--accent); font-weight:600; }
     .day-tab.done::after { content:'✓'; font-size:.55rem; position:absolute; top:3px; right:5px; color:#3a7d44; }
 
+    /* ── Highlight filter bar ── */
+    .hl-filter-bar { display:flex; align-items:center; gap:6px; padding:7px 20px; background:var(--bg); border-bottom:1px solid var(--border); overflow-x:auto; flex-shrink:0; scrollbar-width:none; }
+    .hl-filter-bar::-webkit-scrollbar { display:none; }
+    .hl-filter-label { font-size:.62rem; letter-spacing:.13em; text-transform:uppercase; color:var(--muted); white-space:nowrap; margin-right:4px; }
+    .hl-filter-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 11px; border-radius:20px; border:1px solid var(--border); background:transparent; font-size:.72rem; color:var(--muted); cursor:pointer; white-space:nowrap; transition:all .18s; }
+    .hl-filter-pill:hover { border-color:var(--accent); color:var(--accent); }
+    .hl-filter-pill.active { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+    .hl-filter-pill .pill-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
     /* ── Reading area ── */
     .reading-area { flex:1; overflow-y:auto; overflow-x:hidden; padding:32px 0 80px; position:relative; }
     .reading-area.page-mode { overflow:hidden; padding:0; }
-    .reading-inner { max-width:720px; margin:0 auto; padding:0 var(--reading-px); }
+    .reading-inner { max-width:980px; margin:0 auto; padding:0 var(--reading-px); }
     .reading-area.page-mode .reading-inner { overflow:hidden; height:100%; padding:24px var(--reading-px) 12px; box-sizing:border-box; }
 
     /* ── Chapter image ── */
@@ -70,7 +88,7 @@
     .day-image.visible { opacity:1; }
 
     /* ── Day title ── */
-    .day-heading { font-family:'Playfair Display',serif; font-size:1rem; color:var(--accent); font-style:italic; margin:0 0 18px; }
+    .day-heading { font-family:'Playfair Display',serif; font-size:1.55rem; font-weight:700; color:var(--accent); font-style:italic; margin:0 0 24px; padding-bottom:14px; border-bottom:1.5px solid var(--border); }
 
     /* ── Reading text ── */
     .reading-text p { font-family:var(--reading-font); font-size:var(--reading-font-size,1.05rem); line-height:var(--reading-lh); color:var(--text); text-indent:2em; text-align:justify; margin:0 0 .6em; transition:color .25s; }
@@ -119,7 +137,8 @@
     .page-shell.fullscreen .topbar,
     .page-shell.fullscreen .settings-panel,
     .page-shell.fullscreen .week-header,
-    .page-shell.fullscreen .day-tabs { display:none !important; }
+    .page-shell.fullscreen .day-tabs,
+    .page-shell.fullscreen .hl-filter-bar { display:none !important; }
     .page-shell.fullscreen .reading-area { padding-top:20px; }
     .page-shell.fullscreen .reading-area.page-mode { padding-top:0; }
     .fs-exit-hint { display:none; position:fixed; top:14px; right:14px; z-index:999; font-size:.72rem; color:var(--muted); background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; opacity:.7; }
@@ -131,28 +150,184 @@
       html[data-margins="wide"] { --reading-px: 20px; }
       .page-nav { padding:8px 16px 12px; }
     }
+
+    /* ── Highlights ── */
+    .hl-mark { border-radius:3px; cursor:pointer; transition:filter .15s; }
+    .hl-mark[data-color="yellow"] { background:rgba(255,220,60,.45); }
+    .hl-mark[data-color="green"]  { background:rgba(80,200,110,.38); }
+    .hl-mark[data-color="blue"]   { background:rgba(80,160,255,.38); }
+    .hl-mark[data-color="pink"]   { background:rgba(255,100,160,.35); }
+    .hl-mark:hover { filter:brightness(.88); }
+    html[data-theme="dark"] .hl-mark[data-color="yellow"] { background:rgba(255,210,40,.32); }
+    html[data-theme="dark"] .hl-mark[data-color="green"]  { background:rgba(60,180,90,.3); }
+    html[data-theme="dark"] .hl-mark[data-color="blue"]   { background:rgba(60,140,255,.3); }
+    html[data-theme="dark"] .hl-mark[data-color="pink"]   { background:rgba(255,80,140,.28); }
+
+    /* ── Selection toolbar ── */
+    .sel-toolbar { position:fixed; z-index:500; display:flex; align-items:center; gap:2px; background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:5px 7px; box-shadow:0 4px 18px rgba(0,0,0,.18); opacity:0; pointer-events:none; transform:translateY(6px); transition:opacity .16s,transform .16s; white-space:nowrap; }
+    .sel-toolbar.visible { opacity:1; pointer-events:auto; transform:translateY(0); }
+    .hl-dot { width:20px; height:20px; border-radius:50%; border:2px solid transparent; cursor:pointer; transition:transform .12s,border-color .12s; flex-shrink:0; }
+    .hl-dot:hover { transform:scale(1.2); border-color:var(--text); }
+    .hl-dot[data-color="yellow"] { background:#ffd93d; }
+    .hl-dot[data-color="green"]  { background:#6bcb77; }
+    .hl-dot[data-color="blue"]   { background:#4d96ff; }
+    .hl-dot[data-color="pink"]   { background:#ff6b9d; }
+    .sel-sep { width:1px; height:20px; background:var(--border); margin:0 4px; }
+    .sel-action { background:transparent; border:none; cursor:pointer; font-size:.82rem; padding:4px 7px; border-radius:7px; color:var(--muted); transition:background .15s,color .15s; display:flex; align-items:center; gap:4px; font-family:var(--reading-font); white-space:nowrap; }
+    .sel-action:hover { background:var(--border); color:var(--text); }
+    .sel-action svg { width:13px; height:13px; flex-shrink:0; }
+
+    /* ── Definition tooltip ── */
+    .def-popup { position:fixed; z-index:501; max-width:300px; background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:14px 16px; box-shadow:0 6px 24px rgba(0,0,0,.18); opacity:0; pointer-events:none; transform:translateY(6px); transition:opacity .18s,transform .18s; }
+    .def-popup.visible { opacity:1; pointer-events:auto; transform:translateY(0); }
+    .def-word { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:700; color:var(--accent); margin-bottom:2px; }
+    .def-phonetic { font-size:.75rem; color:var(--muted); margin-bottom:8px; }
+    .def-text { font-size:.82rem; line-height:1.65; color:var(--text); }
+    .def-links { display:flex; gap:10px; margin-top:10px; padding-top:8px; border-top:1px solid var(--border); }
+    .def-link { font-size:.72rem; color:var(--accent); text-decoration:none; }
+    .def-link:hover { text-decoration:underline; }
+    .def-close { position:absolute; top:8px; right:10px; background:none; border:none; color:var(--muted); cursor:pointer; font-size:.9rem; }
+
+    /* ── Note modal ── */
+    .note-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:600; align-items:flex-end; justify-content:center; padding-bottom:0; }
+    .note-modal-bg.open { display:flex; }
+    .note-modal { background:var(--bg); border-radius:20px 20px 0 0; padding:0; width:100%; max-width:560px; box-shadow:0 -8px 40px rgba(0,0,0,.22); animation:slideUp .28s cubic-bezier(.4,0,.2,1); overflow:hidden; }
+    @keyframes slideUp { from { transform:translateY(100%); opacity:0; } to { transform:translateY(0); opacity:1; } }
+    .note-modal-handle { width:36px; height:4px; background:var(--border); border-radius:4px; margin:12px auto 0; }
+    .note-modal-head { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 10px; }
+    .note-modal-title { font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+    .note-modal-x { background:none; border:none; color:var(--muted); cursor:pointer; font-size:1.1rem; padding:0; line-height:1; transition:color .15s; }
+    .note-modal-x:hover { color:var(--text); }
+    .note-modal-quote { font-family:var(--reading-font); font-size:.83rem; color:var(--accent); font-style:italic; background:rgba(122,59,30,.07); border-radius:8px; padding:10px 14px; margin:0 20px 14px; line-height:1.65; max-height:72px; overflow:hidden; }
+    .note-modal textarea { width:100%; min-height:110px; font-family:var(--reading-font); font-size:.9rem; color:var(--text); background:transparent; border:none; border-top:1px solid var(--border); padding:16px 20px; resize:none; outline:none; box-sizing:border-box; }
+    .note-modal-actions { display:flex; gap:10px; padding:12px 20px 24px; border-top:1px solid var(--border); justify-content:flex-end; }
+    .note-save-btn { padding:9px 24px; background:var(--accent); color:#fff; border:none; border-radius:30px; font-family:var(--reading-font); font-size:.84rem; cursor:pointer; transition:opacity .2s; letter-spacing:.02em; }
+    .note-save-btn:hover { opacity:.85; }
+    .note-cancel-btn { padding:9px 18px; background:transparent; color:var(--muted); border:1.5px solid var(--border); border-radius:30px; font-family:var(--reading-font); font-size:.84rem; cursor:pointer; transition:border-color .2s,color .2s; }
+    .note-cancel-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+    /* ── Note indicator on highlight ── */
+    .hl-mark.has-note::after { content:'✎'; font-size:.6rem; vertical-align:super; margin-left:1px; opacity:.7; }
+
+    /* ── Share toggle in note modal ── */
+    .note-share-row { display:flex; align-items:center; gap:10px; padding:10px 20px; border-top:1px solid var(--border); }
+    .note-share-label { font-size:.78rem; color:var(--muted); flex:1; }
+    .toggle-switch { position:relative; width:34px; height:18px; flex-shrink:0; }
+    .toggle-switch input { opacity:0; width:0; height:0; position:absolute; }
+    .toggle-slider { position:absolute; inset:0; background:var(--border); border-radius:20px; cursor:pointer; transition:background .2s; }
+    .toggle-slider::before { content:''; position:absolute; width:12px; height:12px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform .2s; }
+    .toggle-switch input:checked + .toggle-slider { background:var(--accent); }
+    .toggle-switch input:checked + .toggle-slider::before { transform:translateX(16px); }
+
+    /* ── Shared highlights from reading group ── */
+    .shared-hl { border-bottom:2px solid; cursor:pointer; position:relative; transition:filter .15s; }
+    .shared-hl:hover { filter:brightness(.9); }
+    .shared-hl[data-color="yellow"] { border-bottom-color:rgba(255,200,0,.8); }
+    .shared-hl[data-color="green"]  { border-bottom-color:rgba(60,190,90,.8); }
+    .shared-hl[data-color="blue"]   { border-bottom-color:rgba(60,130,255,.8); }
+    .shared-hl[data-color="pink"]   { border-bottom-color:rgba(240,80,150,.8); }
+    .shared-hl-avatar { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border-radius:50%; background:var(--accent); font-size:.45rem; font-weight:700; color:#fff; margin-left:2px; vertical-align:middle; position:relative; top:-1px; cursor:pointer; }
+    .shared-hl-avatar.shared-hl-reply { background:#2a7a4f; font-size:.55rem; }
+
+    /* ── Margin panel ── */
+    .margin-panel { position:fixed; top:0; right:0; bottom:0; width:300px; max-width:90vw; background:var(--bg); border-left:1px solid var(--border); box-shadow:-8px 0 30px rgba(0,0,0,.12); z-index:700; display:flex; flex-direction:column; transform:translateX(100%); transition:transform .28s cubic-bezier(.4,0,.2,1); }
+    .margin-panel.open { transform:translateX(0); }
+    .margin-panel-head { display:flex; align-items:center; justify-content:space-between; padding:16px 16px 12px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .margin-panel-title { font-size:.67rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+    .margin-panel-close { background:none; border:none; color:var(--muted); cursor:pointer; font-size:1.1rem; line-height:1; transition:color .15s; }
+    .margin-panel-close:hover { color:var(--text); }
+    .margin-panel-body { flex:1; overflow-y:auto; padding:16px; }
+    .margin-hl-quote { font-family:var(--reading-font); font-size:.82rem; font-style:italic; color:var(--accent); background:rgba(122,59,30,.07); border-radius:8px; padding:10px 13px; line-height:1.65; margin-bottom:14px; }
+    .margin-author { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+    .margin-author-av { width:28px; height:28px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:.65rem; font-weight:700; color:#fff; flex-shrink:0; }
+    .margin-author-name { font-size:.82rem; font-weight:600; }
+    .margin-author-note { font-size:.82rem; color:var(--muted); line-height:1.6; margin-bottom:16px; font-family:var(--reading-font); }
+    .margin-thread { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+    .margin-reply { padding:10px 12px; border:1px solid var(--border); border-radius:10px; }
+    .margin-reply-author { font-size:.7rem; font-weight:600; color:var(--accent); margin-bottom:3px; }
+    .margin-reply-text { font-size:.8rem; color:var(--text); line-height:1.55; font-family:var(--reading-font); }
+    .margin-panel-footer { padding:12px 16px; border-top:1px solid var(--border); flex-shrink:0; }
+    .margin-reply-input { width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:var(--reading-font); font-size:.82rem; background:var(--bg); color:var(--text); outline:none; resize:none; min-height:60px; box-sizing:border-box; }
+    .margin-reply-input:focus { border-color:var(--accent); }
+    .margin-send-btn { width:100%; margin-top:8px; padding:8px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-size:.82rem; cursor:pointer; font-family:var(--reading-font); transition:opacity .2s; }
+    .margin-send-btn:hover { opacity:.85; }
+
+    /* ── Emoji reactions ── */
+    .para-react-btn { display:inline-block; margin-left:6px; background:none; border:none; cursor:pointer; font-size:.72rem; color:var(--border); opacity:0; transition:opacity .15s; line-height:1; padding:1px 3px; vertical-align:middle; }
+    .reading-text p:hover .para-react-btn { opacity:.7; color:var(--muted); }
+    .para-react-btn:hover { opacity:1 !important; color:var(--accent); }
+    .emoji-picker { position:fixed; z-index:550; background:var(--bg); border:1px solid var(--border); border-radius:30px; padding:5px 8px; display:flex; gap:3px; box-shadow:0 4px 18px rgba(0,0,0,.18); opacity:0; pointer-events:none; transform:translateY(4px); transition:opacity .15s,transform .15s; }
+    .emoji-picker.visible { opacity:1; pointer-events:auto; transform:translateY(0); }
+    .emoji-btn { background:none; border:none; font-size:1.1rem; cursor:pointer; padding:2px 4px; border-radius:6px; transition:background .1s; line-height:1; }
+    .emoji-btn:hover { background:var(--border); }
+    .emoji-btn.active { background:rgba(122,59,30,.15); }
+    .para-reactions { display:flex; flex-wrap:wrap; gap:4px; margin-top:2px; }
+    .reaction-chip { display:inline-flex; align-items:center; gap:3px; background:rgba(122,59,30,.08); border:1px solid var(--border); border-radius:12px; padding:1px 7px; font-size:.72rem; cursor:pointer; transition:background .15s; }
+    .reaction-chip.mine { background:rgba(122,59,30,.18); border-color:var(--accent); }
+    .reaction-chip:hover { background:rgba(122,59,30,.15); }
+    .reaction-chip-emoji { font-size:.85rem; }
+    .reaction-chip-count { color:var(--muted); }
+
+    /* ── Auth prompt sheet ── */
+    .auth-sheet-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:800; align-items:flex-end; justify-content:center; }
+    .auth-sheet-bg.open { display:flex; }
+    .auth-sheet { background:var(--bg); border-radius:20px 20px 0 0; width:100%; max-width:480px; padding:0 0 env(safe-area-inset-bottom,0); box-shadow:0 -8px 40px rgba(0,0,0,.22); animation:slideUp .26s cubic-bezier(.4,0,.2,1); }
+    .auth-sheet-handle { width:36px; height:4px; background:var(--border); border-radius:4px; margin:12px auto 0; }
+    .auth-sheet-body { padding:20px 28px 28px; text-align:center; }
+    .auth-sheet-icon { font-size:2rem; margin-bottom:10px; }
+    .auth-sheet-title { font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--text); margin:0 0 7px; }
+    .auth-sheet-sub { font-size:.83rem; color:var(--muted); line-height:1.65; margin:0 0 24px; }
+    .auth-sheet-btns { display:flex; flex-direction:column; gap:10px; }
+    .auth-btn-primary { padding:12px; background:var(--accent); color:#fff; border:none; border-radius:30px; font-family:var(--reading-font); font-size:.9rem; cursor:pointer; transition:opacity .2s; font-weight:600; }
+    .auth-btn-primary:hover { opacity:.87; }
+    .auth-btn-secondary { padding:11px; background:transparent; color:var(--accent); border:1.5px solid var(--accent); border-radius:30px; font-family:var(--reading-font); font-size:.9rem; cursor:pointer; transition:background .2s,color .2s; }
+    .auth-btn-secondary:hover { background:var(--accent); color:#fff; }
+    .auth-sheet-dismiss { margin-top:12px; font-size:.78rem; color:var(--muted); background:none; border:none; cursor:pointer; font-family:var(--reading-font); }
+    .auth-sheet-dismiss:hover { color:var(--text); }
+
+    /* ── Share toast ── */
+    .share-toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(12px); background:var(--text); color:var(--bg); padding:9px 20px; border-radius:30px; font-size:.8rem; z-index:700; opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; }
+    .share-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
   </style>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#7a3b1e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="apple-touch-icon" href="/assets/icons/icon.svg" />
 </head>
 <body>
 <div class="page-shell" id="page-shell">
 
   <nav class="topbar">
     <a class="topbar-logo" href="../index.html"><span>DA</span></a>
-    <div class="topbar-center">
+    <div class="topbar-meta">
+      <span class="topbar-week-label" id="week-label">Week —</span>
+      <span class="topbar-meta-sep">·</span>
+      <span class="topbar-week-title" id="week-title">Loading…</span>
+      <span class="topbar-meta-sep">·</span>
+      <span class="topbar-week-dates" id="week-dates"></span>
+    </div>
+    <div class="topbar-right">
       <button class="tb-btn" onclick="adjustFontSize(-1)" title="Smaller text">A−</button>
       <button class="tb-btn" onclick="adjustFontSize(1)" title="Larger text">A+</button>
       <button class="tb-btn icon-btn" id="settings-btn" onclick="toggleSettings()" title="Display settings">⚙</button>
       <button class="tb-btn icon-btn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
+      <a class="back-link" href="../index.html">Contents</a>
     </div>
-    <a class="back-link" href="../index.html">Contents</a>
   </nav>
+
+  <!-- Guest banner -->
+  <div id="guest-banner">
+    <span id="guest-banner-text">You are reading as a guest — create an account to save your progress.</span>
+    <button class="guest-save-btn" onclick="openGuestRegister()">Save Progress</button>
+  </div>
 
   <!-- Settings panel -->
   <div class="settings-panel" id="settings-panel">
     <div class="settings-grid">
       <div class="settings-row">
         <span class="settings-label">Theme</span>
-        <div class="seg-group">
+        <div class="seg-group" data-group="theme">
+          <div class="seg-pill"></div>
           <button class="seg-btn" data-setting="theme" data-val="light" onclick="setSetting('theme','light')">☀ Light</button>
           <button class="seg-btn" data-setting="theme" data-val="sepia" onclick="setSetting('theme','sepia')">☕ Sepia</button>
           <button class="seg-btn" data-setting="theme" data-val="dark"  onclick="setSetting('theme','dark')">🌙 Dark</button>
@@ -160,14 +335,16 @@
       </div>
       <div class="settings-row">
         <span class="settings-label">Font</span>
-        <div class="seg-group">
+        <div class="seg-group" data-group="font">
+          <div class="seg-pill"></div>
           <button class="seg-btn" data-setting="font" data-val="serif" onclick="setSetting('font','serif')" style="font-family:'Lora',Georgia,serif">Serif</button>
           <button class="seg-btn" data-setting="font" data-val="sans"  onclick="setSetting('font','sans')"  style="font-family:-apple-system,sans-serif">Sans</button>
         </div>
       </div>
       <div class="settings-row">
         <span class="settings-label">Line Spacing</span>
-        <div class="seg-group">
+        <div class="seg-group" data-group="spacing">
+          <div class="seg-pill"></div>
           <button class="seg-btn" data-setting="spacing" data-val="compact"  onclick="setSetting('spacing','compact')">Compact</button>
           <button class="seg-btn" data-setting="spacing" data-val="normal"   onclick="setSetting('spacing','normal')">Normal</button>
           <button class="seg-btn" data-setting="spacing" data-val="relaxed"  onclick="setSetting('spacing','relaxed')">Relaxed</button>
@@ -175,7 +352,8 @@
       </div>
       <div class="settings-row">
         <span class="settings-label">Margins</span>
-        <div class="seg-group">
+        <div class="seg-group" data-group="margins">
+          <div class="seg-pill"></div>
           <button class="seg-btn" data-setting="margins" data-val="narrow" onclick="setSetting('margins','narrow')">Narrow</button>
           <button class="seg-btn" data-setting="margins" data-val="normal" onclick="setSetting('margins','normal')">Normal</button>
           <button class="seg-btn" data-setting="margins" data-val="wide"   onclick="setSetting('margins','wide')">Wide</button>
@@ -183,7 +361,8 @@
       </div>
       <div class="settings-row">
         <span class="settings-label">View Mode</span>
-        <div class="seg-group">
+        <div class="seg-group" data-group="view">
+          <div class="seg-pill"></div>
           <button class="seg-btn" data-setting="view" data-val="scroll" onclick="setSetting('view','scroll')">↕ Scroll</button>
           <button class="seg-btn" data-setting="view" data-val="page"   onclick="setSetting('view','page')">↔ Pages</button>
         </div>
@@ -192,12 +371,16 @@
   </div>
 
   <div class="week-header" id="week-header">
-    <div class="week-label" id="week-label">Week —</div>
-    <div class="week-title-text" id="week-title">Loading…</div>
-    <div class="week-dates-text" id="week-dates"></div>
+    <span class="week-label" id="week-label">Week —</span>
+    <span class="week-header-sep">·</span>
+    <span class="week-title-text" id="week-title">Loading…</span>
+    <span class="week-header-sep">·</span>
+    <span class="week-dates-text" id="week-dates"></span>
   </div>
 
   <div class="day-tabs" id="day-tabs"></div>
+
+  <div class="hl-filter-bar" id="hl-filter-bar" style="display:none"></div>
 
   <div class="reading-area" id="reading-area">
     <div class="reading-inner"><div class="spinner">Loading content…</div></div>
@@ -222,6 +405,10 @@ firebase.initializeApp({
   projectId: 'desire-of-ages-treasury'
 });
 const db = firebase.firestore();
+db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+
+// ── Service Worker ──────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 
 // ── Week schedule ──────────────────────────────────────────────────────────
 const WEEKS = [
@@ -334,13 +521,22 @@ function syncSettingButtons() {
     const cur = document.documentElement.getAttribute('data-'+btn.dataset.setting);
     btn.classList.toggle('active', btn.dataset.val === cur);
   });
+  document.querySelectorAll('.seg-group').forEach(group => {
+    const active = group.querySelector('.seg-btn.active');
+    const pill   = group.querySelector('.seg-pill');
+    if (!active || !pill) return;
+    pill.style.left  = active.offsetLeft + 'px';
+    pill.style.width = active.offsetWidth + 'px';
+  });
 }
 
 function toggleSettings() {
   const panel = document.getElementById('settings-panel');
   const btn   = document.getElementById('settings-btn');
   panel.classList.toggle('open');
-  btn.classList.toggle('open', panel.classList.contains('open'));
+  const isOpen = panel.classList.contains('open');
+  btn.classList.toggle('open', isOpen);
+  if (isOpen) requestAnimationFrame(() => syncSettingButtons());
 }
 
 // ── Font size ──────────────────────────────────────────────────────────────
@@ -453,6 +649,10 @@ function renderPage(pageIdx) {
 
   html += '</div>';
   document.getElementById('reading-area').innerHTML = html;
+  if (typeof renderHighlights === 'function') renderHighlights();
+  setupParagraphReactions();
+  fetchAndRenderSharedNotes().catch(()=>{});
+  fetchReactions().catch(()=>{});
 
   // Update nav buttons
   const prevBtn = document.getElementById('prev-page-btn');
@@ -504,12 +704,25 @@ function headingTitle(dayIdx) {
 
 // ── State ──────────────────────────────────────────────────────────────────
 let weekN = 1, weekMeta = null, currentDay = 0;
+window._weekN = 1; window._dayIdx = 0;
 let dayParas = [], dayQuizzes = [], dayImages = [];
 let quizAnswered = false;
 
 // ── Init ───────────────────────────────────────────────────────────────────
 async function init() {
   loadSettings();
+
+  const uid0 = localStorage.getItem('doa_current_user_id');
+  if (uid0) db.collection('users').doc(uid0).update({ lastLoginAt: new Date().toISOString() }).catch(()=>{});
+
+  // Show guest banner if user arrived via magic link
+  const gs = JSON.parse(sessionStorage.getItem('doa_guest') || 'null');
+  if (gs && !uid0) {
+    const banner = document.getElementById('guest-banner');
+    const txt = document.getElementById('guest-banner-text');
+    if (gs.fromName) txt.textContent = 'You are reading as ' + gs.fromName + "'s guest — create an account to save your progress.";
+    banner.classList.add('show');
+  }
 
   const params = new URLSearchParams(location.search);
   weekN = parseInt(params.get('w')||'1', 10);
@@ -560,7 +773,7 @@ async function init() {
   if (imgByChIdx[1]) dayImages[3] = imgByChIdx[1];
 
   renderTabs();
-  renderDay(currentDay);
+  loadPeerIds().then(() => renderDay(currentDay));
 
   // Touch swipe for pagination
   let touchStartX = 0;
@@ -593,6 +806,7 @@ function switchDay(i) {
 
 // ── Render day ─────────────────────────────────────────────────────────────
 function renderDay(dayIdx) {
+  window._weekN = weekN; window._dayIdx = dayIdx;
   quizAnswered = isDayDone(weekN, DAYS[dayIdx]);
   _currentDayParas = dayParas[dayIdx] || [];
   _currentDayQuiz  = dayQuizzes[dayIdx];
@@ -639,6 +853,10 @@ function renderDayContent(dayIdx, fromSettingsChange) {
   }
   html += '</div>';
   document.getElementById('reading-area').innerHTML = html;
+  if (typeof renderHighlights === 'function') renderHighlights();
+  setupParagraphReactions();
+  fetchAndRenderSharedNotes().catch(()=>{});
+  fetchReactions().catch(()=>{});
 
   const img = document.getElementById('day-img');
   if (img) img.onload = function() { img.classList.add('visible'); };
@@ -678,9 +896,26 @@ function handleAnswer(btn, isCorrect, chosenIdx, correctIdx) {
   quizAnswered = true;
   const btn2 = document.getElementById('complete-btn');
   if (btn2) btn2.classList.add('show');
+  const uid = localStorage.getItem('doa_current_user_id');
+  if (uid) {
+    const qKey = 'progress.w'+weekN+'_'+DAYS[window._dayIdx]+'_quiz';
+    const upd = {}; upd[qKey] = { answeredIdx: chosenIdx, correct: isCorrect, answeredAt: new Date().toISOString() };
+    db.collection('users').doc(uid).update(upd).catch(()=>{});
+  } else {
+    // Let guest see feedback first, then prompt to save
+    setTimeout(function() {
+      showAuthSheet('📊', 'Save your quiz results', null);
+    }, 1500);
+  }
+}
+
+function openGuestRegister() {
+  sessionStorage.setItem('doa_open_register', '1');
+  window.location.href = '../index.html';
 }
 
 function completeDay(dayIdx) {
+  if (!requireLogin('✓', 'Track your reading', 'Create a free account to mark days as complete and track your progress through all 58 weeks.')) return;
   markDayDone(weekN, DAYS[dayIdx]);
   renderTabs();
   if (dayIdx === 6) {
@@ -697,6 +932,675 @@ function advanceDay(dayIdx) {
 }
 
 init();
+</script>
+
+<!-- Selection toolbar -->
+<div class="sel-toolbar" id="sel-toolbar">
+  <div class="hl-dot" data-color="yellow" title="Highlight yellow" onclick="applyHighlight('yellow')"></div>
+  <div class="hl-dot" data-color="green"  title="Highlight green"  onclick="applyHighlight('green')"></div>
+  <div class="hl-dot" data-color="blue"   title="Highlight blue"   onclick="applyHighlight('blue')"></div>
+  <div class="hl-dot" data-color="pink"   title="Highlight pink"   onclick="applyHighlight('pink')"></div>
+  <div class="sel-sep"></div>
+  <button class="sel-action" onclick="openNoteModal()" title="Add note">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h9l3 3v9H2z"/><path d="M11 2v3h3"/><path d="M5 7h6M5 10h4"/></svg> Note
+  </button>
+  <button class="sel-action" onclick="lookupDefinition()" title="Look up word">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4"/><path d="M10 10l4 4"/></svg> Define
+  </button>
+  <button class="sel-action" onclick="copyQuote()" title="Copy with citation">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="4" width="9" height="11" rx="1.5"/><path d="M3 2H2a1 1 0 00-1 1v10a1 1 0 001 1h8"/></svg> Copy
+  </button>
+  <button class="sel-action" onclick="shareQuote()" title="Share quote">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3l4 4-4 4"/><path d="M14 7H6a4 4 0 00-4 4v1"/></svg> Share
+  </button>
+</div>
+
+<!-- Definition popup -->
+<div class="def-popup" id="def-popup">
+  <button class="def-close" onclick="closeDefPopup()">✕</button>
+  <div class="def-word" id="def-word"></div>
+  <div class="def-phonetic" id="def-phonetic"></div>
+  <div class="def-text" id="def-text">Looking up…</div>
+  <div class="def-links" id="def-links"></div>
+</div>
+
+<!-- Note modal -->
+<div class="note-modal-bg" id="note-modal-bg" onclick="if(event.target===this)closeNoteModal()">
+  <div class="note-modal">
+    <div class="note-modal-handle"></div>
+    <div class="note-modal-head">
+      <span class="note-modal-title">Personal Note</span>
+      <button class="note-modal-x" onclick="closeNoteModal()">✕</button>
+    </div>
+    <div class="note-modal-quote" id="note-quote"></div>
+    <textarea id="note-textarea" placeholder="Write your thoughts here…"></textarea>
+    <div class="note-share-row">
+      <span class="note-share-label">Share with my reading group</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="note-share-toggle" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="note-modal-actions">
+      <button class="note-cancel-btn" onclick="closeNoteModal()">Cancel</button>
+      <button class="note-save-btn" onclick="saveNote()">Save Note</button>
+    </div>
+  </div>
+</div>
+
+<!-- Margin panel -->
+<div class="margin-panel" id="margin-panel">
+  <div class="margin-panel-head">
+    <span class="margin-panel-title">Reading Group Note</span>
+    <button class="margin-panel-close" onclick="closeMarginPanel()">✕</button>
+  </div>
+  <div class="margin-panel-body" id="margin-panel-body"></div>
+  <div class="margin-panel-footer">
+    <textarea class="margin-reply-input" id="margin-reply-input" placeholder="Add to the discussion…" rows="3"></textarea>
+    <button class="margin-send-btn" onclick="sendMarginReply()">Reply</button>
+  </div>
+</div>
+
+<!-- Emoji picker -->
+<div class="emoji-picker" id="emoji-picker">
+  <button class="emoji-btn" onclick="toggleReaction('🤯')">🤯</button>
+  <button class="emoji-btn" onclick="toggleReaction('😂')">😂</button>
+  <button class="emoji-btn" onclick="toggleReaction('🙏')">🙏</button>
+  <button class="emoji-btn" onclick="toggleReaction('❤️')">❤️</button>
+  <button class="emoji-btn" onclick="toggleReaction('✨')">✨</button>
+</div>
+
+<!-- Auth prompt sheet -->
+<div class="auth-sheet-bg" id="auth-sheet-bg" onclick="if(event.target===this)closeAuthSheet()">
+  <div class="auth-sheet">
+    <div class="auth-sheet-handle"></div>
+    <div class="auth-sheet-body">
+      <div class="auth-sheet-icon" id="auth-sheet-icon">✦</div>
+      <h3 class="auth-sheet-title" id="auth-sheet-title">Save your progress</h3>
+      <p class="auth-sheet-sub" id="auth-sheet-sub">Create a free account to highlight, take notes, and track your reading across all your devices.</p>
+      <div class="auth-sheet-btns">
+        <button class="auth-btn-primary" onclick="goSignUp()">Create a free account</button>
+        <button class="auth-btn-secondary" onclick="goLogIn()">I already have an account</button>
+      </div>
+      <button class="auth-sheet-dismiss" onclick="closeAuthSheet()">Maybe later</button>
+    </div>
+  </div>
+</div>
+
+<!-- Share toast -->
+<div class="share-toast" id="share-toast"></div>
+
+<script>
+// ── Highlighting, Annotations, Dictionary & Sharing ───────────────────
+// ── Auth guard ────────────────────────────────────────────────────────────
+function isLoggedIn() { return !!localStorage.getItem('doa_current_user_id'); }
+function isGuest()    { return !!sessionStorage.getItem('doa_guest'); }
+
+function _guestInviterName() {
+  try { return JSON.parse(sessionStorage.getItem('doa_guest') || 'null')?.fromName || null; } catch(e) { return null; }
+}
+
+function showAuthSheet(icon, title, sub) {
+  const guestName = _guestInviterName();
+  if (guestName && !sub) {
+    sub = 'You\'re reading as ' + guestName + '\'s guest. Create an account so your progress, highlights, and notes are saved permanently.';
+  }
+  document.getElementById('auth-sheet-icon').textContent  = icon  || '✦';
+  document.getElementById('auth-sheet-title').textContent = title || 'Save your progress';
+  document.getElementById('auth-sheet-sub').textContent   = sub   || 'Create a free account to save your reading progress across all devices.';
+  document.getElementById('auth-sheet-bg').classList.add('open');
+}
+
+function requireLogin(icon, title, sub) {
+  if (isLoggedIn()) return true;
+  hideSelToolbar();
+  showAuthSheet(icon, title, sub);
+  return false;
+}
+
+function closeAuthSheet() { document.getElementById('auth-sheet-bg').classList.remove('open'); }
+
+function goSignUp() {
+  closeAuthSheet();
+  sessionStorage.setItem('doa_open_register', '1');
+  window.location.href = '../index.html';
+}
+
+function goLogIn() {
+  closeAuthSheet();
+  sessionStorage.setItem('doa_open_login', '1');
+  window.location.href = '../index.html';
+}
+
+const HL_KEY = 'doa_highlights';
+const HL_COLORS = { yellow:'rgba(255,220,60,.45)', green:'rgba(80,200,110,.38)', blue:'rgba(80,160,255,.38)', pink:'rgba(255,100,160,.35)' };
+
+let _selText = '', _selRange = null, _pendingHlText = '';
+
+function getHL() { try { return JSON.parse(localStorage.getItem(HL_KEY)||'{}'); } catch(e) { return {}; } }
+function saveHL(h) { localStorage.setItem(HL_KEY, JSON.stringify(h)); }
+function hlDayKey() { return 'w'+(window._weekN||1)+'_'+(window._dayIdx||0); }
+
+// Show toolbar on mouseup / touchend
+document.addEventListener('mouseup', onSelectionChange);
+document.addEventListener('touchend', onSelectionChange);
+
+function onSelectionChange(e) {
+  if (e.target.closest('#sel-toolbar,#note-modal-bg,#def-popup')) return;
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed || !sel.toString().trim()) { hideSelToolbar(); return; }
+  const text = sel.toString().trim();
+  if (!document.querySelector('.reading-text')?.contains(sel.anchorNode)) { hideSelToolbar(); return; }
+  _selText = text;
+  try { _selRange = sel.getRangeAt(0).cloneRange(); } catch(e) { _selRange = null; }
+  const rect = sel.getRangeAt(0).getBoundingClientRect();
+  positionToolbar(rect.left + rect.width / 2, rect.top - 10);
+}
+
+function positionToolbar(cx, ty) {
+  const tb = document.getElementById('sel-toolbar');
+  tb.classList.add('visible');
+  requestAnimationFrame(() => {
+    const tw = tb.offsetWidth, ww = window.innerWidth;
+    let left = cx - tw / 2;
+    left = Math.max(8, Math.min(left, ww - tw - 8));
+    tb.style.left = left + 'px';
+    tb.style.top  = Math.max(8, ty - tb.offsetHeight - 8) + 'px';
+  });
+}
+
+function hideSelToolbar() {
+  document.getElementById('sel-toolbar').classList.remove('visible');
+}
+
+// Apply highlight color
+function applyHighlight(color) {
+  const text = _selText;
+  if (!text) return;
+  if (!requireLogin('🖊', 'Highlight to remember', 'Create a free account to highlight verses and attach personal notes.')) return;
+  hideSelToolbar();
+  window.getSelection()?.removeAllRanges();
+  const h = getHL();
+  const k = hlDayKey();
+  if (!h[k]) h[k] = [];
+  if (!h[k].find(x => x.text === text)) {
+    h[k].push({ id: Date.now(), text, color, note: '' });
+    saveHL(h);
+  }
+  renderHighlights();
+}
+
+// Render (or re-render) all highlights for current day
+function renderHighlights() {
+  document.querySelectorAll('.hl-mark').forEach(el => {
+    const parent = el.parentNode;
+    parent.replaceChild(document.createTextNode(el.textContent), el);
+    parent.normalize();
+  });
+  // Hide own highlights when filter is set to a specific peer
+  if (_hlFilter !== 'all' && _hlFilter !== 'mine') return;
+  const h = getHL();
+  const items = (h[hlDayKey()] || []);
+  const readingEl = document.querySelector('.reading-text');
+  if (!readingEl) return;
+  items.forEach(item => wrapTextInEl(readingEl, item));
+}
+
+function wrapTextInEl(root, item) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+  let node;
+  while ((node = walker.nextNode())) {
+    const idx = node.textContent.indexOf(item.text);
+    if (idx === -1) continue;
+    try {
+      const range = document.createRange();
+      range.setStart(node, idx);
+      range.setEnd(node, idx + item.text.length);
+      const mark = document.createElement('mark');
+      mark.className = 'hl-mark' + (item.note ? ' has-note' : '');
+      mark.dataset.color = item.color;
+      mark.dataset.id = item.id;
+      mark.title = item.note || '';
+      range.surroundContents(mark);
+      mark.addEventListener('click', e => { e.stopPropagation(); openNoteOnMark(item.id); });
+    } catch(e) {}
+    break;
+  }
+}
+
+// Note modal
+
+
+function openNoteOnMark(id) {
+  const h = getHL(); const k = hlDayKey();
+  const item = (h[k]||[]).find(x => x.id === id);
+  if (!item) return;
+  _pendingHlText = item.text;
+  document.getElementById('note-quote').textContent = '"' + item.text.slice(0, 120) + '"';
+  document.getElementById('note-textarea').value = item.note || '';
+  document.getElementById('note-modal-bg').classList.add('open');
+  setTimeout(() => document.getElementById('note-textarea').focus(), 100);
+}
+
+function openNoteModal() {
+  if (!requireLogin('📝', 'Save a personal note', 'Create a free account to attach notes to your highlights and build your study journal.')) return;
+  _pendingHlText = _selText;
+  hideSelToolbar();
+  document.getElementById('note-quote').textContent = '"' + _pendingHlText.slice(0, 120) + ((_pendingHlText.length > 120) ? '…' : '') + '"';
+  const h = getHL(); const k = hlDayKey();
+  const existing = (h[k]||[]).find(x => x.text === _pendingHlText);
+  document.getElementById('note-textarea').value = existing?.note || '';
+  document.getElementById('note-share-toggle').checked = !!(existing?.shared);
+  document.getElementById('note-modal-bg').classList.add('open');
+  setTimeout(() => document.getElementById('note-textarea').focus(), 100);
+}
+
+function saveNote() {
+  const note = document.getElementById('note-textarea').value.trim();
+  const shared = document.getElementById('note-share-toggle').checked;
+  const h = getHL(); const k = hlDayKey();
+  if (!h[k]) h[k] = [];
+  let item = h[k].find(x => x.text === _pendingHlText);
+  if (!item) {
+    item = { id: Date.now(), text: _pendingHlText, color: 'yellow', note, shared };
+    h[k].push(item);
+  } else {
+    item.note = note;
+    item.shared = shared;
+  }
+  saveHL(h);
+  // Write to Firestore if sharing
+  const uid = localStorage.getItem('doa_current_user_id');
+  const uname = JSON.parse(localStorage.getItem('doa_user_cache') || '{}').name || 'Anonymous';
+  if (shared && uid) {
+    const color = item.color || 'yellow';
+    db.collection('marginNotes').doc(String(item.id)).set({
+      authorId: uid, authorName: uname,
+      weekN: window._weekN || 1, dayIdx: window._dayIdx || 0,
+      highlightText: item.text, color: color, note: note,
+      shared: true, thread: [], createdAt: new Date().toISOString()
+    }).catch(()=>{});
+  } else if (!shared && uid) {
+    db.collection('marginNotes').doc(String(item.id)).delete().catch(()=>{});
+  }
+  closeNoteModal();
+  renderHighlights();
+}
+
+function closeNoteModal() { document.getElementById('note-modal-bg').classList.remove('open'); }
+
+// ── Shared margin notes ────────────────────────────────────────────────────
+let _peerIds = [];
+let _peers = []; // [{id, name}]
+let _hlFilter = 'all'; // 'all' | 'mine' | <peerId>
+let _currentMarginNote = null;
+
+const HL_COLORS_MAP = { yellow:'#f5c800', green:'#50c86e', blue:'#4d96ff', pink:'#ff6b9d' };
+
+function _initials(name) {
+  return (name||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+}
+
+async function loadPeerIds() {
+  const uid = localStorage.getItem('doa_current_user_id');
+  if (!uid) return;
+  try {
+    const [s1, s2] = await Promise.all([
+      db.collection('connections').where('fromId', '==', uid).get(),
+      db.collection('connections').where('toId', '==', uid).get()
+    ]);
+    const ids = new Set();
+    s1.docs.forEach(d => ids.add(d.data().toId));
+    s2.docs.forEach(d => ids.add(d.data().fromId));
+    ids.delete(uid);
+    _peerIds = Array.from(ids);
+
+    // Fetch peer names
+    const peerDocs = await Promise.all(_peerIds.map(pid => db.collection('users').doc(pid).get().catch(()=>null)));
+    _peers = peerDocs
+      .filter(d => d && d.exists)
+      .map(d => ({ id: d.id, name: d.data().name || 'Member' }));
+
+    if (_peers.length) renderHlFilterBar();
+  } catch(e) {}
+}
+
+function renderHlFilterBar() {
+  const bar = document.getElementById('hl-filter-bar');
+  if (!bar) return;
+  const myName = JSON.parse(localStorage.getItem('doa_user_cache') || '{}').name || 'Me';
+  let html = '<span class="hl-filter-label">Show:</span>';
+  const pills = [
+    { value: 'all',  label: 'Everyone' },
+    { value: 'mine', label: myName.split(' ')[0] + ' (me)' },
+    ..._peers.map(p => ({ value: p.id, label: p.name.split(' ')[0] }))
+  ];
+  pills.forEach(p => {
+    const active = _hlFilter === p.value ? ' active' : '';
+    let dot = '';
+    if (p.value !== 'all' && p.value !== 'mine') {
+      dot = '<span class="pill-dot" style="background:var(--accent);opacity:.7"></span>';
+    }
+    html += `<button class="hl-filter-pill${active}" onclick="setHlFilter('${p.value}')">${dot}${p.label}</button>`;
+  });
+  bar.innerHTML = html;
+  bar.style.display = 'flex';
+}
+
+function setHlFilter(value) {
+  _hlFilter = value;
+  renderHlFilterBar();
+  renderHighlights();
+  fetchAndRenderSharedNotes().catch(()=>{});
+}
+window.setHlFilter = setHlFilter;
+
+async function fetchAndRenderSharedNotes() {
+  const uid = localStorage.getItem('doa_current_user_id');
+  if (_hlFilter === 'mine') {
+    renderSharedHighlights([]);
+    return;
+  }
+  if (!_peerIds.length && !uid) return;
+  try {
+    const snap = await db.collection('marginNotes')
+      .where('weekN', '==', window._weekN || 1)
+      .where('dayIdx', '==', window._dayIdx || 0)
+      .where('shared', '==', true)
+      .get();
+
+    // Visible set: peers (for filter) + own notes that have replies (so you can see thread)
+    const peerSet = new Set(_hlFilter === 'all' ? _peerIds : [_hlFilter]);
+    const notes = snap.docs
+      .map(d => Object.assign({ _id: d.id }, d.data()))
+      .filter(n => {
+        if (peerSet.has(n.authorId)) return true;
+        // Always include own shared notes that have at least one reply from someone else
+        if (uid && n.authorId === uid && n.thread && n.thread.some(r => r.userId !== uid)) return true;
+        return false;
+      });
+    renderSharedHighlights(notes);
+  } catch(e) {}
+}
+
+function renderSharedHighlights(notes) {
+  document.querySelectorAll('.shared-hl').forEach(el => {
+    const p = el.parentNode; p.replaceChild(document.createTextNode(el.textContent), el); p.normalize();
+  });
+  const readingEl = document.querySelector('.reading-text');
+  if (!readingEl) return;
+  notes.forEach(note => {
+    const walker = document.createTreeWalker(readingEl, NodeFilter.SHOW_TEXT, null, false);
+    let node;
+    while ((node = walker.nextNode())) {
+      const idx = node.textContent.indexOf(note.highlightText);
+      if (idx === -1) continue;
+      try {
+        const range = document.createRange();
+        range.setStart(node, idx);
+        range.setEnd(node, idx + note.highlightText.length);
+        const span = document.createElement('span');
+        span.className = 'shared-hl';
+        span.dataset.color = note.color || 'yellow';
+        span.dataset.noteId = note._id;
+        const myUid = localStorage.getItem('doa_current_user_id');
+        const isOwn = note.authorId === myUid;
+        const replyCount = (note.thread||[]).filter(r => r.userId !== myUid).length;
+        const av = document.createElement('span');
+        av.className = 'shared-hl-avatar' + (isOwn ? ' shared-hl-reply' : '');
+        av.title = isOwn
+          ? (replyCount ? replyCount + ' repl' + (replyCount===1?'y':'ies') + ' on your note' : 'Your shared note')
+          : (note.authorName||'?') + "'s highlight";
+        av.textContent = isOwn ? (replyCount ? replyCount : '💬') : (note.authorName||'?').trim()[0].toUpperCase();
+        range.surroundContents(span);
+        span.appendChild(av);
+        span.addEventListener('click', e => { e.stopPropagation(); openMarginPanel(note); });
+      } catch(e) {}
+      break;
+    }
+  });
+}
+
+function openMarginPanel(note) {
+  _currentMarginNote = note;
+  const body = document.getElementById('margin-panel-body');
+  const avText = (note.authorName||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  let threadHtml = '';
+  (note.thread || []).forEach(msg => {
+    const mAv = (msg.name||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    threadHtml += `<div class="margin-reply"><div class="margin-reply-author">${escHtml(msg.name||'?')}</div><div class="margin-reply-text">${escHtml(msg.text)}</div></div>`;
+  });
+  body.innerHTML =
+    `<div class="margin-hl-quote">"${escHtml(note.highlightText.slice(0,180))}"</div>` +
+    `<div class="margin-author"><div class="margin-author-av">${avText}</div><span class="margin-author-name">${escHtml(note.authorName||'')}</span></div>` +
+    (note.note ? `<div class="margin-author-note">${escHtml(note.note)}</div>` : '') +
+    (threadHtml ? `<div class="margin-thread">${threadHtml}</div>` : '<div style="font-size:.78rem;color:var(--muted);margin-bottom:12px;">No replies yet — start the conversation!</div>');
+  document.getElementById('margin-reply-input').value = '';
+  document.getElementById('margin-panel').classList.add('open');
+}
+
+function closeMarginPanel() {
+  document.getElementById('margin-panel').classList.remove('open');
+  _currentMarginNote = null;
+}
+
+async function sendMarginReply() {
+  if (!_currentMarginNote) return;
+  const text = document.getElementById('margin-reply-input').value.trim();
+  if (!text) return;
+  const uid = localStorage.getItem('doa_current_user_id');
+  const name = JSON.parse(localStorage.getItem('doa_user_cache') || '{}').name || 'Anonymous';
+  const reply = { userId: uid || 'guest', name, text, createdAt: new Date().toISOString() };
+  try {
+    await db.collection('marginNotes').doc(_currentMarginNote._id).update({
+      thread: firebase.firestore.FieldValue.arrayUnion(reply)
+    });
+    if (!_currentMarginNote.thread) _currentMarginNote.thread = [];
+    _currentMarginNote.thread.push(reply);
+    openMarginPanel(_currentMarginNote);
+  } catch(e) {}
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Emoji reactions ────────────────────────────────────────────────────────
+const EMOJIS = ['🤯','😂','🙏','❤️','✨'];
+let _activeParaIdx = -1;
+let _dayReactions = {}; // { paraIdx: [{ userId, emoji }] }
+
+function setupParagraphReactions() {
+  const uid = localStorage.getItem('doa_current_user_id');
+  document.querySelectorAll('.reading-text p').forEach((p, i) => {
+    p.dataset.paraIdx = i;
+    const btn = document.createElement('button');
+    btn.className = 'para-react-btn';
+    btn.title = 'React';
+    btn.textContent = '✦';
+    btn.addEventListener('click', e => { e.stopPropagation(); showEmojiPicker(i, btn, uid); });
+    p.appendChild(btn);
+  });
+  renderReactionChips();
+}
+
+function showEmojiPicker(paraIdx, anchorEl, uid) {
+  _activeParaIdx = paraIdx;
+  const picker = document.getElementById('emoji-picker');
+  // Mark active emoji
+  const myReactions = (_dayReactions[paraIdx] || []).filter(r => r.userId === uid).map(r => r.emoji);
+  picker.querySelectorAll('.emoji-btn').forEach(btn => {
+    btn.classList.toggle('active', myReactions.includes(btn.textContent.trim()));
+  });
+  picker.classList.add('visible');
+  const rect = anchorEl.getBoundingClientRect();
+  const pw = picker.offsetWidth || 180;
+  picker.style.left = Math.min(rect.left, window.innerWidth - pw - 8) + 'px';
+  picker.style.top = (rect.top - 44) + 'px';
+}
+
+function hideEmojiPicker() {
+  document.getElementById('emoji-picker').classList.remove('visible');
+  _activeParaIdx = -1;
+}
+
+async function toggleReaction(emoji) {
+  const uid = localStorage.getItem('doa_current_user_id');
+  const paraIdx = _activeParaIdx;
+  hideEmojiPicker();
+  if (paraIdx < 0) return;
+
+  const wn = window._weekN || 1, di = window._dayIdx || 0;
+  const docId = (uid || 'guest') + '_w' + wn + '_d' + di + '_p' + paraIdx + '_' + emoji.codePointAt(0).toString(16);
+
+  if (!_dayReactions[paraIdx]) _dayReactions[paraIdx] = [];
+  const existing = _dayReactions[paraIdx].find(r => r.userId === uid && r.emoji === emoji);
+
+  if (existing) {
+    // Remove
+    _dayReactions[paraIdx] = _dayReactions[paraIdx].filter(r => !(r.userId === uid && r.emoji === emoji));
+    if (uid) db.collection('reactions').doc(docId).delete().catch(()=>{});
+  } else {
+    // Add
+    _dayReactions[paraIdx].push({ userId: uid || 'guest', emoji });
+    if (uid) {
+      db.collection('reactions').doc(docId).set({ userId: uid, weekN: wn, dayIdx: di, paraIdx, emoji, createdAt: new Date().toISOString() }).catch(()=>{});
+    }
+  }
+  renderReactionChips();
+}
+
+async function fetchReactions() {
+  const uid = localStorage.getItem('doa_current_user_id');
+  const wn = window._weekN || 1, di = window._dayIdx || 0;
+  _dayReactions = {};
+  const allIds = uid ? [uid, ..._peerIds] : [];
+  if (!allIds.length) return;
+  try {
+    const snap = await db.collection('reactions')
+      .where('weekN', '==', wn)
+      .where('dayIdx', '==', di)
+      .get();
+    const mySet = new Set(allIds);
+    snap.docs.forEach(d => {
+      const data = d.data();
+      if (!mySet.has(data.userId)) return;
+      if (!_dayReactions[data.paraIdx]) _dayReactions[data.paraIdx] = [];
+      _dayReactions[data.paraIdx].push({ userId: data.userId, emoji: data.emoji });
+    });
+    renderReactionChips();
+  } catch(e) {}
+}
+
+function renderReactionChips() {
+  const uid = localStorage.getItem('doa_current_user_id');
+  document.querySelectorAll('.reading-text p').forEach(p => {
+    const paraIdx = parseInt(p.dataset.paraIdx ?? -1, 10);
+    if (paraIdx < 0) return;
+    let chips = p.querySelector('.para-reactions');
+    const reactions = _dayReactions[paraIdx] || [];
+    if (!reactions.length) { if (chips) chips.remove(); return; }
+    // Group by emoji
+    const counts = {};
+    const mineSet = new Set();
+    reactions.forEach(r => {
+      counts[r.emoji] = (counts[r.emoji] || 0) + 1;
+      if (r.userId === uid) mineSet.add(r.emoji);
+    });
+    if (!chips) { chips = document.createElement('div'); chips.className = 'para-reactions'; p.insertBefore(chips, p.querySelector('.para-react-btn')); }
+    chips.innerHTML = '';
+    Object.entries(counts).forEach(([emoji, count]) => {
+      const chip = document.createElement('span');
+      chip.className = 'reaction-chip' + (mineSet.has(emoji) ? ' mine' : '');
+      chip.innerHTML = '<span class="reaction-chip-emoji">'+emoji+'</span><span class="reaction-chip-count">'+count+'</span>';
+      chip.addEventListener('click', e => { e.stopPropagation(); _activeParaIdx = paraIdx; toggleReaction(emoji); });
+      chips.appendChild(chip);
+    });
+  });
+}
+
+
+// Dictionary lookup
+async function lookupDefinition() {
+  const word = _selText.trim().split(/\s+/)[0].replace(/[^a-zA-Z'-]/g,'');
+  if (!word) return;
+  hideSelToolbar();
+  const popup = document.getElementById('def-popup');
+  document.getElementById('def-word').textContent = word;
+  document.getElementById('def-phonetic').textContent = '';
+  document.getElementById('def-text').textContent = 'Looking up…';
+  document.getElementById('def-links').innerHTML = '';
+  // Position popup near selection
+  const sel = window.getSelection();
+  let cx = window.innerWidth/2, ty = window.innerHeight/2;
+  if (sel && !sel.isCollapsed) {
+    const rect = sel.getRangeAt(0).getBoundingClientRect();
+    cx = rect.left + rect.width/2; ty = rect.bottom + 8;
+  }
+  popup.style.left = Math.max(8, Math.min(cx - 150, window.innerWidth - 318)) + 'px';
+  popup.style.top  = Math.min(ty, window.innerHeight - 200) + 'px';
+  popup.classList.add('visible');
+  try {
+    const res = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + encodeURIComponent(word));
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    const entry = data[0];
+    document.getElementById('def-phonetic').textContent = entry.phonetic || '';
+    const meaning = entry.meanings?.[0];
+    const def = meaning?.definitions?.[0]?.definition || 'No definition found.';
+    document.getElementById('def-text').textContent = (meaning?.partOfSpeech ? '[' + meaning.partOfSpeech + '] ' : '') + def;
+    document.getElementById('def-links').innerHTML =
+      '<a class="def-link" href="https://en.wikipedia.org/wiki/' + encodeURIComponent(word) + '" target="_blank" rel="noopener">Wikipedia →</a>' +
+      '<a class="def-link" href="https://www.merriam-webster.com/dictionary/' + encodeURIComponent(word) + '" target="_blank" rel="noopener">Merriam-Webster →</a>';
+  } catch(e) {
+    document.getElementById('def-text').textContent = 'No definition found.';
+    document.getElementById('def-links').innerHTML =
+      '<a class="def-link" href="https://en.wikipedia.org/wiki/' + encodeURIComponent(word) + '" target="_blank" rel="noopener">Search Wikipedia →</a>';
+  }
+}
+
+function closeDefPopup() { document.getElementById('def-popup').classList.remove('visible'); }
+document.addEventListener('mousedown', e => {
+  if (!e.target.closest('#def-popup')) closeDefPopup();
+  if (!e.target.closest('#margin-panel') && !e.target.closest('.shared-hl')) closeMarginPanel();
+  if (!e.target.closest('#emoji-picker') && !e.target.closest('.para-react-btn')) hideEmojiPicker();
+});
+
+// Copy quote
+function copyQuote() {
+  const weekData = (typeof WEEKS !== 'undefined') ? WEEKS.find(w => w.n === (window._weekN||1)) : null;
+  const citation = weekData ? ' — The Desire of Ages, Ellen G. White (Week ' + weekData.n + ')' : ' — The Desire of Ages, Ellen G. White';
+  navigator.clipboard.writeText('"' + _selText + '"' + citation)
+    .then(() => showToast('Quote copied to clipboard'))
+    .catch(() => showToast('Copy failed'));
+  hideSelToolbar();
+  window.getSelection()?.removeAllRanges();
+}
+
+// Share quote
+function shareQuote() {
+  hideSelToolbar();
+  const weekData = (typeof WEEKS !== 'undefined') ? WEEKS.find(w => w.n === (window._weekN||1)) : null;
+  const citation = weekData ? ' — The Desire of Ages, Ellen G. White (Week ' + weekData.n + ')' : ' — The Desire of Ages, Ellen G. White';
+  const fullText = '"' + _selText + '"' + citation;
+  if (navigator.share) {
+    navigator.share({ text: fullText, title: 'The Desire of Ages' }).catch(() => {});
+  } else {
+    // Fallback: copy + show share links
+    navigator.clipboard.writeText(fullText).catch(() => {});
+    const tweetUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(fullText.slice(0, 280));
+    window.open(tweetUrl, '_blank', 'noopener,width=560,height=400');
+  }
+  window.getSelection()?.removeAllRanges();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('share-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
 </script>
 </body>
 </html>
