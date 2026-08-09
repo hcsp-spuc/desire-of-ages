@@ -1105,8 +1105,11 @@ db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
     return W_DAYS.every(function(d) { return isDayDone(n, d); });
   }
   function isWeekUnlocked(n) {
-    if (n === 1) return true;
-    return isWeekDone(n - 1);
+    var week = WEEKS.find(function(w){ return w.n === n; });
+    if (!week) return false;
+    var today = new Date();
+    var start = new Date(week.start + 'T00:00:00');
+    return today >= start;
   }
 
   function buildTOC() {
@@ -1300,7 +1303,9 @@ db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
 
       item.onclick = function() {
         if (!isWeekUnlocked(n)) {
-          showToast('Complete Week ' + (n - 1) + ' first.');
+          var week = WEEKS.find(function(w){ return w.n === n; });
+          var ds = week ? new Date(week.start+'T00:00:00').toLocaleString('en-US',{month:'short',day:'numeric'}) : '';
+          showToast('This week opens ' + ds + '.');
           return;
         }
         window.location.href = 'pages/week.html?w=' + n;
